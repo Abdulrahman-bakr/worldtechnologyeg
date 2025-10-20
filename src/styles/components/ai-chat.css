@@ -1,0 +1,100 @@
+/* AI Chat FAB & Modal Styles */
+.ai-chat-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 999;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10B981, #3B82F6);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fabPulse 2.5s infinite ease-in-out;
+}
+.ai-chat-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  animation-play-state: paused;
+}
+.ai-chat-modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 85vh;
+  max-height: 700px;
+}
+.chat-messages-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.chat-message {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  max-width: 85%;
+}
+.chat-message-bubble {
+  padding: 0.75rem 1.25rem;
+  border-radius: 1.5rem;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+  line-height: 1.6;
+}
+.chat-message.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+.chat-message.user .chat-message-bubble {
+  background-image: linear-gradient(135deg, #3B82F6, #10B981);
+  color: white;
+  border-bottom-right-radius: 0.5rem;
+}
+.chat-message.model {
+  align-self: flex-start;
+}
+.chat-message.model .chat-message-bubble {
+  background-image: linear-gradient(135deg, #F9FAFB, #E5E7EB);
+  color: #1F2937;
+  border-bottom-left-radius: 0.5rem;
+}
+.chat-message-avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.chat-message.user .chat-message-avatar {
+    background-color: #2563EB;
+}
+.chat-message.model .chat-message-avatar {
+    background-color: #D1D5DB;
+}
+.chat-input-area {
+  border-top: 1px solid #E5E7EB;
+  padding: 1rem;
+}
+.ai-loading-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.ai-loading-indicator span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #6B7280;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+.ai-loading-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.ai-loading-indicator span:nth-child(2) { animation-delay: -0.16s; }

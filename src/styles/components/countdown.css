@@ -1,0 +1,52 @@
+/* Countdown Timer Styles */
+.countdown-container {
+  display: flex;
+  gap: 0.5rem; /* 8px */
+  direction: ltr; /* Ensure timer reads left-to-right */
+  align-items: center;
+  justify-content: center;
+}
+.countdown-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 0.5rem; /* 8px */
+    padding: 0.5rem; /* 8px */
+    min-width: 45px; /* Minimum width for alignment */
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.countdown-value {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 700;
+    line-height: 1;
+    color: #ffffff;
+    font-family: monospace, sans-serif; /* Monospaced for consistent width */
+}
+.countdown-label {
+    font-size: 0.65rem; /* 10.4px */
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+}
+.countdown-separator {
+    display: flex;
+    align-items: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0 2px;
+}
+@media (min-width: 640px) { /* sm */
+    .countdown-unit {
+        padding: 0.5rem 0.75rem; /* 8px 12px */
+        min-width: 55px;
+    }
+    .countdown-value {
+        font-size: 1.5rem; /* 24px */
+    }
+    .countdown-label {
+        font-size: 0.75rem; /* 12px */
+    }
+}

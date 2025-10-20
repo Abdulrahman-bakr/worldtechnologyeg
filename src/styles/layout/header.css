@@ -1,0 +1,4 @@
+/* Base transition for the main header */
+#main-header {
+  transition: transform 0.3s ease-in-out;
+}

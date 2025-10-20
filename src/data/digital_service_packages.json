@@ -1,0 +1,13 @@
+
+[
+  {
+    "id": "packages_pubg",
+    "serviceId": "pubg_mobile",
+    "packages": [
+      { "name": "60 UC", "price": 30.00, "popular": true, "imageUrl": "https://i.postimg.cc/sX18P5gC/pubg-uc.png" },
+      { "name": "325 UC", "price": 150.00, "imageUrl": "https://i.postimg.cc/sX18P5gC/pubg-uc.png" },
+      { "name": "660 UC", "price": 300.00, "popular": true, "imageUrl": "https://i.postimg.cc/sX18P5gC/pubg-uc.png" },
+      { "name": "1800 UC", "price": 750.00, "imageUrl": "https://i.postimg.cc/sX18P5gC/pubg-uc.png" }
+    ]
+  }
+]

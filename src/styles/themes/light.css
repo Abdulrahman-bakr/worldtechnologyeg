@@ -1,0 +1,79 @@
+/* Light Theme (when html has .theme-light class) */
+html.theme-light body {
+  background-color: #F9FAFB; /* light-50 */
+  color: #1F2937; /* light-900 for text */
+}
+
+/* Component specific overrides for light theme */
+html.theme-light .bg-white { background-color: #FFFFFF; }
+html.theme-light .text-dark-900 { color: #111827; }
+html.theme-light .text-dark-800 { color: #1F2937; }
+html.theme-light .text-dark-700 { color: #252629; }
+html.theme-light .text-dark-600 { color: #4B5563; }
+html.theme-light .text-dark-650 { color: #e47c0d; }
+html.theme-light .text-dark-750 { color: #ffffffb2; }
+
+html.theme-light .bg-light-50 { background-color: #F9FAFB; }
+html.theme-light .bg-light-100 { background-color: #F3F4F6; }
+html.theme-light .border-light-200 { border-color: #E5E7EB; }
+html.theme-light .border-light-300 { border-color: #D1D5DB; }
+
+html.theme-light .prose { color: #374151; }
+html.theme-light .prose h1, html.theme-light .prose h2, html.theme-light .prose h3, html.theme-light .prose h4, html.theme-light .prose strong {
+  color: #111827;
+}
+html.theme-light .header-scrolled {
+  background-color: rgba(243, 244, 246, 0.9) !important;
+}
+html.theme-light .header-transparent {
+    background-color: transparent !important;
+}
+html.theme-light .header-scrolled .text-dark-800, html.theme-light .header-transparent .text-dark-800 {
+    color: #1F2937;
+}
+html.theme-light .header-scrolled .hover\\:text-primary:hover, html.theme-light .header-transparent .hover\\:text-primary:hover {
+    color: #10B981;
+}
+html.theme-light .mobile-menu-bg {
+    background-color: rgba(243, 244, 246, 0.95) !important;
+}
+
+html.theme-light .skeleton-card {
+  background-color: #F3F4F6; /* light-100 */
+}
+html.theme-light .skeleton-image, html.theme-light .skeleton-text {
+  background-color: #E5E7EB; /* light-200 */
+  background-image: linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%);
+}
+
+html.theme-light ::-webkit-scrollbar-track {
+  background: #F3F4F6; /* light-100 */
+}
+html.theme-light ::-webkit-scrollbar-thumb {
+  border-color: #F3F4F6;
+}
+html.theme-light ::-webkit-scrollbar-thumb:hover {
+  border-color: #E5E7EB;
+}
+html.theme-light .featured-products-scrollable::-webkit-scrollbar-thumb {
+    background: #D1D5DB; /* light-300 */
+    border-color: #F9FAFB; /* light-50 */
+}
+html.theme-light .featured-products-scrollable::-webkit-scrollbar-thumb:hover {
+    background: #6B7280;
+}
+html.theme-light input[type="range"] {
+    background: #E5E7EB; /* light-200 */
+}
+html.theme-light input[type="range"]::-webkit-slider-thumb {
+    border-color: #F9FAFB; /* light-50 */
+}
+html.theme-light input[type="range"]::-moz-range-thumb {
+    border-color: #F9FAFB; /* light-50 */
+}
+html.theme-light .quick-nav-link.quick-nav-link-active {
+    background-color: rgba(16, 185, 129, 0.1);
+}
+html.theme-light .custom-checkbox {
+    border-color: #9CA3AF; /* gray-400 */
+}

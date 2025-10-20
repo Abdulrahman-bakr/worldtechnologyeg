@@ -1,0 +1,6 @@
+/* New styles for Game Top-up Interface */
+.game-topup-container {
+    background: rgba(26, 35, 53, 0.7);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+}

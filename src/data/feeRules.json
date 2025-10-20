@@ -1,0 +1,12 @@
+
+[
+  {
+    "id": "we_internet_billing_fee_rule",
+    "tiers": [
+      { "minAmount": 5, "maxAmount": 49.99, "fee": 3 },
+      { "minAmount": 50, "maxAmount": 99.99, "fee": 4 },
+      { "minAmount": 100, "maxAmount": 149.99, "fee": 5 },
+      { "minAmount": 150, "maxAmount": 2999.99, "fee": 6 }
+    ]
+  }
+]

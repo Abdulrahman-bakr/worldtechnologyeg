@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Default styles (implicitly dark) */
+body {
+  background-color: #111827; /* dark:bg-dark-900 equivalent */
+  color: #F3F4F6;      /* dark:text-dark-100 equivalent */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Responsive image defaults */
+img {
+  display: block; /* Removes bottom space under the image */
+  max-width: 100%; /* Ensures image is never wider than its container */
+  height: auto; /* Maintains aspect ratio */
+}
+
+/* Respect user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

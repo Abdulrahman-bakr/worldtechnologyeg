@@ -1,0 +1,7 @@
+/* Reviews Accordion */
+.reviews-accordion-arrow {
+  transition: transform 0.2s ease-in-out;
+}
+.reviews-accordion-header[aria-expanded="true"] .reviews-accordion-arrow {
+  transform: rotate(180deg);
+}

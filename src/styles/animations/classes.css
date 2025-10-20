@@ -1,0 +1,7 @@
+.modal-overlay.animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+.modal-overlay.animate-fade-out { animation: fadeOut 0.3s ease-out forwards; }
+.modal-content.animate-fade-in-up { animation: fadeInUp 0.3s ease-out forwards; }
+.modal-content.animate-fade-out-up { animation: fadeOutUp 0.3s ease-out forwards; }
+
+.cart-panel.animate-slide-in-right { animation: slideInRight 0.3s ease-out forwards; }
+.cart-panel.animate-slide-out-right { animation: slideOutRight 0.3s ease-out forwards; }

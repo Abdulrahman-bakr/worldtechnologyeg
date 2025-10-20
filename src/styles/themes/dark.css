@@ -1,0 +1,39 @@
+/* Dark Theme Styles (for elements where dark: variant isn't sufficient) */
+html:not(.theme-light) .sticky-add-to-cart-bar {
+  background-color: rgba(31, 41, 55, 0.9);
+  border-color: #374151;
+}
+
+html:not(.theme-light) .sticky-quick-nav-bar {
+  background-color: rgba(31, 41, 55, 0.95); /* dark-800 with alpha */
+  border-bottom-color: #374151; /* dark-700 */
+}
+
+html:not(.theme-light) .sticky-add-to-cart-bar {
+    border-top-color: #374151;
+}
+
+html:not(.theme-light) .quick-nav-link.quick-nav-link-active {
+    background-color: rgba(16, 185, 129, 0.1);
+}
+
+html:not(.theme-light) .custom-checkbox {
+  border-color: #6B7280; /* dark-500 */
+}
+
+html:not(.theme-light) .chat-message.model .chat-message-bubble {
+    background-image: linear-gradient(135deg, #4B5563, #374151);
+    color: #F9FAFB;
+}
+html:not(.theme-light) .chat-message.model .chat-message-avatar {
+    background-color: #4B5563;
+}
+html:not(.theme-light) .chat-input-area {
+  border-top-color: #374151;
+}
+html:not(.theme-light) .review-image-uploader {
+  border-color: #4B5563; /* dark-600 */
+}
+html:not(.theme-light) .review-image-preview-item {
+  border-color: #374151; /* dark-700 */
+}

@@ -1,0 +1,103 @@
+
+[
+  {
+    "id": "prod_1",
+    "arabicName": "شاحن سريع 20 وات",
+    "englishName": "20W Fast Charger",
+    "brand": "Anker",
+    "category": "Chargers",
+    "price": 350.00,
+    "discountPrice": 299.00,
+    "stock": 50,
+    "description": "شاحن حائط سريع بقوة 20 وات من أنكر، مثالي لأجهزة آيفون وسامسونج الحديثة. يدعم تقنية Power Delivery لشحن فائق السرعة.",
+    "specifications": {
+      "القوة": "20W",
+      "المنفذ": "USB-C",
+      "التقنية": "Power Delivery 3.0"
+    },
+    "features": [
+      "شحن سريع وفعال",
+      "تصميم مدمج وسهل الحمل",
+      "حماية متعددة لأجهزتك"
+    ],
+    "imageUrls": [
+      "https://i.postimg.cc/pX3Da8v7/charger-1.png",
+      "https://i.postimg.cc/8P2gS1G9/charger-2.png"
+    ],
+    "imageUrl": "https://i.postimg.cc/pX3Da8v7/charger-1.png",
+    "isNew": true,
+    "isDynamicElectronicPayments": false,
+    "allowDirectPurchase": false,
+    "rating": 4.8,
+    "reviews": 120,
+    "createdAt": "2023-10-26T10:00:00Z"
+  },
+  {
+    "id": "prod_2",
+    "arabicName": "كابل USB-C إلى Lightning",
+    "englishName": "USB-C to Lightning Cable",
+    "brand": "Apple",
+    "category": "Cables",
+    "price": 450.00,
+    "discountPrice": null,
+    "stock": 100,
+    "description": "كابل شحن ومزامنة أصلي من أبل، بطول 1 متر. معتمد من MFi لضمان التوافق الكامل مع أجهزة آيفون وآيباد.",
+    "specifications": {
+      "الطول": "1 متر",
+      "النوع": "USB-C to Lightning",
+      "الشهادة": "MFi Certified"
+    },
+    "features": [
+      "جودة أصلية من أبل",
+      "يدعم الشحن السريع",
+      "متين وموثوق"
+    ],
+    "imageUrls": [],
+    "imageUrl": "https://i.postimg.cc/hGv5M5G6/cable-1.png",
+    "isNew": false,
+    "isDynamicElectronicPayments": false,
+    "allowDirectPurchase": false,
+    "rating": 4.9,
+    "reviews": 250,
+    "createdAt": "2023-09-15T12:00:00Z"
+  },
+  {
+    "id": "service_1",
+    "arabicName": "شحن رصيد الموبايل",
+    "englishName": "Mobile Top-up",
+    "brand": "خدماتنا",
+    "category": "ElectronicPayments",
+    "price": 0,
+    "stock": 1000,
+    "description": "اشحن رصيد موبايلك بسهولة وسرعة لجميع الشبكات في مصر.",
+    "imageUrl": "https://i.postimg.cc/Gpd2mn9Y/mobile-topup.png",
+    "isNew": false,
+    "isDynamicElectronicPayments": true,
+    "allowDirectPurchase": true,
+    "dynamicServiceType": "mobile_credit",
+    "requiredFields": [
+        {"id": "phoneNumber", "label": "رقم الهاتف", "type": "tel"}
+    ]
+  },
+  {
+    "id": "service_2",
+    "arabicName": "شحن لعبة PUBG Mobile",
+    "englishName": "PUBG Mobile UC Top-up",
+    "brand": "PUBG Mobile",
+    "category": "GameTopUp",
+    "price": 0,
+    "stock": 1000,
+    "description": "اشحن شدات UC لحسابك في لعبة ببجي موبايل مباشرة.",
+    "imageUrl": "https://i.postimg.cc/sX18P5gC/pubg-uc.png",
+    "isNew": false,
+    "isDynamicElectronicPayments": true,
+    "allowDirectPurchase": true,
+    "dynamicServiceType": "game_topup",
+    "dynamicServiceId": "pubg_mobile",
+    "requiredFields": [
+        {"id": "player_id", "label": "ID اللاعب", "type": "text"}
+    ],
+    "packageSelectionStepTitle": "1. اختر باقة الشدات",
+    "detailsStepTitle": "2. أدخل ID اللاعب"
+  }
+]

@@ -1,0 +1,31 @@
+/* Global scrollbar styles with gradient */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #1F2937; /* dark-800 */
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #10B981, #3B82F6);
+  border-radius: 10px;
+  border: 2px solid #1F2937;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #059669, #2563EB);
+  border-color: #374151;
+}
+/* Specific scrollbar for featured product sections */
+.featured-products-scrollable::-webkit-scrollbar { height: 8px; }
+.featured-products-scrollable::-webkit-scrollbar-track {
+    background: transparent;
+}
+.featured-products-scrollable::-webkit-scrollbar-thumb {
+    background: #4B5563; /* dark-600 */
+    border-radius: 8px;
+    border: 2px solid #111827; /* dark-900 */
+}
+.featured-products-scrollable::-webkit-scrollbar-thumb:hover {
+    background: #6B7280; /* dark-500 */
+}

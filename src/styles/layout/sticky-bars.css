@@ -1,0 +1,112 @@
+/* Hide header and sticky nav when image lightbox is open */
+body.lightbox-open .fixed.z-50[class*="top-0"], /* Main Header */
+body.lightbox-open .sticky-add-to-cart-bar, /* Sticky Add to Cart Bar */
+body.lightbox-open .sticky-quick-nav-bar /* Sticky Quick Nav */
+{
+  display: none !important;
+}
+
+/* Sticky Add to Cart Bar */
+.sticky-add-to-cart-bar {
+  position: fixed;
+  top: 64px; /* Default top position, assuming header is visible */
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 1100px;
+  z-index: 20;
+  animation: fadeInDown 0.3s ease-out;
+  transition: all 0.3s ease-in-out;
+  background-color: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  padding: 0.75rem 1.5rem;
+  border-bottom-left-radius: 1.25rem;
+  border-bottom-right-radius: 1.25rem;
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e5e7eb;
+  border-top: none;
+}
+
+/* Sticky Quick Nav Bar */
+.sticky-quick-nav-bar {
+  position: fixed;
+  top: 64px; /* Default top position, assuming header is visible */
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 1100px;
+  z-index: 40;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid #E5E7EB; /* light-200 */
+  transition: top 0.3s ease-in-out;
+  box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1);
+  animation: fadeInDown 0.3s ease-out;
+  border-bottom-left-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+}
+
+/* Adjust top position for larger mobile screens where header is taller */
+@media (min-width: 640px) { /* sm */
+  .sticky-add-to-cart-bar, .sticky-quick-nav-bar {
+    top: 80px; /* Taller header height */
+  }
+}
+
+/* On larger screens (desktop), hide the main header and adjust sticky bars accordingly */
+@media (min-width: 1024px) { /* lg breakpoint */
+  body.sticky-product-bar-active #main-header {
+    transform: translateY(-100%);
+  }
+
+  /* Adjust top position of sticky bars when main header is hidden on desktop */
+  body.sticky-product-bar-active .sticky-quick-nav-bar {
+    top: 0;
+  }
+  body.sticky-product-bar-active .sticky-add-to-cart-bar {
+    top: 54px; /* Height of quick nav bar */
+  }
+}
+
+/* MOBILE OVERRIDE: Position the bar at the bottom for screens smaller than lg (1024px) */
+@media (max-width: 1023px) {
+  .sticky-add-to-cart-bar {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    transform: none;
+    border-radius: 0;
+    border-top-left-radius: 1.25rem;
+    border-top-right-radius: 1.25rem;
+    border-bottom: none;
+    border-top: 1px solid #e5e7eb;
+    border-left: none;
+    border-right: none;
+    animation: slideInUp 0.3s ease-out forwards;
+    padding: 0.75rem 1rem;
+  }
+
+  body.sticky-product-bar-active #main-header {
+    transform: translateY(0);
+  }
+  body.sticky-product-bar-active .sticky-quick-nav-bar,
+  body.sticky-product-bar-active .sticky-add-to-cart-bar {
+    top: auto;
+  }
+}
+
+
+/* Quick Nav Active Link Style */
+.quick-nav-link-active {
+  font-weight: 700;
+  color: #10B981; /* primary color */
+}
