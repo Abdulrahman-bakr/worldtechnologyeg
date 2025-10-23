@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 node_modules/
 .cache/
 dist/
 build/
 .env
 .vercel
+=======
+node_modules/
+.cache/
+dist/
+build/
+.env
+>>>>>>> 6882e440becf71c00ec5508fdea534934e98da16
