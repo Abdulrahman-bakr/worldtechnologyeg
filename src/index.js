@@ -28,6 +28,8 @@
     import './styles/components/UserMenuPopover.css';
     import React, { StrictMode } from 'react';
     import { createRoot } from 'react-dom/client';
+    import { BrowserRouter } from 'react-router-dom';
+    import { HelmetProvider } from 'react-helmet-async';
     import { App } from './App.js';
     import { ErrorBoundary } from './components/ErrorBoundary.js';
     import { AppProvider } from './contexts/AppContext.js';
@@ -41,8 +43,12 @@
     root.render(
       React.createElement(StrictMode, null,
         React.createElement(ErrorBoundary, null,
-          React.createElement(AppProvider, null,
-            React.createElement(App, null)
+          React.createElement(HelmetProvider, null,
+            React.createElement(AppProvider, null,
+              React.createElement(BrowserRouter, null,
+                  React.createElement(App, null)
+              )
+            )
           )
         )
       )

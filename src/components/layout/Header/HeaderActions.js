@@ -92,7 +92,6 @@ export const HeaderActions = ({
                         isVisible: activePopover === 'user',
                         currentUser: currentUser,
                         onClose: onCloseAllPopovers,
-                        onNavigate: handleUserMenuLinkClick,
                         onLogout: handleLogoutClick,
                         triggerRef: userIconRef,
                         loyaltySettings: loyaltySettings

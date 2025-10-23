@@ -1,11 +1,13 @@
 
+
+
 import React from 'react';
-import { useReviews } from './useReviews.js';
+import { useReviews } from '../../../hooks/useReviews.js';
 import { ReviewSummary } from './ReviewSummary.js';
 import { ReviewForm } from './ReviewForm.js';
 import { ReviewList } from './ReviewList.js';
 
-const ReviewSection = ({ productId, currentUser, onPendingReviewLogin }) => {
+const ReviewSection = ({ product, currentUser, onPendingReviewLogin, setToastMessage }) => {
     const {
         reviews,
         isLoading,
@@ -15,7 +17,7 @@ const ReviewSection = ({ productId, currentUser, onPendingReviewLogin }) => {
         totalReviews,
         userHasReviewed,
         handleReviewSubmit,
-    } = useReviews(productId, currentUser);
+    } = useReviews(product, currentUser, setToastMessage);
 
     return React.createElement("div", { className: "space-y-8" },
         React.createElement(ReviewSummary, {
@@ -25,9 +27,10 @@ const ReviewSection = ({ productId, currentUser, onPendingReviewLogin }) => {
             isLoading
         }),
         !userHasReviewed && React.createElement(ReviewForm, {
-            productId,
-            currentUser,
-            onPendingReviewLogin,
+            product: product,
+            productId: product.id,
+            currentUser: currentUser,
+            onPendingReviewLogin: onPendingReviewLogin,
             onSubmit: handleReviewSubmit
         }),
         isLoading && !reviews.length && React.createElement("p", { className: "text-center py-4" }, "جاري تحميل المراجعات..."),

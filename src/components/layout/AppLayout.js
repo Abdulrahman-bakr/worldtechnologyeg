@@ -1,10 +1,8 @@
-
-
 import React from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useApp } from '../../contexts/AppContext.js';
 import { Header } from './Header/Header.js';
 import { Footer } from './Footer/Footer.js';
-import { Router } from './Router.js';
 import { Modals } from './Modals.js';
 import { BannerRotator } from './BannerRotator.js';
 import { AIChatFAB } from '../features/ai-chat/AIChatFAB.js';
@@ -14,8 +12,7 @@ export const AppLayout = () => {
     const {
         setIsCartOpen, cartItems, cartItemCount, headerCartTotalPrice, currentUser,
         setIsLoginModalOpen, handleLogout, searchTerm, handleSearchTermChange,
-        handleSearchSubmit, handleToggleTheme, currentTheme, handleNavigation,
-        currentView, selectedCategory, showAllOffersView, miniCartTriggerTimestamp,
+        handleSearchSubmit, handleToggleTheme, currentTheme,
         products, allNotifications, totalUnreadCount, handleMarkNotificationAsRead,
         isChatOpen, setIsChatOpen, storeSettings,
         // New popover state and handlers
@@ -28,6 +25,7 @@ export const AppLayout = () => {
         comparisonList, // Get comparison list
         loyaltySettings,
     } = useApp();
+    const location = useLocation();
 
     return (
         React.createElement("div", { className: `flex flex-col min-h-screen bg-light-50 dark:bg-dark-900` },
@@ -44,10 +42,6 @@ export const AppLayout = () => {
                 onSearchSubmit: handleSearchSubmit,
                 onToggleTheme: handleToggleTheme,
                 currentTheme: currentTheme,
-                onNavigate: handleNavigation,
-                currentView: currentView,
-                selectedCategory: selectedCategory,
-                showAllOffersView: showAllOffersView,
                 products: products,
                 notifications: allNotifications,
                 unreadNotificationsCount: totalUnreadCount,
@@ -62,10 +56,10 @@ export const AppLayout = () => {
                 loyaltySettings: loyaltySettings,
             }),
             React.createElement("main", { className: "flex-grow pt-16 sm:pt-20 w-full" },
-                React.createElement(BannerRotator, null),
-                React.createElement(Router, null)
+                !location.pathname.startsWith('/product/') && React.createElement(BannerRotator, null),
+                React.createElement(Outlet, null)
             ),
-            React.createElement(Footer, { onNavigate: handleNavigation, storeSettings: storeSettings }),
+            React.createElement(Footer, { storeSettings: storeSettings }),
             !isChatOpen && React.createElement(AIChatFAB, { onOpen: () => setIsChatOpen(true) }),
             React.createElement(Modals, null),
             comparisonList.length > 0 && React.createElement(ComparisonBar, null)

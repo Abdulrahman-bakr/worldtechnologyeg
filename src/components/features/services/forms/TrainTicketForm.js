@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { FloatingInput } from '../../../ui/forms/FloatingInput.js';
 import { SwitchVerticalIcon, ChevronDownIcon } from '../../../icons/index.js';
@@ -10,7 +8,7 @@ const ARABIC_MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "
 
 const TrainTicketForm = ({ product, onInitiateDirectCheckout }) => {
     const [formData, setFormData] = useState({});
-    const [formError, setFormError] = useState('');
+    const [formError] = useState('');
     const [departureSearchQuery, setDepartureSearchQuery] = useState('');
     const [arrivalSearchQuery, setArrivalSearchQuery] = useState('');
     const [departureSuggestions, setDepartureSuggestions] = useState([]);

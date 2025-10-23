@@ -1,7 +1,7 @@
 // world-technology-store/src/components/features/admin/ProductManagementPanel.js
 
 import React, { useState, useMemo } from 'react';
-import { PlusCircleIcon, PencilSquareIcon, TrashIcon, ClipboardDocumentIcon } from '../../icons/index.js';
+import { PlusCircleIcon, PencilSquareIcon, TrashIcon, ClipboardDocumentIcon, ChevronUpIcon, ChevronDownIcon } from '../../icons/index.js';
 import { ProductFormModal } from './ProductFormModal.js';
 import { getImageUrl } from '../../../utils/imageUrl.js';
 import { ToggleSwitch } from '../../ui/ToggleSwitch.js';
@@ -25,9 +25,9 @@ const ProductManagementPanel = ({ products, isLoading, handleProductSave, handle
     const [editingProduct, setEditingProduct] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [updatingStatusId, setUpdatingStatusId] = useState(null);
-    
     const [inlineStock, setInlineStock] = useState({});
     const [selectedProducts, setSelectedProducts] = useState([]);
+    const [sortConfig, setSortConfig] = useState({ key: 'arabicName', direction: 'ascending' });
 
     const filteredProducts = useMemo(() => {
         return products.filter(p =>
@@ -35,6 +35,43 @@ const ProductManagementPanel = ({ products, isLoading, handleProductSave, handle
             (p.id || '').toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [products, searchTerm]);
+    
+    const sortedProducts = useMemo(() => {
+        let sortableItems = [...filteredProducts];
+        if (sortConfig !== null) {
+            sortableItems.sort((a, b) => {
+                let aValue = a[sortConfig.key];
+                let bValue = b[sortConfig.key];
+                
+                if (sortConfig.key === 'price') {
+                    aValue = a.variants?.length > 0 ? Math.min(...a.variants.map(v => v.discountPrice || v.price)) : (a.discountPrice || a.price);
+                    bValue = b.variants?.length > 0 ? Math.min(...b.variants.map(v => v.discountPrice || v.price)) : (b.discountPrice || b.price);
+                }
+
+                if (typeof aValue === 'number' && typeof bValue === 'number') {
+                    if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
+                    if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
+                    return 0;
+                }
+                
+                const aStr = String(aValue || '').toLowerCase();
+                const bStr = String(bValue || '').toLowerCase();
+
+                if (aStr < bStr) return sortConfig.direction === 'ascending' ? -1 : 1;
+                if (aStr > bStr) return sortConfig.direction === 'ascending' ? 1 : -1;
+                return 0;
+            });
+        }
+        return sortableItems;
+    }, [filteredProducts, sortConfig]);
+
+    const requestSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
 
     const handleOpenModal = (product = null) => {
         setEditingProduct(product);
@@ -96,6 +133,17 @@ const ProductManagementPanel = ({ products, isLoading, handleProductSave, handle
         }
     };
 
+    const SortableHeader = ({ children, sortKey }) => (
+        React.createElement("button", { onClick: () => requestSort(sortKey), className: "flex items-center gap-1 group" },
+            children,
+            React.createElement("span", { className: "opacity-30 group-hover:opacity-100 transition-opacity" },
+                sortConfig.key === sortKey
+                    ? (sortConfig.direction === 'ascending' ? React.createElement(ChevronUpIcon, { className: "w-4 h-4" }) : React.createElement(ChevronDownIcon, { className: "w-4 h-4" }))
+                    : React.createElement(ChevronUpIcon, { className: "w-4 h-4" })
+            )
+        )
+    );
+
     return (
         React.createElement("div", null,
             React.createElement("div", { className: "flex justify-between items-center mb-6" },
@@ -106,9 +154,18 @@ const ProductManagementPanel = ({ products, isLoading, handleProductSave, handle
             isLoading ? React.createElement("p", null, "جاري تحميل المنتجات...")
             : React.createElement("div", { className: "admin-table-container" },
                 React.createElement("table", { className: "admin-table" },
-                    React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", { className: "w-12 text-center" }, React.createElement("input", { type: "checkbox", onChange: handleSelectAll, checked: selectedProducts.length === filteredProducts.length && filteredProducts.length > 0, "aria-label": "Select all products" })), React.createElement("th", null, "صورة"), React.createElement("th", null, "الاسم"), React.createElement("th", null, "الفئة"), React.createElement("th", null, "السعر"), React.createElement("th", null, "المخزون"), React.createElement("th", null, "الحالة"), React.createElement("th", null, "إجراءات"))),
+                    React.createElement("thead", null, React.createElement("tr", null, 
+                        React.createElement("th", { className: "w-12 text-center" }, React.createElement("input", { type: "checkbox", onChange: handleSelectAll, checked: selectedProducts.length === filteredProducts.length && filteredProducts.length > 0, "aria-label": "Select all products" })), 
+                        React.createElement("th", null, "صورة"), 
+                        React.createElement("th", null, React.createElement(SortableHeader, { sortKey: 'arabicName' }, "الاسم")), 
+                        React.createElement("th", null, React.createElement(SortableHeader, { sortKey: 'category' }, "الفئة")),
+                        React.createElement("th", null, React.createElement(SortableHeader, { sortKey: 'price' }, "السعر")),
+                        React.createElement("th", null, React.createElement(SortableHeader, { sortKey: 'stock' }, "المخزون")),
+                        React.createElement("th", null, React.createElement(SortableHeader, { sortKey: 'status' }, "الحالة")),
+                        React.createElement("th", null, "إجراءات"))
+                    ),
                     React.createElement("tbody", null,
-                        filteredProducts.map(p => {
+                        sortedProducts.map(p => {
                             const hasVariants = p.variants && p.variants.length > 0;
                             const isSelected = selectedProducts.includes(p.id);
                             return React.createElement("tr", { key: p.id, className: isSelected ? 'selected-row' : '' },
@@ -127,7 +184,7 @@ const ProductManagementPanel = ({ products, isLoading, handleProductSave, handle
                                 React.createElement("td", { className: "space-x-1 space-x-reverse" },
                                     React.createElement("button", { onClick: () => handleCloneProduct(p), className: "p-2 hover:text-blue-500", title: "نسخ المنتج" }, React.createElement(ClipboardDocumentIcon, { className: "w-5 h-5" })),
                                     React.createElement("button", { onClick: () => handleOpenModal(p), className: "p-2 hover:text-primary", title: "تعديل" }, React.createElement(PencilSquareIcon, { className: "w-5 h-5" })),
-                                    React.createElement("button", { onClick: () => handleProductDelete(p.id), className: "p-2 hover:text-red-500", title: "حذف" }, React.createElement(TrashIcon, { className: "w-5 h-5" }))
+                                    React.createElement("button", { onClick: () => { if (window.confirm(`هل أنت متأكد من حذف المنتج "${p.arabicName}"؟`)) { handleProductDelete(p.id); } }, className: "p-2 hover:text-red-500", title: "حذف" }, React.createElement(TrashIcon, { className: "w-5 h-5" }))
                                 )
                             )
                         })

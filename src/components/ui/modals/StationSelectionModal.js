@@ -57,7 +57,7 @@ const StationSelectionModal = ({ isOpen, onClose, onStationSelect, stations, tar
       className: `fixed inset-0 z-[120] flex items-center justify-center p-2 sm:p-4`,
       role: "dialog", "aria-modal": "true", "aria-labelledby": "station-select-title"
     },
-    React.createElement("div", { className: `modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`, onClick: handleOverlayClick }),
+    React.createElement("div", { className: `modal-overlay absolute inset-0 bg-black/85 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`, onClick: handleOverlayClick }),
     React.createElement("div", { className: `modal-content bg-white dark:bg-dark-800 rounded-xl shadow-2xl w-full max-w-md relative ${contentAnimation} border border-light-200 dark:border-dark-700 max-h-[85vh] flex flex-col` },
       React.createElement("div", { className: "flex items-center justify-between p-4 border-b border-light-300 dark:border-dark-600 flex-shrink-0" },
         React.createElement("h2", { id: "station-select-title", className: "text-lg font-bold text-primary" }, title),

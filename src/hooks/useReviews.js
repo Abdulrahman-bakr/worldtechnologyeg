@@ -1,16 +1,24 @@
+
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { db, storage } from '../services/firebase/config.js';
-import { collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy, doc, updateDoc, increment, getDocs, limit } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-export const useReviews = (productId, currentUser) => {
+export const useReviews = (product, currentUser, setToastMessage) => {
     const [reviews, setReviews] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [userHasReviewed, setUserHasReviewed] = useState(false);
 
     useEffect(() => {
-        if (!productId) {
+        const productId = product?.id;
+
+        if (!productId || typeof productId !== 'string') {
             setIsLoading(false);
+            if (productId) { // It exists but isn't a string
+                console.error("useReviews received an invalid product ID (not a string):", productId);
+                setError("معرف المنتج غير صالح.");
+            }
             return;
         }
 
@@ -40,7 +48,34 @@ export const useReviews = (productId, currentUser) => {
         });
 
         return () => unsubscribe();
-    }, [productId]);
+    }, [product]);
+
+    useEffect(() => {
+        const productId = product?.id;
+        if (!currentUser || !productId) {
+            setUserHasReviewed(false);
+            return;
+        }
+
+        const checkReview = async () => {
+            const reviewsRef = collection(db, 'reviews');
+            const q = query(
+                reviewsRef,
+                where('productId', '==', productId),
+                where('userId', '==', currentUser.uid),
+                limit(1)
+            );
+            try {
+                const snapshot = await getDocs(q);
+                setUserHasReviewed(!snapshot.empty);
+            } catch (e) {
+                console.error("Error checking if user has reviewed:", e);
+                setUserHasReviewed(false);
+            }
+        };
+        checkReview();
+    }, [currentUser, product, reviews]);
+
 
     const { ratingCounts, averageRating, totalReviews } = useMemo(() => {
         if (reviews.length === 0) {
@@ -58,28 +93,28 @@ export const useReviews = (productId, currentUser) => {
         return { ratingCounts: counts, averageRating: avg, totalReviews: reviews.length };
     }, [reviews]);
 
-    const userHasReviewed = useMemo(() => {
-        // This check still needs to look at *all* reviews, not just approved ones.
-        // This is a simplification for now. A more robust solution would be a separate query.
-        if (!currentUser || !productId) return false;
-        // A full implementation would query the reviews collection again without the isApproved filter
-        // just for this user, but that's expensive. This is an approximation.
-        return false; 
-    }, [currentUser, productId]);
-
     const handleReviewSubmit = useCallback(async ({ rating, comment, images }) => {
+        const productId = product?.id;
+        if (!productId || typeof productId !== 'string') {
+            throw new Error("Product ID is invalid.");
+        }
         if (!currentUser) {
-            throw new Error("يجب تسجيل الدخول لإضافة تقييم.");
+            throw new Error("User must be logged in to submit a review.");
+        }
+        if (userHasReviewed) {
+            throw new Error("You have already reviewed this product.");
         }
 
         const uploadedImageUrls = [];
-        for (const imageFile of images) {
-            const storageRef = ref(storage, `reviews/${productId}/${Date.now()}_${imageFile.name}`);
-            const snapshot = await uploadBytes(storageRef, imageFile);
-            const downloadURL = await getDownloadURL(snapshot.ref);
-            uploadedImageUrls.push(downloadURL);
+        if (images && images.length > 0) {
+            for (const imageFile of images) {
+                const storageRef = ref(storage, `reviews/${productId}/${Date.now()}_${imageFile.name}`);
+                const snapshot = await uploadBytes(storageRef, imageFile);
+                const downloadURL = await getDownloadURL(snapshot.ref);
+                uploadedImageUrls.push(downloadURL);
+            }
         }
-
+        
         const newReview = {
             productId,
             userId: currentUser.uid,
@@ -93,7 +128,22 @@ export const useReviews = (productId, currentUser) => {
 
         await addDoc(collection(db, 'reviews'), newReview);
 
-    }, [productId, currentUser]);
+        const pointsForReview = product?.pointsForReview ?? 0;
+        if (pointsForReview > 0) {
+            try {
+                const userDocRef = doc(db, "users", currentUser.uid);
+                await updateDoc(userDocRef, {
+                    loyaltyPoints: increment(pointsForReview)
+                });
+                if (setToastMessage) {
+                    setToastMessage({ text: `شكراً لمراجعتك! لقد حصلت على ${pointsForReview} نقطة.`, type: 'success' });
+                }
+            } catch (e) {
+                console.error("Error awarding points for review:", e);
+            }
+        }
+
+    }, [product, currentUser, userHasReviewed, setToastMessage]);
 
     return {
         reviews,

@@ -1,4 +1,4 @@
-import admin from 'firebase-admin';
+const admin = require('firebase-admin');
 
 // --- Firebase Admin Initialization ---
 // Ensure initialization only happens once.
@@ -44,7 +44,7 @@ const removeUndefinedProperties = (obj) => {
 };
 
 // --- Serverless Function Handler ---
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
     // Use a Firestore transaction for atomicity (order creation + stock update)
     const orderId = await db.runTransaction(async (transaction) => {
       // 1. Fetch all necessary documents within the transaction
-      const productIdsToFetch = [...new Set(orderData.items.map(item => item.product.id))];
+      const productIdsToFetch = [...new Set(orderData.items.filter(item => item.productId).map(item => item.productId))];
       const productRefs = productIdsToFetch.map(id => db.collection('products').doc(id));
       const productDocs = productRefs.length > 0 ? await transaction.getAll(...productRefs) : [];
       
@@ -78,14 +78,14 @@ export default async function handler(req, res) {
         if (item.serviceDetails) {
             serverSubtotalAfterProductDiscounts += Number(item.price) * item.quantity;
         } else {
-            const productRef = db.collection('products').doc(item.product.id);
-            const productData = productsMap.get(item.product.id);
-            if (!productData) throw new Error(`Product ${item.product.id} not found.`);
+            const productRef = db.collection('products').doc(item.productId);
+            const productData = productsMap.get(item.productId);
+            if (!productData) throw new Error(`Product ${item.productId} not found.`);
 
             let price;
             if (item.variant) {
                 const variantIndex = (productData.variants || []).findIndex(v => v.colorName === item.variant.colorName);
-                if (variantIndex === -1) throw new Error(`Variant for ${item.product.id} not found.`);
+                if (variantIndex === -1) throw new Error(`Variant for ${item.productId} not found.`);
                 
                 const variant = productData.variants[variantIndex];
                 price = variant.discountPrice || variant.price;
@@ -152,12 +152,6 @@ export default async function handler(req, res) {
       finalOrderData.createdAt = admin.firestore.FieldValue.serverTimestamp();
       finalOrderData.statusHistory = [{ status: orderData.status, timestamp: admin.firestore.FieldValue.serverTimestamp(), updatedBy: 'customer' }];
       delete finalOrderData.clientCreatedAt;
-      
-      // Strip full product object to avoid data duplication
-      finalOrderData.items = orderData.items.map(item => {
-          const { product, ...rest } = item;
-          return rest;
-      });
       
       const orderRef = db.collection('orders').doc(finalOrderData.displayOrderId);
       transaction.set(orderRef, removeUndefinedProperties(finalOrderData));

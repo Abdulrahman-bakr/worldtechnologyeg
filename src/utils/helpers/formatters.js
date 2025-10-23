@@ -4,23 +4,11 @@ export const markdownToHtml = (text) => {
     let html = text;
 
     // Bold: **text** -> <strong>text</strong>
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-    // Links: [text](url) -> <a href="url" ...>text</a>
-    html = html.replace(/\[(.*?)\]\((.*?)\)/g, (match, linkText, url) => {
-        const safeUrl = url.trim();
-        // Allow only safe protocols
-        if (safeUrl.startsWith('https://') || safeUrl.startsWith('http://') || safeUrl.startsWith('mailto:') || safeUrl.startsWith('tel:')) {
-            const target = safeUrl.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : '';
-            return `<a href="${safeUrl}" ${target} class="text-secondary hover:underline">${linkText}</a>`;
-        }
-        return match; // Return original markdown if protocol is not safe
-    });
-
-    // Unordered list items: * item -> • item
-    html = html.replace(/^\s*\*\s+/gm, '&bull; ');
+    // This regex handles multiple lines and ensures it doesn't greedily match across multiple bolds.
+    html = html.replace(/\*\*(.*?)\*\*/gs, '<strong>$1</strong>');
 
     // Newlines: \n -> <br />
+    // This ensures that line breaks entered by the user are preserved in the HTML output.
     html = html.replace(/\n/g, '<br />');
     
     return html;

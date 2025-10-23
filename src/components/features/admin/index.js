@@ -16,3 +16,4 @@ export { ReportsPanel } from './ReportsPanel.js';
 export { PopupBannerManagementPanel } from './PopupBannerManagementPanel.js';
 export { StoreSettingsPanel } from './StoreSettingsPanel.js';
 export { LoyaltyManagementPanel } from './LoyaltyManagementPanel.js';
+export { NotificationManagementPanel } from './NotificationManagementPanel.js';

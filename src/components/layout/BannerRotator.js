@@ -1,19 +1,25 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../contexts/AppContext.js';
 import { AnnouncementBanner } from '../ui/AnnouncementBanner.js';
 import { LimitedTimeOfferBanner } from '../ui/LimitedTimeOfferBanner.js';
 
 export const BannerRotator = () => {
     const {
-        currentView,
         rotatingBanners,
         currentBannerIndex,
         handleGoToBanner,
         handleDismissBanner,
-        handleNavigation
     } = useApp();
+    const navigate = useNavigate();
+
+    const handleNavigation = (action, params = {}) => {
+        if (action === 'selectProductSuggestion' && params.productId) {
+            navigate(`/product/${params.productId}`);
+        }
+    };
     
-    if (currentView === 'productDetail' || rotatingBanners.length === 0) {
+    if (rotatingBanners.length === 0) {
         return null;
     }
 

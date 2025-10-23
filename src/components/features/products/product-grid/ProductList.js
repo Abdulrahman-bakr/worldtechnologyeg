@@ -40,7 +40,6 @@ const ProductList = ({ products, viewMode, isLoading, searchTerm, onAddToCart, o
         }, React.createElement(ProductCard, { 
             product: product, 
             onAddToCart: onAddToCart, 
-            onViewDetails: onViewDetails,
             onToggleWishlist: onToggleWishlist,
             isInWishlist: isProductInWishlist(product.id),
             currentUser: currentUser,

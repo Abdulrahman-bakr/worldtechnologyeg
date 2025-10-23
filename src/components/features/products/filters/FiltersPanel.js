@@ -35,6 +35,10 @@ export const FiltersPanel = ({
         const currentValues = localFilters.specs[specName] || [];
         const newValues = currentValues.includes(value) ? currentValues.filter(v => v !== value) : [...currentValues, value];
         const newSpecs = { ...localFilters.specs, [specName]: newValues.length > 0 ? newValues : undefined };
+        // Clean up empty spec arrays
+        if (!newSpecs[specName]) {
+            delete newSpecs[specName];
+        }
         handleFilterChangeAndNotify({ ...localFilters, specs: newSpecs });
     };
 
@@ -44,11 +48,17 @@ export const FiltersPanel = ({
     
     const handlePriceRangeUIChange = (type, value) => {
         const numValue = Number(value);
-        if (type === 'min') {
-             setLocalPriceRange(prev => ({ ...prev, min: Math.min(numValue, prev.max - 10) }));
-        } else {
-             setLocalPriceRange(prev => ({ ...prev, max: Math.max(numValue, prev.min + 10) }));
-        }
+        setLocalPriceRange(prev => {
+            let newRange;
+            if (type === 'min') {
+                newRange = { ...prev, min: Math.min(numValue, prev.max > 0 ? prev.max - 10 : maxPricePossible) };
+            } else {
+                newRange = { ...prev, max: Math.max(numValue, prev.min + 10) };
+            }
+            // Trigger parent filter change immediately for a "live" feel
+            onPriceRangeChange(newRange);
+            return newRange;
+        });
     };
     
     return React.createElement("aside", { className: "w-full lg:w-72 xl:w-80 lg:pr-8 space-y-6 mb-8 lg:mb-0" },
@@ -66,8 +76,8 @@ export const FiltersPanel = ({
                         React.createElement("span", null, `${localPriceRange.min} ج.م`),
                         React.createElement("span", null, `${localPriceRange.max === maxPricePossible ? '+' : ''}${localPriceRange.max} ج.م`)
                     ),
-                    React.createElement("input", { type: "range", min: 0, max: maxPricePossible, value: localPriceRange.min, onChange: (e) => handlePriceRangeUIChange('min', e.target.value), onMouseUp: () => onPriceRangeChange(localPriceRange), onTouchEnd: () => onPriceRangeChange(localPriceRange), className: "mb-2", "aria-label": "Minimum Price" }),
-                    React.createElement("input", { type: "range", min: 0, max: maxPricePossible, value: localPriceRange.max, onChange: (e) => handlePriceRangeUIChange('max', e.target.value), onMouseUp: () => onPriceRangeChange(localPriceRange), onTouchEnd: () => onPriceRangeChange(localPriceRange), "aria-label": "Maximum Price" })
+                    React.createElement("input", { type: "range", min: 0, max: maxPricePossible, value: localPriceRange.min, onChange: (e) => handlePriceRangeUIChange('min', e.target.value), className: "mb-2", "aria-label": "Minimum Price" }),
+                    React.createElement("input", { type: "range", min: 0, max: maxPricePossible, value: localPriceRange.max, onChange: (e) => handlePriceRangeUIChange('max', e.target.value), "aria-label": "Maximum Price" })
                 ),
                 React.createElement(BrandFilter, { brands: brands, localFilters: localFilters, handleBrandChange: handleBrandChange, filterCounts: filterCounts }),
                 React.createElement(SpecFilter, { availableSpecFilters: availableSpecFilters, localFilters: localFilters, handleSpecChange: handleSpecChange, filterCounts: filterCounts }),

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BellIcon, ShoppingCartIcon, ExclamationTriangleIcon, DocumentTextIcon, Bars3Icon } from '../../icons/index.js';
+import { BellIcon, ShoppingCartIcon as ShoppingCartIconAdmin, ExclamationTriangleIcon as ExclamationTriangleIconAdmin, DocumentTextIcon as DocumentTextIconAdmin, Bars3Icon } from '../../icons/index.js';
 
 const AdminHeader = ({ title, notifications, setActivePanel, onToggleSidebar }) => {
     const [popoverOpen, setPopoverOpen] = useState(false);
@@ -9,9 +9,9 @@ const AdminHeader = ({ title, notifications, setActivePanel, onToggleSidebar }) 
     const unreadCount = notifications.reduce((sum, notif) => sum + notif.count, 0);
     
     const iconMap = {
-        ShoppingCartIcon,
-        ExclamationTriangleIcon,
-        DocumentTextIcon
+        ShoppingCartIcon: ShoppingCartIconAdmin,
+        ExclamationTriangleIcon: ExclamationTriangleIconAdmin,
+        DocumentTextIcon: DocumentTextIconAdmin
     };
 
     useEffect(() => {

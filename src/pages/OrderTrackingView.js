@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { StaticPageView } from './Static-Pages/StaticPageView.js';
 import { db } from '../services/firebase/config.js';
-import { collection, query, where, getDocs, limit, Timestamp, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit, doc, getDoc } from 'firebase/firestore';
 import { getStatusDisplayInfo } from '../components/features/orders/ordersUtils.js';
+import { useNavigate } from 'react-router-dom';
 
 
-const OrderTrackingView = ({ onBack }) => {
+const OrderTrackingView = () => {
     const [orderId, setOrderId] = useState('');
     const [phone, setPhone] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [orderResult, setOrderResult] = useState(null);
+    const navigate = useNavigate();
 
     const handleTrackOrder = async (e) => {
         e.preventDefault();
@@ -141,7 +144,10 @@ const OrderTrackingView = ({ onBack }) => {
         );
     };
 
-    return React.createElement(StaticPageView, { title: "تتبع طلبك", onBack: onBack },
+    return React.createElement(StaticPageView, { title: "تتبع طلبك", onBack: () => navigate(-1) },
+        React.createElement(Helmet, null, 
+            React.createElement("title", null, "تتبع طلبك - World Technology")
+        ),
         React.createElement("p", { className: "text-center text-dark-700 dark:text-dark-100 mb-6" }, "أدخل رقم الطلب ورقم الهاتف الذي استخدمته في الطلب لمتابعة حالته."),
         React.createElement("form", { onSubmit: handleTrackOrder, className: "max-w-2xl mx-auto space-y-4" },
             React.createElement("div", null,

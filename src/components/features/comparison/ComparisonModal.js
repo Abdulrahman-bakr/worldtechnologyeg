@@ -42,7 +42,7 @@ const ComparisonModal = ({ isOpen, onClose }) => {
             className: `fixed inset-0 z-[110] flex items-center justify-center p-2 sm:p-4`,
             role: "dialog", "aria-modal": "true"
         },
-        React.createElement("div", { className: `modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`, onClick: onClose }),
+        React.createElement("div", { className: `modal-overlay absolute inset-0 bg-black/85 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`, onClick: onClose }),
         React.createElement("div", { className: `modal-content comparison-modal-content bg-white dark:bg-dark-800 rounded-xl shadow-2xl w-full max-w-4xl relative ${contentAnimation} border border-light-200 dark:border-dark-700 flex flex-col` },
             React.createElement("div", { className: "flex items-center justify-between p-4 border-b border-light-300 dark:border-dark-600 flex-shrink-0" },
                 React.createElement("h2", { className: "text-lg font-bold text-primary" }, "مقارنة المنتجات"),

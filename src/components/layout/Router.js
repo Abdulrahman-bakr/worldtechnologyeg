@@ -23,7 +23,8 @@ export const Router = () => {
         handleNavigation, handleUpdateUserProfileData
     } = useApp();
 
-    if (productsLoading) {
+    // Prevent global loading from unmounting the admin dashboard, which has its own loading states.
+    if (productsLoading && currentView !== 'adminDashboard') {
         return React.createElement("div", { className: "flex justify-center items-center min-h-[calc(100vh-200px)]" },
             React.createElement("p", { className: "text-lg text-dark-700 dark:text-dark-100" }, "جاري تحميل المنتجات...")
         );

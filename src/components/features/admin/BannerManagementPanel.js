@@ -32,6 +32,12 @@ const BannerManagementPanel = ({ announcements, dealOfTheDay, products, isLoadin
         if (result.success) handleCloseModal();
     };
     
+    const onDeleteAnnouncement = (announcementId, announcementTitle) => {
+        if (window.confirm(`هل أنت متأكد من حذف إعلان "${announcementTitle}"؟`)) {
+            handleAnnouncementDelete(announcementId);
+        }
+    };
+
     const onSaveDeal = async (e) => {
         e.preventDefault();
         if (!dealProductId || !dealEndTime) {
@@ -66,7 +72,7 @@ const BannerManagementPanel = ({ announcements, dealOfTheDay, products, isLoadin
                                 React.createElement("td", null, ann.isActive ? React.createElement("span", {className: "text-green-500"}, "فعال") : "غير فعال"),
                                 React.createElement("td", { className: "space-x-2 space-x-reverse" },
                                     React.createElement("button", { onClick: () => handleOpenModal(ann), className: "p-2 hover:text-primary" }, React.createElement(PencilSquareIcon, { className: "w-5 h-5" })),
-                                    React.createElement("button", { onClick: () => handleAnnouncementDelete(ann.id), className: "p-2 hover:text-red-500" }, React.createElement(TrashIcon, { className: "w-5 h-5" }))
+                                    React.createElement("button", { onClick: () => onDeleteAnnouncement(ann.id, ann.title), className: "p-2 hover:text-red-500" }, React.createElement(TrashIcon, { className: "w-5 h-5" }))
                                 )
                             ))
                         )
@@ -80,7 +86,7 @@ const BannerManagementPanel = ({ announcements, dealOfTheDay, products, isLoadin
                 React.createElement("form", { onSubmit: onSaveDeal, className: "space-y-4" },
                     React.createElement("div", null,
                         React.createElement("label", { className: "block text-sm font-medium mb-1" }, "اختر المنتج"),
-                        React.createElement("select", { value: dealProductId, onChange: e => setDealProductId(e.target.value), className: "w-full p-2 rounded-md border bg-white dark:bg-dark-700" },
+                        React.createElement("select", { value: dealProductId, onChange: e => setDealProductId(e.target.value), className: "w-full p-2 rounded-md border bg-white dark:bg-dark-700 text-dark-900 dark:text-dark-50" },
                             React.createElement("option", { value: "" }, "اختر منتجًا..."),
                             productsWithDiscount.map(p => React.createElement("option", { key: p.id, value: p.id }, p.arabicName))
                         ),

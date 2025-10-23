@@ -21,12 +21,10 @@ const AnnouncementBanner = ({ announcement, onDismiss, onNavigate }) => {
       return;
     }
     if (link && link.action && onNavigate) {
-        try {
-            const params = link.params ? JSON.parse(link.params) : {};
-            onNavigate(link.action, params);
-        } catch(err) {
-            console.error("Failed to parse link params for announcement:", err);
-        }
+        // FIX: The params object is already in the correct format from Firestore.
+        // No need to parse it again.
+        const params = link.params || {};
+        onNavigate(link.action, params);
     }
   };
   

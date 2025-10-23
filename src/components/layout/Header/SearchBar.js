@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { SearchIcon } from '../../icons/index.js';
 
@@ -38,7 +39,7 @@ export const SearchBar = ({
                             onClick: () => handleSuggestionClick(suggestion),
                             className: "p-3 hover:bg-light-100 dark:hover:bg-dark-600 cursor-pointer flex items-center space-x-3 space-x-reverse border-b border-light-200 dark:border-dark-600 last:border-b-0"
                         },
-                            suggestion.imageUrl && React.createElement("img", { src: suggestion.imageUrl, alt: suggestion.name, className: "w-10 h-10 object-cover rounded" }),
+                            suggestion.imageUrl && React.createElement("img", { src: suggestion.imageUrl, alt: suggestion.name, className: "w-10 h-10 object-contain rounded" }),
                             React.createElement("div", { className: "flex-grow" },
                                 React.createElement("p", { className: "text-sm font-medium text-dark-800 dark:text-dark-100" }, suggestion.name),
                                 (suggestion.type === 'product' && suggestion.price !== null) && React.createElement("p", { className: "text-xs text-primary" }, `${suggestion.price.toFixed(2)} ج.م`)

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ShoppingCartIcon, StarIcon, PhoneIcon, AtSymbolIcon, BuildingLibraryIcon } from '../../../icons/index.js';
+import { PhoneIcon, AtSymbolIcon, BuildingLibraryIcon } from '../../../icons/index.js';
 import { FloatingInput } from '../../../ui/forms/FloatingInput.js';
 import { INSTAPAY_BANKS } from '../../../../constants/index.js';
 

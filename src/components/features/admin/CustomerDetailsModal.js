@@ -27,6 +27,17 @@ const CustomerDetailsModal = ({ isOpen, onClose, customer, onUserUpdate }) => {
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
+
+    useEffect(() => {
         if (customer) {
             setName(customer.name || '');
             setPhone(customer.phone || '');
@@ -56,7 +67,7 @@ const CustomerDetailsModal = ({ isOpen, onClose, customer, onUserUpdate }) => {
         setIsSaving(false);
     };
 
-    const joinedDate = customer.createdAt?.toDate ? customer.createdAt.toDate().toLocaleDateString('ar-EG') : 'غير معروف';
+    const joinedDate = customer.createdAt instanceof Date ? customer.createdAt.toLocaleDateString('ar-EG') : 'غير معروف';
     const averageOrderValue = customer.totalOrders > 0 ? (customer.totalSpent / customer.totalOrders) : 0;
 
     const labelClass = "block text-sm font-medium mb-1 text-dark-800 dark:text-dark-100";
@@ -64,7 +75,7 @@ const CustomerDetailsModal = ({ isOpen, onClose, customer, onUserUpdate }) => {
 
     return (
         React.createElement("div", { className: "fixed inset-0 z-[110] flex items-center justify-center p-4" },
-            React.createElement("div", { className: "modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm", onClick: onClose }),
+            React.createElement("div", { className: "modal-overlay absolute inset-0 bg-black/85", onClick: onClose }),
             React.createElement("div", { className: "modal-content bg-light-50 dark:bg-dark-800 rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] flex flex-col relative" },
                 React.createElement("button", { onClick: onClose, className: "absolute top-4 left-4 p-1" }, React.createElement(CloseIcon, { className: "w-6 h-6" })),
                 

@@ -1,32 +1,28 @@
 
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Logo } from './Logo.js';
 import { SearchBar } from './SearchBar.js';
 import { NavLinks as DesktopNavLinks } from './NavLinks.js';
 import { HeaderActions } from './HeaderActions.js';
 import { MobileMenu } from './MobileMenu.js';
-import { CloseIcon, SearchIcon } from '../../icons/index.js';
-import { ProductCategory } from '../../../constants/index.js';
 import { NotificationsPopover } from '../../features/notifications/NotificationsPopover.js';
 import { MiniCartPopover } from '../../features/cart/MiniCartPopover.js';
 import { UserMenuPopover } from '../../features/auth/UserMenuPopover.js';
 
 const navLinks = [
-    { name: 'الرئيسية', action: 'navigateToHome' },
-    { name: 'جميع المنتجات', action: 'navigateToAllCategories', params: { category: ProductCategory.All } },
-    { name: 'العروض', action: 'navigateToSpecialOffers' },
-    { name: 'قائمة الرغبات', action: 'navigateToWishlist', requiresLogin: true },
-    { name: 'اتصل بنا', action: 'scrollToFooter' },
+    { name: 'الرئيسية', to: '/' },
+    { name: 'جميع المنتجات', to: '/products' },
+    { name: 'العروض', to: '/offers' },
+    { name: 'قائمة الرغبات', to: '/wishlist', requiresLogin: true },
 ];
 
 export const Header = ({
     onOpenCartPanel, cartItems, cartItemCount, cartTotalPrice,
     currentUser, onLoginClick, onLogout,
     searchTerm, onSearchTermChange, onSearchSubmit,
-    onToggleTheme, currentTheme, onNavigate,
-    currentView, selectedCategory, showAllOffersView,
-    products,
+    onToggleTheme, currentTheme,
     notifications, unreadNotificationsCount, onMarkNotificationAsRead,
     activePopover,
     onToggleMiniCart,
@@ -44,6 +40,8 @@ export const Header = ({
     const cartIconRef = useRef(null); 
     const notificationsIconRef = useRef(null);
     const userIconRef = useRef(null);
+    const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -54,6 +52,11 @@ export const Header = ({
     useEffect(() => {
         setIsAutocompleteVisible(searchTerm.length > 1);
     }, [searchTerm]);
+
+    useEffect(() => {
+        setMobileMenuOpen(false); // Close mobile menu on navigation
+        onCloseAllPopovers(); // Close popovers on navigation
+    }, [location.pathname, onCloseAllPopovers]);
 
     useEffect(() => {
         const handleEsc = (event) => {
@@ -79,32 +82,6 @@ export const Header = ({
         };
     }, [isAutocompleteVisible, activePopover, onCloseAllPopovers]);
 
-    const isLinkActive = useCallback((link) => {
-        if (link.action === 'navigateToHome' && currentView === 'home') return true;
-        if (link.action === 'navigateToAllCategories' && currentView === 'productList' && selectedCategory === ProductCategory.All && !showAllOffersView && !searchTerm) return true;
-        if (link.action === 'navigateToSpecialOffers' && currentView === 'productList' && showAllOffersView && !searchTerm) return true;
-        if (link.action === 'navigateToWishlist' && currentView === 'wishlist') return true;
-        if (link.action === 'navigateToOrdersHistory' && currentView === 'ordersHistory') return true;
-        return false;
-    }, [currentView, selectedCategory, showAllOffersView, searchTerm]);
-
-    const handleNavLinkClick = useCallback((e, link) => {
-        e.preventDefault();
-        setMobileMenuOpen(false);
-        onCloseAllPopovers();
-        onNavigate(link.action, link.params || {});
-    }, [onNavigate, onCloseAllPopovers]);
-    
-    const handleNotificationNavigate = useCallback((action, params) => {
-        onCloseAllPopovers();
-        onNavigate(action, params);
-    }, [onNavigate, onCloseAllPopovers]);
-
-    const handleUserMenuLinkClick = useCallback((action, params) => {
-        onCloseAllPopovers();
-        onNavigate(action, params || {});
-    }, [onNavigate, onCloseAllPopovers]);
-    
     const handleLogoutClick = useCallback(() => {
         onCloseAllPopovers();
         onLogout();
@@ -115,22 +92,28 @@ export const Header = ({
         onCloseAllPopovers();
         onSearchSubmit(searchTerm);
         setMobileMenuOpen(false);
-    }, [onSearchSubmit, searchTerm, onCloseAllPopovers]);
+        navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+    }, [onSearchSubmit, searchTerm, onCloseAllPopovers, navigate]);
 
     const handleSuggestionClick = useCallback((suggestion) => {
-        onCloseAllPopovers();
-        setMobileMenuOpen(false);
+        setIsAutocompleteVisible(false);
         if (suggestion.type === 'product') {
-            onNavigate('selectProductSuggestion', { productId: suggestion.id });
+            navigate(`/product/${suggestion.id}`);
         } else if (suggestion.type === 'category') {
-            onNavigate('selectCategorySuggestion', { categoryId: suggestion.id });
+            navigate(`/category/${suggestion.id}`);
         }
-        onSearchTermChange(suggestion.name);
-    }, [onNavigate, onSearchTermChange, onCloseAllPopovers]);
-    
-    const handleNavigateToAllProductsFromMiniCart = useCallback(() => {
-        onNavigate('navigateToAllCategories', { category: ProductCategory.All });
-    }, [onNavigate]);
+    }, [navigate]);
+
+    const handleNotificationNavigate = (action, params) => {
+        if (action === 'selectProductSuggestion' && params.productId) {
+            navigate(`/product/${params.productId}`);
+        }
+        if (action === 'navigateToUserProfile') {
+            navigate('/profile');
+        }
+        onCloseAllPopovers();
+    };
+
 
     const headerBaseClasses = "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out";
     const headerDynamicClasses = isScrolled || mobileMenuOpen
@@ -144,20 +127,22 @@ export const Header = ({
         },
             React.createElement("div", { className: "container mx-auto px-2 sm:px-6 lg:px-8" },
                 React.createElement("div", { className: "flex items-center justify-between h-16 sm:h-20" },
-                    React.createElement(Logo, { onNavLinkClick: handleNavLinkClick, isScrolled: isScrolled, mobileMenuOpen: mobileMenuOpen }),
+                    React.createElement(Logo, { isScrolled: isScrolled, mobileMenuOpen: mobileMenuOpen }),
                     React.createElement(SearchBar, {
                         handleSearchFormSubmit, searchTerm, onSearchTermChange,
                         isAutocompleteVisible, setIsAutocompleteVisible,
-                        autocompleteSuggestions, handleSuggestionClick, searchContainerRef
+                        autocompleteSuggestions, searchContainerRef,
+                        handleSuggestionClick: handleSuggestionClick
                     }),
-                    React.createElement(DesktopNavLinks, { navLinks, handleNavLinkClick, isLinkActive }),
+                    React.createElement(DesktopNavLinks, { navLinks: navLinks, currentUser: currentUser }),
                     React.createElement("div", { className: "flex items-center space-x-1 sm:space-x-2" },
                         React.createElement(HeaderActions, {
                             onToggleTheme, currentTheme,
-                            notificationsIconRef, onToggleNotifications, activePopover, unreadNotificationsCount, notifications, onCloseAllPopovers, handleNotificationNavigate, onMarkNotificationAsRead,
-                            cartIconRef, onToggleMiniCart, cartItemCount, cartTotalPrice, cartItems, onOpenCartPanel, handleNavigateToAllProductsFromMiniCart,
-                            userIconRef, currentUser, onToggleUserMenu, handleUserMenuLinkClick, handleLogoutClick, onLoginClick,
+                            notificationsIconRef, onToggleNotifications, activePopover, unreadNotificationsCount, notifications, onCloseAllPopovers, onMarkNotificationAsRead,
+                            cartIconRef, onToggleMiniCart, cartItemCount, cartTotalPrice, cartItems, onOpenCartPanel, handleNavigateToAllProductsFromMiniCart: () => navigate('/products'),
+                            userIconRef, currentUser, onToggleUserMenu, handleLogoutClick, onLoginClick,
                             NotificationsPopover, MiniCartPopover, UserMenuPopover,
+                            handleNotificationNavigate: handleNotificationNavigate,
                             loyaltySettings: loyaltySettings,
                         }),
                         React.createElement("div", { className: "md:hidden" },
@@ -179,7 +164,7 @@ export const Header = ({
             ),
             mobileMenuOpen && React.createElement(MobileMenu, {
                 handleSearchFormSubmit, searchTerm, onSearchTermChange,
-                navLinks, handleNavLinkClick, isLinkActive, currentUser
+                navLinks, currentUser
             })
         )
     );

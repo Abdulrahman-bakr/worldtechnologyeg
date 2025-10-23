@@ -34,10 +34,7 @@ const ToastNotification = ({ message, type = 'success', onClose }) => {
                 return () => clearTimeout(visibilityTimer);
             }
         }
-    // The dependency array intentionally only includes `message`. This prevents an infinite loop
-    // that would occur if it depended on the `onClose` function (which changes on every parent render)
-    // or the internal `isVisible` state. The logic is structured to flow correctly with this constraint.
-    }, [message]);
+    }, [message, isVisible, onClose]);
 
     // Do not render the component if it's not supposed to be visible.
     if (!isVisible) return null;

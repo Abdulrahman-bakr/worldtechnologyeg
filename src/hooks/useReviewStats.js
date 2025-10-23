@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { db } from '../services/firebase/config.js';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
@@ -7,7 +8,9 @@ export const useReviewStats = (product) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (!product || !product.id) {
+        const productId = product?.id;
+
+        if (!productId || typeof productId !== 'string') {
             setIsLoading(false);
             return;
         }
@@ -16,7 +19,7 @@ export const useReviewStats = (product) => {
         const reviewsRef = collection(db, 'reviews');
         const q = query(
             reviewsRef, 
-            where('productId', '==', product.id),
+            where('productId', '==', productId),
             where('isApproved', '==', true) // Only count approved reviews
         );
 

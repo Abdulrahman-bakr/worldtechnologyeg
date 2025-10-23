@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { EGYPT_GOVERNORATES_DATA } from '../constants/governorates.js';
 import { db } from '../services/firebase/config.js';
-import { collection, addDoc, serverTimestamp, doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
-import { generateCustomDisplayOrderId, removeUndefinedProperties, generateWhatsAppMessage } from '../utils/checkoutUtils.js';
+import { doc, setDoc } from 'firebase/firestore';
+import { generateCustomDisplayOrderId, generateWhatsAppMessage } from '../utils/checkoutUtils.js';
 import { LOYALTY_TIERS as LOYALTY_TIERS_FALLBACK } from '../constants/loyaltyTiers.js';
 
 export const useCheckoutForm = ({
@@ -30,7 +30,7 @@ export const useCheckoutForm = ({
     const [formErrors, setFormErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submissionError, setSubmissionError] = useState('');
-    const [applyPoints, setApplyPoints] = useState(false);
+    const [pointsToApply, setPointsToApply] = useState(0);
 
 
     const itemsForCheckout = itemToCheckout ? [itemToCheckout] : (cartItems || []);
@@ -51,8 +51,9 @@ export const useCheckoutForm = ({
             setAddressDetails('');
         } else {
             const addr = currentUser?.defaultShippingAddress;
-            setCustomerName(addr?.name || currentUser?.name || '');
-            setCustomerPhone(addr?.phone || currentUser?.phone || '');
+            // Prioritize root user info, then fall back to address info, then empty.
+            setCustomerName(currentUser?.name || addr?.name || '');
+            setCustomerPhone(currentUser?.phone || addr?.phone || '');
             setCustomerAltPhone(addr?.altPhone || '');
             setSelectedGovernorate(addr?.governorate || '');
             setAddressDetails(addr?.address || '');
@@ -73,7 +74,7 @@ export const useCheckoutForm = ({
         setFormErrors({});
         setSubmissionError('');
         setIsSubmitting(false);
-        setApplyPoints(false);
+        setPointsToApply(0);
     }, [currentUser, isDirectSingleServiceCheckout, containsOnlyDigitalServices]);
 
     useEffect(() => {
@@ -86,30 +87,33 @@ export const useCheckoutForm = ({
     const { roundedFinalAmount, summaryProps } = useMemo(() => {
         const Tiers = loyaltySettings || LOYALTY_TIERS_FALLBACK;
         const getTier = (points) => {
-            if (points >= Tiers.GOLD.minPoints) return { ...Tiers.GOLD };
-            if (points >= Tiers.SILVER.minPoints) return { ...Tiers.SILVER };
-            return { ...Tiers.BRONZE };
+            if (!Tiers) return { discount: 0 };
+            if (points >= Tiers.GOLD.minPoints) return Tiers.GOLD;
+            if (points >= Tiers.SILVER.minPoints) return Tiers.SILVER;
+            return Tiers.BRONZE;
         };
         const currentTier = currentUser ? getTier(currentUser.loyaltyPoints || 0) : { name: "برونزي", discount: 0, color: "text-orange-400" };
         const tierDiscountValue = amountForCalculation * currentTier.discount;
         const subtotalAfterDiscount = amountForCalculation - tierDiscountValue;
+        
         const available = currentUser?.loyaltyPoints || 0;
-        const discountFromPoints = Math.floor(available / 100);
-        const shouldApplyPoints = applyPoints && discountFromPoints > 0;
-        const appliedDiscountFromPoints = shouldApplyPoints ? Math.min(discountFromPoints, subtotalAfterDiscount) : 0;
-        const redeemedPoints = shouldApplyPoints ? appliedDiscountFromPoints * 100 : 0;
-        const finalBeforeRounding = subtotalAfterDiscount - appliedDiscountFromPoints;
+        const pointsToApplyNumber = Math.max(0, Math.min(Number(pointsToApply) || 0, available));
+        const potentialDiscountFromPoints = Math.floor(pointsToApplyNumber / 100);
+        const discountFromPoints = Math.min(potentialDiscountFromPoints, subtotalAfterDiscount);
+        const redeemedPoints = discountFromPoints * 100;
+        
+        const finalBeforeRounding = subtotalAfterDiscount - discountFromPoints;
         const rounded = Math.round(finalBeforeRounding);
         return {
             roundedFinalAmount: rounded,
             summaryProps: {
                 tierInfo: currentTier, tierDiscountAmount: tierDiscountValue, subtotalAfterTierDiscount: subtotalAfterDiscount,
-                pointsAvailable: available, discountAvailable: discountFromPoints, discountToApply: appliedDiscountFromPoints,
+                pointsAvailable: available, discountToApply: discountFromPoints,
                 pointsToRedeem: redeemedPoints, finalAmountBeforeRounding: finalBeforeRounding, 
                 roundingDifference: rounded - finalBeforeRounding,
             }
         };
-      }, [currentUser, amountForCalculation, applyPoints, loyaltySettings]);
+      }, [currentUser, amountForCalculation, pointsToApply, loyaltySettings]);
 
     useEffect(() => {
         if (!requiresPhysicalShipping) return;
@@ -214,21 +218,38 @@ export const useCheckoutForm = ({
         
         const orderItemsPayload = itemsForCheckout.map(item => {
             const { operatorLogo, ...serializableServiceDetails } = item.serviceDetails || {};
+            const { product, ...restOfItem } = item;
             return {
-                id: item.product.id,
-                product: item.product, 
-                name: item.variant ? `${item.product.arabicName} (${item.variant.colorName})` : (item.product.arabicName || 'اسم غير متوفر'), 
-                quantity: item.quantity, 
-                price: Number((item.serviceDetails?.finalPrice) ?? (item.product.discountPrice || item.product.price || 0)), 
-                imageUrl: item.variant?.imageUrl || (item.serviceDetails?.package?.imageUrl) || (item.serviceDetails?.operatorLogoUrl) || item.product.imageUrl || null, 
-                category: item.product.category || 'uncategorized', 
+                ...restOfItem,
+                productId: product.id,
+                name: item.variant ? `${product.arabicName} (${item.variant.colorName})` : (product.arabicName || 'اسم غير متوفر'), 
+                price: Number((item.serviceDetails?.finalPrice) ?? (product.discountPrice || product.price || 0)), 
+                imageUrl: item.variant?.imageUrl || (item.serviceDetails?.package?.imageUrl) || (item.serviceDetails?.operatorLogoUrl) || product.imageUrl || null, 
+                category: product.category || 'uncategorized', 
                 serviceDetails: item.serviceDetails ? serializableServiceDetails : null, 
-                variant: item.variant,
-                variantDetails: item.variant ? { colorName: item.variant.colorName, colorHex: item.variant.colorHex } : null 
             };
         });
         
-        const pointsToEarn = Math.floor(summaryProps.finalAmountBeforeRounding);
+        const Tiers = loyaltySettings || LOYALTY_TIERS_FALLBACK;
+        const getTier = (points) => {
+            if (!Tiers) return { discount: 0 };
+            if (points >= Tiers.GOLD.minPoints) return Tiers.GOLD;
+            if (points >= Tiers.SILVER.minPoints) return Tiers.SILVER;
+            return Tiers.BRONZE;
+        };
+        const currentTier = currentUser ? getTier(currentUser.loyaltyPoints || 0) : { discount: 0 };
+        const tierDiscountValue = amountForCalculation * currentTier.discount;
+        const subtotalAfterDiscount = amountForCalculation - tierDiscountValue;
+
+        const availablePoints = currentUser?.loyaltyPoints || 0;
+        const pointsToApplyNumber = Math.max(0, Math.min(Number(pointsToApply) || 0, availablePoints));
+        const potentialDiscountFromPoints = Math.floor(pointsToApplyNumber / 100);
+        const appliedDiscountFromPoints = Math.min(potentialDiscountFromPoints, subtotalAfterDiscount);
+        const redeemedPoints = appliedDiscountFromPoints * 100;
+        
+        const finalBeforeRounding = subtotalAfterDiscount - appliedDiscountFromPoints;
+        const finalRoundedAmount = Math.round(finalBeforeRounding);
+        const pointsToEarn = Math.floor(finalBeforeRounding);
         
         const orderData = {
             displayOrderId,
@@ -236,12 +257,12 @@ export const useCheckoutForm = ({
             paymentDetails: { method: paymentMethodDisplay, transactionInfo: (selectedPaymentMethod === 'cash_on_delivery') ? null : paymentTransactionInfo },
             items: orderItemsPayload,
             subtotal: Number(amountForCalculation) + (couponInfo?.couponDiscount || 0),
-            tierDiscount: Number(summaryProps.tierDiscountAmount),
-            pointsDiscount: Number(summaryProps.discountToApply),
+            tierDiscount: Number(tierDiscountValue),
+            pointsDiscount: Number(appliedDiscountFromPoints),
             couponCode: couponInfo?.appliedCoupon?.code || null,
             couponDiscount: couponInfo?.couponDiscount || 0,
-            totalAmount: Number(roundedFinalAmount),
-            pointsRedeemed: Number(summaryProps.pointsToRedeem),
+            totalAmount: Number(finalRoundedAmount),
+            pointsRedeemed: Number(redeemedPoints),
             pointsToEarn: pointsToEarn,
             pointsAwarded: false,
             status: paymentStatus,
@@ -258,16 +279,17 @@ export const useCheckoutForm = ({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     orderData: orderData,
-                    clientTotalAmount: roundedFinalAmount
+                    clientTotalAmount: finalRoundedAmount
                 }),
             });
             
-            const result = await response.json();
-
             if (!response.ok) {
-                throw new Error(result.details || result.error || 'Failed to create order from server.');
+                 const result = await response.json().catch(() => ({ error: 'An unknown server error occurred.' }));
+                throw new Error(result.details || result.error || `Server responded with status ${response.status}`);
             }
             
+            const result = await response.json();
+
             if (currentUser.uid && requiresPhysicalShipping && !isDirectSingleServiceCheckout) {
                 try {
                     await setDoc(doc(db, "users", currentUser.uid), { defaultShippingAddress: customerShippingDetails }, { merge: true });
@@ -286,12 +308,12 @@ export const useCheckoutForm = ({
                 selectedPaymentMethod, 
                 paymentTransactionInfo, 
                 itemsForCheckout, 
-                totalAmount: roundedFinalAmount, 
+                totalAmount: finalRoundedAmount, 
                 originalAmount: Number(amountForCalculation) + (couponInfo?.couponDiscount || 0), 
-                tierDiscountAmount: summaryProps.tierDiscountAmount, 
-                discountApplied: summaryProps.discountToApply, 
-                finalAmountBeforeRounding: summaryProps.finalAmountBeforeRounding, 
-                isRounded: summaryProps.roundingDifference !== 0,
+                tierDiscountAmount: tierDiscountValue, 
+                discountApplied: appliedDiscountFromPoints, 
+                finalAmountBeforeRounding: finalBeforeRounding, 
+                isRounded: (finalRoundedAmount - finalBeforeRounding) !== 0,
                 couponCode: couponInfo?.appliedCoupon?.code,
                 couponDiscountValue: couponInfo?.couponDiscount,
             });
@@ -299,14 +321,14 @@ export const useCheckoutForm = ({
             const whatsappUrl = `https://api.whatsapp.com/send/?phone=201026146714&text=${encodeURIComponent(message)}`;
             window.open(whatsappUrl, '_blank');
             
-            onCompleteOrder({ isDirectCheckout: isDirectSingleServiceCheckout, pointsRedeemed: summaryProps.pointsToRedeem });
+            onCompleteOrder({ isDirectCheckout: isDirectSingleServiceCheckout, pointsRedeemed: redeemedPoints });
         } catch (e) {
             console.error("Error during order confirmation process:", e);
             setSubmissionError(e.message || "حدث خطأ أثناء حفظ الطلب. يرجى المحاولة مرة أخرى أو التواصل معنا مباشرة.");
         } finally {
             setIsSubmitting(false);
         }
-    }, [currentUser, validateForm, isDirectSingleServiceCheckout, customerName, customerPhone, customerAltPhone, requiresPhysicalShipping, selectedGovernorate, selectedCity, addressDetails, selectedPaymentMethod, paymentTransactionInfo, orderNotes, itemsForCheckout, amountForCalculation, summaryProps, roundedFinalAmount, onCompleteOrder, onUpdateCurrentUserAddress, containsOnlyDigitalServices, couponInfo]);
+    }, [currentUser, validateForm, isDirectSingleServiceCheckout, customerName, customerPhone, customerAltPhone, requiresPhysicalShipping, selectedGovernorate, selectedCity, addressDetails, selectedPaymentMethod, paymentTransactionInfo, orderNotes, itemsForCheckout, amountForCalculation, onCompleteOrder, onUpdateCurrentUserAddress, containsOnlyDigitalServices, couponInfo, itemToCheckout, pointsToApply, loyaltySettings]);
 
     const renderError = useCallback((fieldName) => {
         if (formErrors[fieldName]) {
@@ -333,7 +355,7 @@ export const useCheckoutForm = ({
         containsOnlyDigitalServices,
         handleConfirmOrder,
         renderError,
-        applyPoints, setApplyPoints,
+        pointsToApply, setPointsToApply,
         roundedFinalAmount, summaryProps
     };
 };

@@ -15,7 +15,7 @@ export const Modals = () => {
         isCheckoutModalOpen, handleCloseCheckoutModal, handleCheckoutModalDataReset, checkoutPayload, cartItems,
         handleOrderCompletion, currentUser, handleUpdateCurrentUserAddress, attemptCheckout,
         isCartOpen, setIsCartOpen, handleUpdateQuantity, handleRemoveFromCart,
-        isChatOpen, setIsChatOpen, products, handleNavigation, recentlyViewedIds,
+        isChatOpen, setIsChatOpen, products, recentlyViewedIds,
         toastMessage, setToastMessage,
         isComparisonModalOpen, setIsComparisonModalOpen,
         recentlyViewedProducts, handleViewProductDetail,
@@ -80,7 +80,6 @@ export const Modals = () => {
                 onClose: () => setIsChatOpen(false),
                 products: products,
                 categories: CATEGORIES,
-                onNavigate: handleNavigation,
                 recentlyViewedIds: recentlyViewedIds,
             }),
             React.createElement(ToastNotification, {

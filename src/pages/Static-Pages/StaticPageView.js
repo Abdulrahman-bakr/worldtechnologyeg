@@ -1,10 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // --- START OF StaticPageView.tsx ---
 const StaticPageView = ({ title, onBack, children, icon: PageIcon }) => {
+    const navigate = useNavigate();
+    const handleBack = onBack || (() => navigate(-1));
+
     return React.createElement("div", { className: "container mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24 sm:pt-32 min-h-[calc(100vh-16rem)]" },
         React.createElement("button", {
-            onClick: onBack,
+            onClick: handleBack,
             className: "mb-8 text-primary hover:text-primary-hover font-semibold flex items-center space-x-2 space-x-reverse transition-colors"
         },
             React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor", className: "w-5 h-5 transform rtl:rotate-180" },

@@ -1,11 +1,22 @@
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CloseIcon } from '../../icons/index.js';
 
 const FeeRuleFormModal = ({ isOpen, onClose, onSave }) => {
     const [ruleId, setRuleId] = useState('');
     
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
         onSave({ ruleId });
@@ -18,7 +29,7 @@ const FeeRuleFormModal = ({ isOpen, onClose, onSave }) => {
 
     return (
         React.createElement("div", { className: "fixed inset-0 z-[110] flex items-center justify-center p-4", role: "dialog", "aria-modal": "true" },
-            React.createElement("div", { className: "modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm", onClick: onClose }),
+            React.createElement("div", { className: "modal-overlay absolute inset-0 bg-black/85", onClick: onClose }),
             React.createElement("div", { className: "modal-content bg-light-50 dark:bg-dark-800 rounded-xl shadow-2xl p-6 w-full max-w-lg relative" },
                 React.createElement("button", { onClick: onClose, className: "absolute top-4 left-4 text-dark-600 dark:text-dark-300 hover:text-red-500 p-1 transition-colors", "aria-label": "إغلاق" }, React.createElement(CloseIcon, { className: "w-6 h-6" })),
                 

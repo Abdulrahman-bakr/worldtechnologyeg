@@ -9,10 +9,10 @@
     z-index: 1000;
     width: 95%;
     max-width: 600px;
-    background-color: rgba(31, 41, 55, 0.9); /* dark:bg-dark-800/90 */
+    background-color: rgba(20, 20, 20, 0.9); /* dark:bg-dark-800/90 */
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid #4B5563; /* dark:border-dark-600 */
+    border: 1px solid #2A2A2A; /* dark:border-dark-600 */
     border-radius: 1rem;
     padding: 0.75rem 1rem;
     display: flex;
@@ -76,9 +76,9 @@ html.theme-light .comparison-bar {
 .comparison-bar-item-placeholder {
     width: 40px;
     height: 40px;
-    background-color: #4B5563; /* dark-600 */
+    background-color: #2A2A2A; /* dark-600 */
     border-radius: 0.375rem;
-    border: 1px dashed #6B7280; /* dark-500 */
+    border: 1px dashed #3A3A3A; /* dark-500 */
 }
 html.theme-light .comparison-bar-item-placeholder {
     background-color: #F3F4F6; /* light-100 */

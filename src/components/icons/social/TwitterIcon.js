@@ -1,4 +1,3 @@
-import React from 'react';
 import { createSolidIcon } from '../core/createSolidIcon.js';
 
 export const TwitterIcon = createSolidIcon(

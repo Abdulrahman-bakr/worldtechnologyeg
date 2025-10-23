@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { ShoppingCartIcon, StarIcon } from '../../../icons/index.js';
+import { StarIcon } from '../../../icons/index.js';
 import { FloatingInput } from '../../../ui/forms/FloatingInput.js';
 import { MOBILE_OPERATOR_CONFIG, MOBILE_TOPUP_AMOUNTS, CUSTOM_AMOUNT_VALUE, MIN_CUSTOM_TOPUP_AMOUNT } from '../../../../constants/index.js';
 
@@ -119,7 +119,7 @@ const MobileTopupForm = ({ product, onInitiateDirectCheckout }) => {
                     setIsCustomAmount(value === CUSTOM_AMOUNT_VALUE);
                     if (value !== CUSTOM_AMOUNT_VALUE) setSelectedAmount(Number(value));
                 },
-                className: "w-full p-2.5 rounded-md border border-light-300 dark:border-dark-600"
+                className: "w-full p-2.5 rounded-md border border-light-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-dark-900 dark:text-dark-50"
             },
                 MOBILE_TOPUP_AMOUNTS.map(amount => React.createElement("option", { key: amount, value: amount }, `${amount} ج.م`)),
                 React.createElement("option", { value: CUSTOM_AMOUNT_VALUE }, "مبلغ آخر...")

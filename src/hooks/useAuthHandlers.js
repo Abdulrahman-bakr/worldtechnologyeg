@@ -11,6 +11,33 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export const useAuthHandlers = ({ onLoginSuccess, setError, setSuccessMessage, setIsLoading }) => {
 
+    const handleAuthError = useCallback((err) => {
+        if (err.message) {
+            setError(err.message);
+            return;
+        }
+        switch (err.code) {
+          case 'auth/weak-password':
+            setError('كلمة المرور ضعيفة جداً. يجب أن تتكون من 6 أحرف على الأقل.');
+            break;
+          case 'auth/email-already-in-use':
+            setError('هذا البريد الإلكتروني مسجل بالفعل. هل تريد تسجيل الدخول بدلاً من ذلك؟');
+            break;
+          case 'auth/invalid-credential':
+            setError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+            break;
+          case 'auth/invalid-email':
+            setError('البريد الإلكتروني الذي أدخلته غير صالح.');
+            break;
+           case 'auth/popup-closed-by-user':
+            setError('تم إلغاء تسجيل الدخول.');
+            break;
+          default:
+            setError('حدث خطأ. يرجى المحاولة مرة أخرى.');
+            break;
+        }
+    }, [setError]);
+
     const processLogin = useCallback(async (firebaseUser, signupData = null) => {
         await onLoginSuccess(firebaseUser, signupData);
     }, [onLoginSuccess]);
@@ -32,7 +59,7 @@ export const useAuthHandlers = ({ onLoginSuccess, setError, setSuccessMessage, s
         } finally {
             setIsLoading(false);
         }
-    }, [processLogin, setError, setSuccessMessage, setIsLoading]);
+    }, [processLogin, setError, setSuccessMessage, setIsLoading, handleAuthError]);
 
     const handleEmailLogin = useCallback(async (email, password) => {
         setError('');
@@ -48,7 +75,7 @@ export const useAuthHandlers = ({ onLoginSuccess, setError, setSuccessMessage, s
         } finally {
             setIsLoading(false);
         }
-    }, [processLogin, setError, setSuccessMessage, setIsLoading]);
+    }, [processLogin, setError, setSuccessMessage, setIsLoading, handleAuthError]);
 
     const handleGoogleSignIn = useCallback(async () => {
         setIsLoading(true);
@@ -63,7 +90,7 @@ export const useAuthHandlers = ({ onLoginSuccess, setError, setSuccessMessage, s
         } finally {
             setIsLoading(false);
         }
-    }, [processLogin, setError, setIsLoading]);
+    }, [processLogin, setError, setIsLoading, handleAuthError]);
 
     const handleForgotPassword = useCallback(async (email, phone) => {
         setIsLoading(true);
@@ -96,34 +123,7 @@ export const useAuthHandlers = ({ onLoginSuccess, setError, setSuccessMessage, s
         } finally {
             setIsLoading(false);
         }
-    }, [setError, setSuccessMessage, setIsLoading]);
-    
-    const handleAuthError = (err) => {
-        if (err.message) {
-            setError(err.message);
-            return;
-        }
-        switch (err.code) {
-          case 'auth/weak-password':
-            setError('كلمة المرور ضعيفة جداً. يجب أن تتكون من 6 أحرف على الأقل.');
-            break;
-          case 'auth/email-already-in-use':
-            setError('هذا البريد الإلكتروني مسجل بالفعل. هل تريد تسجيل الدخول بدلاً من ذلك؟');
-            break;
-          case 'auth/invalid-credential':
-            setError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
-            break;
-          case 'auth/invalid-email':
-            setError('البريد الإلكتروني الذي أدخلته غير صالح.');
-            break;
-           case 'auth/popup-closed-by-user':
-            setError('تم إلغاء تسجيل الدخول.');
-            break;
-          default:
-            setError('حدث خطأ. يرجى المحاولة مرة أخرى.');
-            break;
-        }
-    };
+    }, [setError, setSuccessMessage, setIsLoading, handleAuthError]);
 
     return { handleEmailSignup, handleEmailLogin, handleGoogleSignIn, handleForgotPassword };
 };

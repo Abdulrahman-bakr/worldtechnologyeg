@@ -5,20 +5,21 @@ import { useAuth } from './useAuth.js';
 import { useUI } from './useUI.js';
 import { useNotificationsAndBanners } from './useNotificationsAndBanners.js';
 import { useCheckout } from './useCheckout.js';
-import { useNavigation } from './useNavigation.js';
 import { useWishlist } from './useWishlist.js';
+import { ProductCategory } from '../constants/index.js';
 
 export const useAppLogic = () => {
     const uiState = useUI();
+    const { setToastMessage, setRecentlyViewedIds, setActivePopover } = uiState;
     
     const { 
         currentUser, isLoginModalOpen, setIsLoginModalOpen, 
         pendingActionAfterLogin, setPendingActionAfterLogin,
         handleLoginSuccess, handleLogout, handleUpdateCurrentUserAddress,
         handleUpdateUserProfileData
-    } = useAuth(uiState.setToastMessage);
+    } = useAuth(setToastMessage);
 
-    const { wishlistItems, handleToggleWishlist } = useWishlist(currentUser, setIsLoginModalOpen, setPendingActionAfterLogin, uiState.setToastMessage);
+    const { wishlistItems, handleToggleWishlist } = useWishlist(currentUser, setIsLoginModalOpen, setPendingActionAfterLogin, setToastMessage);
 
     const { 
         products: allProducts,
@@ -35,7 +36,7 @@ export const useAppLogic = () => {
         searchTerm, 
         setSearchTerm,
         getProductsForCategory, 
-        fetchInitialData,
+        fetchInitialData: fetchProductsData,
         brands,
         availableSpecFilters,
         activeFilters,
@@ -47,24 +48,24 @@ export const useAppLogic = () => {
         handleResetFilters,
         filterCounts,
         discounts,
-    } = useProducts(uiState.setToastMessage, uiState.selectedCategory, uiState.showAllOffersView);
+    } = useProducts(setToastMessage, uiState.selectedCategory, uiState.showAllOffersView);
     
     const [comparisonList, setComparisonList] = useState([]);
 
     const handleToggleCompare = useCallback((productId) => {
         setComparisonList(prev => {
             if (prev.includes(productId)) {
-                uiState.setToastMessage({ text: "تمت الإزالة من قائمة المقارنة.", type: 'info' });
+                setToastMessage({ text: "تمت الإزالة من قائمة المقارنة.", type: 'info' });
                 return prev.filter(id => id !== productId);
             }
             if (prev.length >= 3) {
-                uiState.setToastMessage({ text: "يمكنك مقارنة 3 منتجات بحد أقصى.", type: 'warning' });
+                setToastMessage({ text: "يمكنك مقارنة 3 منتجات بحد أقصى.", type: 'warning' });
                 return prev;
             }
-            uiState.setToastMessage({ text: "تمت الإضافة إلى قائمة المقارنة!", type: 'success' });
+            setToastMessage({ text: "تمت الإضافة إلى قائمة المقارنة!", type: 'success' });
             return [...prev, productId];
         });
-    }, [uiState.setToastMessage]);
+    }, [setToastMessage]);
 
     const handleClearCompare = useCallback(() => {
         setComparisonList([]);
@@ -76,20 +77,9 @@ export const useAppLogic = () => {
     );
 
     const addRecentlyViewed = useCallback((id) => {
-        uiState.setRecentlyViewedIds(prev => [id, ...prev.filter(pId => pId !== id)].slice(0, 15));
-    }, [uiState.setRecentlyViewedIds]);
+        setRecentlyViewedIds(prev => [id, ...prev.filter(pId => pId !== id)].slice(0, 15));
+    }, [setRecentlyViewedIds]);
     
-    const navigationState = useNavigation({
-        currentUser, products: allProducts, initialMaxPrice,
-        addRecentlyViewed,
-        setIsLoginModalOpen, setPendingActionAfterLogin,
-        ...uiState,
-        sortOption, setSortOption,
-        searchTerm, setSearchTerm,
-        setToastMessage: uiState.setToastMessage,
-        setActiveFilters, setPriceRange,
-    });
-
     const recentlyViewedProducts = React.useMemo(() => {
         return (uiState.recentlyViewedIds || [])
             .map(id => allProducts.find(p => p.id === id))
@@ -100,7 +90,7 @@ export const useAppLogic = () => {
         cartItems, setCartItems, isCartOpen, setIsCartOpen,
         handleAddToCart, handleUpdateQuantity, handleRemoveFromCart,
         cartItemCount
-    } = useCart(uiState.setToastMessage, uiState.setActivePopover);
+    } = useCart(setToastMessage, setActivePopover);
     
     const [couponCodeInput, setCouponCodeInput] = useState('');
     const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -175,15 +165,15 @@ export const useAppLogic = () => {
         const coupon = discounts.find(d => d.code.toUpperCase() === code.toUpperCase());
 
         if (!coupon) {
-            uiState.setToastMessage({ text: "كود الخصم غير صالح.", type: 'error' });
+            setToastMessage({ text: "كود الخصم غير صالح.", type: 'error' });
             return;
         }
         if (coupon.expiryDate && coupon.expiryDate.toDate() < new Date()) {
-            uiState.setToastMessage({ text: "هذا الكوبون منتهي الصلاحية.", type: 'error' });
+            setToastMessage({ text: "هذا الكوبون منتهي الصلاحية.", type: 'error' });
             return;
         }
         if (coupon.minPurchase && subtotalAfterProductDiscounts < coupon.minPurchase) {
-            uiState.setToastMessage({ text: `يجب أن تكون قيمة المشتريات ${coupon.minPurchase} ج.م على الأقل لتطبيق هذا الكوبون.`, type: 'warning' });
+            setToastMessage({ text: `يجب أن تكون قيمة المشتريات ${coupon.minPurchase} ج.م على الأقل لتطبيق هذا الكوبون.`, type: 'warning' });
             return;
         }
         let isApplicable = false;
@@ -196,18 +186,18 @@ export const useAppLogic = () => {
             );
         }
         if (!isApplicable) {
-            uiState.setToastMessage({ text: "لا يمكن تطبيق هذا الكوبون على المنتجات الموجودة في سلتك.", type: 'warning' });
+            setToastMessage({ text: "لا يمكن تطبيق هذا الكوبون على المنتجات الموجودة في سلتك.", type: 'warning' });
             return;
         }
         setAppliedCoupon(coupon);
-        uiState.setToastMessage({ text: "تم تطبيق الخصم بنجاح!", type: 'success' });
-    }, [discounts, cartItems, subtotalAfterProductDiscounts, uiState.setToastMessage]);
+        setToastMessage({ text: "تم تطبيق الخصم بنجاح!", type: 'success' });
+    }, [discounts, cartItems, subtotalAfterProductDiscounts, setToastMessage]);
 
     const handleRemoveCoupon = useCallback(() => {
         setAppliedCoupon(null);
         setCouponCodeInput('');
-        uiState.setToastMessage({ text: "تم إزالة الخصم.", type: 'info' });
-    }, [uiState.setToastMessage]);
+        setToastMessage({ text: "تم إزالة الخصم.", type: 'info' });
+    }, [setToastMessage]);
     
     const handleCartAndCheckoutReset = useCallback(() => {
         setCartItems([]);
@@ -221,7 +211,7 @@ export const useAppLogic = () => {
         attemptCheckout, handleInitiateDirectCheckout
     } = useCheckout({
         currentUser, cartItems, setIsCartOpen, setCartItems: handleCartAndCheckoutReset, 
-        setToastMessage: uiState.setToastMessage, setIsLoginModalOpen, 
+        setToastMessage: setToastMessage, setIsLoginModalOpen, 
         setPendingActionAfterLogin, handleUpdateCurrentUserAddress,
     });
     
@@ -232,11 +222,18 @@ export const useAppLogic = () => {
 
     const notificationState = useNotificationsAndBanners({
         products: allProducts, 
-        setToastMessage: uiState.setToastMessage,
+        setToastMessage: setToastMessage,
         currentUser
     });
     
-    const { setupUserNotificationsListener } = notificationState;
+    const { setupUserNotificationsListener, fetchAnnouncements } = notificationState;
+
+    const fetchInitialData = useCallback(() => {
+        fetchProductsData();
+        if(fetchAnnouncements) fetchAnnouncements();
+    }, [fetchProductsData, fetchAnnouncements]);
+
+
     React.useEffect(() => {
         let unsubscribe = () => {};
         if (currentUser && setupUserNotificationsListener) {
@@ -244,17 +241,24 @@ export const useAppLogic = () => {
         }
         return () => unsubscribe();
     }, [currentUser, setupUserNotificationsListener]);
+    
+    const handleSelectCategory = useCallback((categoryId) => {
+        uiState.setSelectedCategory(categoryId || ProductCategory.All);
+        if (categoryId) { // If a specific category is chosen, turn off the offers view.
+             uiState.setShowAllOffersView(false);
+        }
+    }, [uiState.setSelectedCategory, uiState.setShowAllOffersView]);
 
     return {
         products: filteredAndSortedProducts, allProducts, productsLoading, initialMaxPrice,
         allDigitalPackages, allFeeRules, activePopup, storeSettings,
         loyaltySettings,
         sortOption, handleSortChange: setSortOption, searchTerm, setSearchTerm,
-        getProductsForCategory, fetchInitialData, handleSearchTermChange: navigationState.handleSearchTermChange,
-        handleSearchSubmit: navigationState.handleSearchSubmit, handleSelectCategory: navigationState.handleSelectCategory,
+        getProductsForCategory, fetchInitialData, handleSearchTermChange: setSearchTerm,
+        handleSelectCategory,
         viewMode: uiState.viewMode, handleViewModeChange: uiState.setViewMode, 
-        ...uiState, ...navigationState,
-        recentlyViewedProducts, cartItems, handleAddToCart, handleUpdateQuantity, handleRemoveFromCart,
+        ...uiState,
+        recentlyViewedProducts, addRecentlyViewed, cartItems, handleAddToCart, handleUpdateQuantity, handleRemoveFromCart,
         cartItemCount, headerCartTotalPrice: cartGrandTotal, isCartOpen, setIsCartOpen,
         isCheckoutModalOpen, handleCloseCheckoutModal, attemptCheckout: attemptCheckoutWithCoupon,
         handleInitiateDirectCheckout, currentUser, isLoginModalOpen, setIsLoginModalOpen,

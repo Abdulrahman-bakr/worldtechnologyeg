@@ -58,14 +58,14 @@ html.theme-light .admin-nav-link.active:hover {
 
 /* Dark theme styles */
 html:not(.theme-light) .admin-sidebar {
-  background-color: #1F2937; /* dark-800 */
-  border-color: #374151; /* dark-700 */
+  background-color: #141414; /* dark-800 */
+  border-color: #1E1E1E; /* dark-700 */
 }
 html:not(.theme-light) .admin-nav-link {
   color: #D1D5DB; /* dark-300 */
 }
 html:not(.theme-light) .admin-nav-link:hover {
-  background-color: #374151; /* dark-700 */
+  background-color: #1E1E1E; /* dark-700 */
   color: #F9FAFB; /* dark-50 */
 }
 html:not(.theme-light) .admin-nav-link.active {
@@ -108,11 +108,11 @@ html.theme-light .admin-table tbody tr:hover { background-color: #F3F4F6; }
 html.theme-light .admin-table tbody tr.selected-row { background-color: #DBEAFE; } /* blue-100 */
 
 
-html:not(.theme-light) .admin-table-container { border-color: #374151; }
+html:not(.theme-light) .admin-table-container { border-color: #2A2A2A; }
 html:not(.theme-light) .admin-table { color: #D1D5DB; }
-html:not(.theme-light) .admin-table thead { background-color: #374151; color: #9CA3AF; }
-html:not(.theme-light) .admin-table tbody tr { border-color: #374151; }
-html:not(.theme-light) .admin-table tbody tr:hover { background-color: #374151; }
+html:not(.theme-light) .admin-table thead { background-color: #1E1E1E; color: #9CA3AF; }
+html:not(.theme-light) .admin-table tbody tr { border-color: #2A2A2A; }
+html:not(.theme-light) .admin-table tbody tr:hover { background-color: #1E1E1E; }
 html:not(.theme-light) .admin-table tbody tr.selected-row { background-color: #1E40AF; } /* blue-800 */
 
 
@@ -123,7 +123,7 @@ html:not(.theme-light) .admin-table tbody tr.selected-row { background-color: #1
   border-radius: 0.375rem;
 }
 html.theme-light .admin-table .product-image { background-color: #FFFFFF; }
-html:not(.theme-light) .admin-table .product-image { background-color: #4B5563; }
+html:not(.theme-light) .admin-table .product-image { background-color: #2A2A2A; }
 
 /* Product Form Modal */
 .admin-form-spec, .admin-form-feature {
@@ -167,7 +167,7 @@ html:not(.theme-light) .admin-table .product-image { background-color: #4B5563; 
   border-width: 1px;
 }
 html.theme-light .admin-stat-card { background-color: #FFFFFF; border-color: #E5E7EB; }
-html:not(.theme-light) .admin-stat-card { background-color: #1F2937; border-color: #374151; }
+html:not(.theme-light) .admin-stat-card { background-color: #141414; border-color: #1E1E1E; }
 
 .chart-card {
   border-radius: 0.75rem;
@@ -175,7 +175,7 @@ html:not(.theme-light) .admin-stat-card { background-color: #1F2937; border-colo
   border-width: 1px;
 }
 html.theme-light .chart-card { background-color: #FFFFFF; border-color: #E5E7EB; }
-html:not(.theme-light) .chart-card { background-color: #1F2937; border-color: #374151; }
+html:not(.theme-light) .chart-card { background-color: #141414; border-color: #1E1E1E; }
 
 .bar-chart-bar {
   border-radius: 0.25rem;
@@ -199,7 +199,7 @@ html:not(.theme-light) .chart-card { background-color: #1F2937; border-color: #3
     gap: 1rem;
     padding: 0.75rem 1.5rem;
     border-radius: 1rem;
-    background-color: rgba(31, 41, 55, 0.95); /* dark:bg-dark-800 */
+    background-color: rgba(20, 20, 20, 0.95); /* dark:bg-dark-800 */
     color: white;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(8px);

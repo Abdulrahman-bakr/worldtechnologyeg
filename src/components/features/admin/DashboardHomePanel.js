@@ -1,7 +1,7 @@
 // world-technology-store/src/components/features/admin/DashboardHomePanel.js
 
 import React, { useMemo, useState } from 'react';
-import { ShoppingBagIcon, ShoppingCartIcon, CurrencyDollarIcon, UserIcon, ExclamationTriangleIcon } from '../../icons/index.js';
+import { ShoppingBagIcon, ShoppingCartIcon, UserIcon, ExclamationTriangleIcon } from '../../icons/index.js';
 
 const StatCard = ({ title, value, icon: Icon, isLoading }) => (
     React.createElement("div", { className: "admin-stat-card" },

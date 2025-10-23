@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { ShoppingCartIcon, StarIcon } from '../../../icons/index.js';
 import { FloatingInput } from '../../../ui/forms/FloatingInput.js';
 import { LANDLINE_BILL_PACKAGES } from '../../../../constants/index.js';
 
@@ -20,7 +19,11 @@ const LandlineBillForm = ({ product, onInitiateDirectCheckout }) => {
     }, [landlinePaymentType, selectedLandlinePackageOption, customLandlineAmount]);
     
     const handleCheckout = () => {
-        if(isCheckoutDisabled) return;
+        if(isCheckoutDisabled) {
+            setFormError("يرجى ملء جميع الحقول المطلوبة.");
+            return;
+        }
+        setFormError('');
         const isPackage = landlinePaymentType === 'package';
         const packageName = isPackage ? `${selectedLandlinePackageOption.name} (${selectedLandlinePackageOption.term})` : 'مبلغ مخصص';
 

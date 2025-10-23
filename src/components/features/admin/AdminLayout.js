@@ -1,14 +1,9 @@
-
-
-
-
-
 import React, { useState } from 'react';
 import { 
     GridViewIcon, ShoppingBagIcon, ShoppingCartIcon, UserIcon, 
     CogIcon, DocumentTextIcon, CloseIcon, ChevronDownIcon,
-    ChartBarIcon, DocumentChartBarIcon, LogOutIcon, ViewfinderCircleIcon,
-    WrenchScrewdriverIcon, StarIcon
+    DocumentChartBarIcon, LogOutIcon, ViewfinderCircleIcon,
+    WrenchScrewdriverIcon, StarIcon, MegaphoneIcon
 } from '../../icons/index.js';
 
 const navItems = [
@@ -27,10 +22,11 @@ const navItems = [
         ]
     },
     {
-        id: 'marketing', label: 'التسويق', icon: null, children: [
+        id: 'marketing', label: 'التسويق', icon: MegaphoneIcon, children: [
             { id: 'discounts', label: 'الكوبونات', icon: null },
             { id: 'banners', label: 'الإعلانات الرئيسية', icon: null },
             { id: 'popups', label: 'الإعلانات المنبثقة', icon: ViewfinderCircleIcon },
+            { id: 'notifications', label: 'إرسال إشعارات', icon: MegaphoneIcon },
         ]
     },
     { id: 'loyalty', label: 'برنامج الولاء', icon: StarIcon },
@@ -127,7 +123,7 @@ const AdminLayout = ({ children, activePanel, setActivePanel, onBack, isSidebarO
     return (
         React.createElement("div", { className: "flex h-screen bg-light-50 dark:bg-dark-900 text-dark-900 dark:text-dark-50" },
             isSidebarOpen && React.createElement("div", { 
-                className: "fixed inset-0 bg-black/50 z-30 md:hidden",
+                className: "fixed inset-0 bg-black/85 z-30 md:hidden",
                 onClick: () => setIsSidebarOpen(false) 
             }),
             React.createElement("aside", { 

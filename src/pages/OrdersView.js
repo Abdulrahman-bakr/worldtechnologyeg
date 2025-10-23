@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { ShoppingBagIcon } from '../components/icons/index.js';
 import { useOrdersData } from '../hooks/useOrders.js';
 import { OrderList } from '../components/features/orders/OrderList.js';
@@ -7,8 +9,8 @@ import { EmptyOrders } from '../components/features/orders/EmptyOrders.js';
 import { LoadingOrders } from '../components/features/orders/LoadingOrders.js';
 import { ORDER_STATUS_GROUPS } from '../components/features/orders/ordersUtils.js';
 
-const OrdersView = ({ currentUser, onBack, onNavigate }) => {
-    // ✅ FIX: Renamed 'fetchOrders' to 'fetchMoreOrders' to match the hook
+const OrdersView = ({ currentUser }) => {
+    const navigate = useNavigate();
     const { orders, isLoading, error, fetchMoreOrders, hasMore, isFetchingMore } = useOrdersData(currentUser);
     const [selectedStatusTab, setSelectedStatusTab] = useState("all");
     const [selectedGroupTitle, setSelectedGroupTitle] = useState(null);
@@ -45,8 +47,11 @@ const OrdersView = ({ currentUser, onBack, onNavigate }) => {
     }, [orders, selectedStatusTab]);
 
     return React.createElement("div", { className: "container mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24 sm:pt-32 min-h-[calc(100vh-16rem)]" },
+        React.createElement(Helmet, null, 
+            React.createElement("title", null, "طلباتي - World Technology")
+        ),
         React.createElement("button", {
-            onClick: onBack,
+            onClick: () => navigate(-1),
             className: "mb-8 text-primary hover:text-primary-hover font-semibold flex items-center space-x-2 space-x-reverse transition-colors"
         },
             React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor", className: "w-5 h-5 transform rtl:rotate-180" },
@@ -65,8 +70,7 @@ const OrdersView = ({ currentUser, onBack, onNavigate }) => {
         React.createElement("div", { id: "orders-panel", role: "tabpanel", "aria-labelledby": `tab-${selectedStatusTab}`},
             isLoading ? React.createElement(LoadingOrders, null)
             : error ? React.createElement("p", { className: "text-center text-red-500 py-10" }, error)
-            : filteredOrders.length === 0 ? React.createElement(EmptyOrders, { selectedStatusTab, onNavigate })
-            // ✅ FIX: Passed 'fetchMoreOrders' to the 'fetchOrders' prop, which the OrderList component expects
+            : filteredOrders.length === 0 ? React.createElement(EmptyOrders, { selectedStatusTab, onNavigate: (path) => navigate(path) })
             : React.createElement(OrderList, { orders: filteredOrders, fetchOrders: fetchMoreOrders, hasMore, isFetchingMore })
         )
     );

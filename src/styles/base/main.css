@@ -4,7 +4,7 @@
 
 /* Default styles (implicitly dark) */
 body {
-  background-color: #111827; /* dark:bg-dark-900 equivalent */
+  background-color: #0D0D0D; /* dark:bg-dark-900 equivalent */
   color: #F3F4F6;      /* dark:text-dark-100 equivalent */
   transition: background-color 0.3s ease, color 0.3s ease;
 }

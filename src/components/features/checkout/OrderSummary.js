@@ -4,9 +4,8 @@ const OrderSummary = ({
     totalAmount = 0,
     tierInfo = { name: "برونزي", discount: 0, color: "text-orange-400" },
     tierDiscountAmount = 0,
-    discountAvailable = 0,
-    applyPoints,
-    setApplyPoints,
+    subtotalAfterTierDiscount = 0,
+    pointsToApply, setPointsToApply,
     pointsAvailable = 0,
     discountToApply = 0,
     pointsToRedeem = 0,
@@ -28,6 +27,25 @@ const OrderSummary = ({
         };
     }
 
+    const handlePointsInputChange = (e) => {
+        const value = e.target.value;
+        if (value === '') {
+            setPointsToApply('');
+        } else {
+            const numValue = parseInt(value, 10);
+            if (!isNaN(numValue) && numValue >= 0) {
+                const maxPointsForSubtotal = Math.floor(subtotalAfterTierDiscount * 100);
+                setPointsToApply(Math.min(numValue, pointsAvailable, maxPointsForSubtotal));
+            }
+        }
+    };
+    
+    const handleMaxPoints = () => {
+        const maxPointsForSubtotal = Math.floor(subtotalAfterTierDiscount * 100);
+        setPointsToApply(Math.min(pointsAvailable, maxPointsForSubtotal));
+    };
+
+
     if (isWEBillCheckout && weBillDetails) {
         return (
             React.createElement("div", { className: "p-3 mb-4 bg-light-100 dark:bg-dark-700/50 rounded-lg space-y-2 text-sm" },
@@ -43,22 +61,25 @@ const OrderSummary = ({
         );
     }
 
-    const subtotalBeforeDiscounts = totalAmount + (couponInfo?.couponDiscount || 0);
+    const subtotalBeforeDiscounts = totalAmount;
 
     return (
         React.createElement(React.Fragment, null,
-            (discountAvailable > 0) && React.createElement("div", { className: "p-3 mb-3 bg-yellow-100 dark:bg-yellow-800/50 border border-yellow-300 dark:border-yellow-600 rounded-lg" },
-                React.createElement("label", { className: "flex items-center space-x-3 space-x-reverse cursor-pointer" },
+            (pointsAvailable > 0) && React.createElement("div", { className: "p-3 mb-3 bg-yellow-100 dark:bg-yellow-800/50 border border-yellow-300 dark:border-yellow-600 rounded-lg space-y-2" },
+                React.createElement("label", { className: "font-semibold text-yellow-800 dark:text-yellow-100" }, `استخدم نقاطك (لديك ${pointsAvailable} نقطة)`),
+                React.createElement("div", { className: "flex items-center gap-2" },
                     React.createElement("input", {
-                        type: "checkbox",
-                        checked: applyPoints,
-                        onChange: (e) => setApplyPoints(e.target.checked),
-                        className: "form-checkbox h-5 w-5 rounded text-primary focus:ring-primary"
+                        type: "number",
+                        value: pointsToApply,
+                        onChange: handlePointsInputChange,
+                        placeholder: "أدخل النقاط",
+                        className: "w-full p-2 rounded-md border border-yellow-300 dark:border-yellow-600 bg-white dark:bg-dark-700"
                     }),
-                    React.createElement("div", null,
-                        React.createElement("p", { className: "font-semibold text-yellow-800 dark:text-yellow-100" }, `استخدم نقاطك (لديك ${pointsAvailable} نقطة)`),
-                        React.createElement("p", { className: "text-sm text-yellow-700 dark:text-yellow-200" }, `سيتم تطبيق خصم بقيمة ${discountAvailable.toFixed(2)} ج.م`)
-                    )
+                    React.createElement("button", {
+                        type: "button",
+                        onClick: handleMaxPoints,
+                        className: "flex-shrink-0 px-4 py-2 bg-yellow-400 text-yellow-900 rounded-md font-semibold text-sm hover:bg-yellow-500"
+                    }, "الحد الأقصى")
                 )
             ),
             React.createElement("div", { className: "p-3 mb-4 bg-light-100 dark:bg-dark-700/50 rounded-lg space-y-2" },

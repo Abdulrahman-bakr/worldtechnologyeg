@@ -26,6 +26,12 @@ const PopupBannerManagementPanel = ({ popupBanners, isLoading, handlePopupBanner
         return result;
     };
 
+    const onDelete = (bannerId, bannerTitle) => {
+        if (window.confirm(`هل أنت متأكد من حذف الإعلان المنبثق "${bannerTitle}"؟`)) {
+            handlePopupBannerDelete(bannerId);
+        }
+    };
+
     const handleStatusToggle = async (banner) => {
         setUpdatingStatusId(banner.id);
         await handlePopupBannerSave({ ...banner, isActive: !banner.isActive });
@@ -68,7 +74,7 @@ const PopupBannerManagementPanel = ({ popupBanners, isLoading, handlePopupBanner
                                     })),
                                     React.createElement("td", { className: "space-x-2 space-x-reverse" },
                                         React.createElement("button", { onClick: () => handleOpenModal(banner), className: "p-2 hover:text-primary" }, React.createElement(PencilSquareIcon, { className: "w-5 h-5" })),
-                                        React.createElement("button", { onClick: () => handlePopupBannerDelete(banner.id), className: "p-2 hover:text-red-500" }, React.createElement(TrashIcon, { className: "w-5 h-5" }))
+                                        React.createElement("button", { onClick: () => onDelete(banner.id, banner.title), className: "p-2 hover:text-red-500" }, React.createElement(TrashIcon, { className: "w-5 h-5" }))
                                     )
                                 )
                             ))

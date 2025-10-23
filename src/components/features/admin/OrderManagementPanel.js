@@ -110,6 +110,12 @@ const OrderManagementPanel = ({ orders, isLoading, handleOrderStatusUpdate, hand
         setSelectedOrder(order);
         setIsModalOpen(true);
     };
+    
+    const onDeleteOrder = (orderId, displayOrderId) => {
+        if (window.confirm(`هل أنت متأكد من حذف الطلب ${displayOrderId}؟ هذا الإجراء لا يمكن التراجع عنه.`)) {
+            handleOrderDelete(orderId);
+        }
+    };
 
     const inputClass = "w-full p-2 rounded-md border border-light-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-sm";
 
@@ -202,6 +208,10 @@ const OrderManagementPanel = ({ orders, isLoading, handleOrderStatusUpdate, hand
                         : filteredOrders.map(order => {
                             const orderDate = order.createdAt; // Already a Date object from useAdminData
                             const needsAttention = order.status === 'pending_payment_confirmation';
+                            const statusInfo = getStatusDisplayInfo(order.status);
+                            const textColorClass = (statusInfo.colorClass.match(/(text-\S+)/) || [''])[0];
+                            const darkTextColorClass = (statusInfo.colorClass.match(/(dark:text-\S+)/) || [''])[0];
+                            
                             return React.createElement("tr", { key: order.id, className: needsAttention ? 'bg-yellow-500/10' : '' },
                                 React.createElement("td", { className: "font-semibold" }, order.displayOrderId),
                                 React.createElement("td", null, order.customerDetails?.name),
@@ -212,10 +222,10 @@ const OrderManagementPanel = ({ orders, isLoading, handleOrderStatusUpdate, hand
                                         React.createElement("select", {
                                             value: order.status,
                                             onChange: (e) => handleOrderStatusUpdate(order.id, e.target.value),
-                                            className: `p-1 rounded-md border text-xs ${getStatusDisplayInfo(order.status).colorClass.replace('text-', 'dark:text-').replace('bg-', 'dark:bg-opacity-20 bg-opacity-80 border-opacity-50 ')} bg-transparent border-current`
+                                            className: `p-1 rounded-md border text-xs bg-white dark:bg-dark-700 border-light-300 dark:border-dark-600 ${textColorClass} ${darkTextColorClass} font-semibold`
                                         },
                                             allStatuses.map(statusKey =>
-                                                React.createElement("option", { key: statusKey, value: statusKey }, getStatusDisplayInfo(statusKey).text)
+                                                React.createElement("option", { key: statusKey, value: statusKey, className: "text-dark-900 dark:text-dark-50 bg-white dark:bg-dark-700" }, getStatusDisplayInfo(statusKey).text)
                                             )
                                         ),
                                         needsAttention && React.createElement(ExclamationTriangleIcon, { className: "w-5 h-5 text-yellow-500", title: "يحتاج تأكيد دفع" })
@@ -224,7 +234,7 @@ const OrderManagementPanel = ({ orders, isLoading, handleOrderStatusUpdate, hand
                                 React.createElement("td", { className: "space-x-1 space-x-reverse" },
                                     React.createElement("button", { onClick: () => handleViewDetails(order), className: "text-sm text-primary hover:underline" }, "عرض التفاصيل"),
                                     React.createElement("button", { 
-                                        onClick: () => { if (window.confirm(`هل أنت متأكد من حذف الطلب ${order.displayOrderId}؟ لا يمكن التراجع عن هذا الإجراء.`)) handleOrderDelete(order.id) }, 
+                                        onClick: () => onDeleteOrder(order.id, order.displayOrderId), 
                                         className: "p-2 text-dark-600 hover:text-red-500",
                                         title: "حذف الطلب"
                                     }, React.createElement(TrashIcon, { className: "w-5 h-5" }))

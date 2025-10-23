@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ShoppingCartIcon, StarIcon } from '../../../icons/index.js';
 import { FloatingInput } from '../../../ui/forms/FloatingInput.js';
+import { INSTAPAY_BANKS } from '../../../../constants/index.js';
 
 const getFawryPayFee = (amount) => {
     const numAmount = Number(amount);
@@ -182,19 +183,21 @@ const FawryPayForm = ({ product, onInitiateDirectCheckout }) => {
         }),
         
         (total !== null && total > 0) && React.createElement("div", { className: "p-3 bg-light-100 dark:bg-dark-700 rounded-lg border border-light-200 dark:border-dark-600 text-center space-y-2" },
-            React.createElement("p", { className: "text-sm flex justify-between items-center text-dark-800 dark:text-dark-100" }, React.createElement("span", null, "المبلغ المدفوع:"), React.createElement("span", { className: "font-semibold tabular-nums" }, `${amount.toFixed(2)} ج.م`)),
-            React.createElement("p", { className: "text-sm flex justify-between items-center text-dark-800 dark:text-dark-100" }, React.createElement("span", null, "رسوم الخدمة:"), React.createElement("span", { className: "font-semibold tabular-nums" }, `+${fee.toFixed(2)} ج.م`)),
-            React.createElement("hr", { className: "border-light-300 dark:border-dark-600 my-1" }),
-            React.createElement("p", { className: "text-md font-bold flex justify-between items-center text-primary" }, React.createElement("span", null, "الإجمالي للدفع:"), React.createElement("span", { className: "tabular-nums text-lg" }, `${total.toFixed(2)} ج.م`))
+            React.createElement("div", { className: "space-y-1" },
+                React.createElement("p", { className: "text-sm flex justify-between items-center text-dark-800 dark:text-dark-100" }, React.createElement("span", null, "المبلغ المدفوع:"), React.createElement("span", { className: "font-semibold tabular-nums" }, `${amount.toFixed(2)} ج.م`)),
+                React.createElement("p", { className: "text-sm flex justify-between items-center text-dark-800 dark:text-dark-100" }, React.createElement("span", null, "رسوم الخدمة:"), React.createElement("span", { className: "font-semibold tabular-nums" }, `+${fee.toFixed(2)} ج.م`)),
+                React.createElement("hr", { className: "border-light-300 dark:border-dark-600 my-1" }),
+                React.createElement("p", { className: "text-md font-bold flex justify-between items-center text-primary" }, React.createElement("span", null, "الإجمالي للدفع:"), React.createElement("span", { className: "tabular-nums text-lg" }, `${total.toFixed(2)} ج.م`))
+            ),
+            (pointsToEarn > 0) && React.createElement("p", { className: "mt-2 pt-2 border-t border-light-200 dark:border-dark-600 flex items-center justify-center gap-1 text-xs text-yellow-700 dark:text-yellow-300 font-medium" }, 
+                React.createElement(StarIcon, { filled: true, className: "w-3.5 h-3.5" }),
+                React.createElement("span", null, `ستربح ${pointsToEarn} نقطة على رسوم الخدمة`)
+            )
         ),
         
         formError && React.createElement("p", { className: "text-red-500 text-sm mt-1 text-center" }, formError),
 
         React.createElement("div", { className: "pt-4 border-t border-light-200 dark:border-dark-600 mt-auto" },
-            (pointsToEarn > 0) && React.createElement("p", { className: "mb-3 text-center text-sm text-yellow-600 dark:text-yellow-400 font-medium flex items-center justify-center gap-1" }, 
-                React.createElement(StarIcon, { filled: true, className: "w-4 h-4" }),
-                React.createElement("span", null, `ستربح ${pointsToEarn} نقطة على رسوم الخدمة`)
-            ),
             React.createElement("button", {
                 type: "submit",
                 disabled: isCheckoutDisabled,

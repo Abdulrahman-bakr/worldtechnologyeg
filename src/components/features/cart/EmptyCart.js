@@ -1,11 +1,13 @@
 
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ShoppingCartIcon } from '../../icons/index.js';
 import { getImageUrl } from '../../../utils/imageUrl.js';
 import { formatPrice } from '../../../utils/productUtils.js';
 
 const EmptyCart = ({ onClose, recentlyViewedProducts, onViewDetails }) => {
+    const navigate = useNavigate();
     const hasRecentlyViewed = recentlyViewedProducts && recentlyViewedProducts.length > 0;
 
     const handleViewProduct = (product) => {
@@ -15,12 +17,17 @@ const EmptyCart = ({ onClose, recentlyViewedProducts, onViewDetails }) => {
         onClose();
     };
 
+    const handleShopNow = () => {
+        navigate('/products');
+        onClose();
+    };
+
     return React.createElement("div", { className: "flex-grow flex flex-col p-6" },
         React.createElement("div", { className: "text-center" },
             React.createElement(ShoppingCartIcon, { className: "w-16 h-16 text-dark-500 dark:text-dark-400 mx-auto mb-4" }),
             React.createElement("p", { className: "text-xl text-dark-600 dark:text-dark-300 mb-6" }, "سلتك فارغة حالياً."),
             React.createElement("button", {
-                onClick: onClose,
+                onClick: handleShopNow,
                 className: "bg-primary hover:bg-primary-hover text-white font-semibold py-2.5 px-6 rounded-lg transition-colors"
             }, "ابدأ التسوق")
         ),

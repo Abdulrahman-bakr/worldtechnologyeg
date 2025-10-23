@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ShareIcon, WhatsAppIcon, FacebookIcon, TwitterIcon } from '../../../icons/index.js';
 
@@ -15,7 +16,7 @@ const SocialShareButtons = ({ product }) => {
             name: 'WhatsApp', 
             url: `https://api.whatsapp.com/send?text=${encodedText}%20${encodedUrl}`, 
             icon: WhatsAppIcon,
-            className: 'bg-green-500 hover:bg-green-600'
+            className: 'social-share-button bg-black dark:bg-gray-200 hover:bg-gray-800 dark:hover:bg-gray-300 text-white dark:text-black'
         },
         { 
             name: 'Facebook', 
@@ -27,7 +28,7 @@ const SocialShareButtons = ({ product }) => {
             name: 'X', 
             url: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`, 
             icon: TwitterIcon,
-            className: 'bg-black dark:bg-gray-200 hover:bg-gray-800 dark:hover:bg-gray-300'
+            className: 'bg-black dark:bg-gray-200 hover:bg-gray-800 dark:hover:bg-gray-300 text-white dark:text-black'
         },
     ];
 
@@ -60,7 +61,7 @@ const SocialShareButtons = ({ product }) => {
                         rel: "noopener noreferrer",
                         title: `شارك عبر ${link.name}`,
                         className: `social-share-button ${link.className}`
-                    }, React.createElement(link.icon, { className: 'w-5 h-5 text-white' }))
+                    }, React.createElement(link.icon, { className: 'w-5 h-5' }))
                 ))
             )
         )

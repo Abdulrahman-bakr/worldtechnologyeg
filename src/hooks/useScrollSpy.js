@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 export const useScrollSpy = (sectionsRef, mainActionRef, deps = []) => {
     const [isStickyBarVisible, setIsStickyBarVisible] = useState(false);
@@ -41,7 +40,7 @@ export const useScrollSpy = (sectionsRef, mainActionRef, deps = []) => {
         handleScroll(); 
         
         return () => window.removeEventListener('scroll', handleScroll);
-    }, deps); // Rerun if product changes, for example
+    }, [mainActionRef, sectionsRef, ...deps]); // Rerun if product changes, for example
 
      useEffect(() => {
         if (isStickyBarVisible) {

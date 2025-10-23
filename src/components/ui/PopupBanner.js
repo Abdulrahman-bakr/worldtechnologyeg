@@ -49,7 +49,7 @@ const PopupBanner = ({ popupConfig }) => {
 
     return (
         React.createElement("div", { className: "fixed inset-0 z-[150] flex items-center justify-center p-4" },
-            React.createElement("div", { className: "modal-overlay absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-100", onClick: handleClose }),
+            React.createElement("div", { className: "modal-overlay absolute inset-0 bg-black/60 transition-opacity duration-300 opacity-100", onClick: handleClose }),
             React.createElement("div", { className: "modal-content bg-white dark:bg-dark-800 rounded-2xl shadow-2xl w-full max-w-sm relative animate-fade-in-up border border-light-200 dark:border-dark-700 overflow-hidden" },
                 React.createElement("button", { onClick: handleClose, className: "absolute top-2 right-2 p-2 rounded-full bg-black/20 text-white hover:bg-black/40 z-10" }, 
                     React.createElement(CloseIcon, { className: "w-5 h-5" })

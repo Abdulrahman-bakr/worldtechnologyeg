@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { ShoppingCartIcon, HeartIcon } from '../../../icons/index.js';
-import { SocialShareButtons } from './SocialShareButtons.js'; // Import the new component
+import { SocialShareButtons } from './SocialShareButtons.js';
 
 const ActionButtons = ({ product, currentStock, handleActionClick, handleWishlistToggle, isInWishlist }) => {
     const isDynamicService = product.isDynamicElectronicPayments;

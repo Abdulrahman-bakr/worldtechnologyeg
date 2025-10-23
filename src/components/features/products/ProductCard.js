@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../../../contexts/AppContext.js';
 import { StarRating } from '../../ui/feedback/StarRating.js';
 import { HeartIcon, ScaleIcon } from '../../icons/index.js';
@@ -7,14 +8,10 @@ import { ProductStatusBadge } from './ProductStatusBadge.js';
 import { ProductPriceSection } from './ProductPriceSection.js';
 import { ProductCardActions } from './ProductCardActions.js';
 
-const ProductCard = ({ product, onAddToCart, onViewDetails, onToggleWishlist, isInWishlist, currentUser, onLoginRequest, onInitiateDirectCheckout }) => {
+const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist, currentUser, onLoginRequest, onInitiateDirectCheckout }) => {
   const { comparisonList, handleToggleCompare } = useApp();
   const isDynamicService = product.isDynamicElectronicPayments;
   
-  const handleViewDetailsClick = () => {
-    onViewDetails(product);
-  };
-
   const handleWishlistClick = () => {
     if (!currentUser) {
         onLoginRequest();
@@ -38,12 +35,12 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onToggleWishlist, is
       className: cardClasses
     },
     React.createElement("div", { className: "relative" },
-      React.createElement("div", { onClick: handleViewDetailsClick, className: "cursor-pointer" },
+      React.createElement(Link, { to: `/product/${product.id}`, className: "cursor-pointer" },
         React.createElement("img", {
           src: getImageUrl(product.imageUrl),
           alt: product.arabicName,
           loading: "lazy",
-          className: "w-full h-40 sm:h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+          className: "w-full h-40 sm:h-48 object-cover"
         })
       ),
       React.createElement(ProductStatusBadge, { product: product, mode: "corner" }),
@@ -61,17 +58,18 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onToggleWishlist, is
       )
     ),
     React.createElement("div", { className: "py-5 px-5 sm:px-4 sm:py-4 flex flex-col flex-grow" },
-      React.createElement("h3", { 
-          onClick: handleViewDetailsClick,
-          className: "text-md sm:text-lg font-semibold text-dark-900 dark:text-dark-50 mb-1.5 truncate group-hover:text-primary transition-colors cursor-pointer" 
-      }, product.arabicName),
+      React.createElement(Link, { to: `/product/${product.id}` },
+          React.createElement("h3", { 
+              className: "text-md sm:text-lg font-semibold text-dark-900 dark:text-dark-50 mb-1.5 truncate group-hover:text-primary transition-colors cursor-pointer" 
+          }, product.arabicName)
+      ),
       product.brand && React.createElement("p", {className: "text-xs text-dark-600 dark:text-dark-300 mb-1"}, product.brand),
       !isDynamicService && React.createElement("div", { className: "flex items-center mb-2.5" },
         React.createElement(StarRating, { rating: product.rating || 0, className: "", showHalfStars: true }),
       ),
       React.createElement(ProductStatusBadge, { product: product, mode: "text" }),
       React.createElement(ProductPriceSection, { product: product }),
-      React.createElement(ProductCardActions, { product: product, onAddToCart: onAddToCart, onViewDetails: onViewDetails, onInitiateDirectCheckout: onInitiateDirectCheckout })
+      React.createElement(ProductCardActions, { product: product, onAddToCart: onAddToCart, onInitiateDirectCheckout: onInitiateDirectCheckout })
     )
   );
 };

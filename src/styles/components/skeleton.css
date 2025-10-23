@@ -1,14 +1,14 @@
 
 /* Skeleton styles */
 .skeleton-card {
-  background-color: #374151; /* dark-700 */
+  background-color: #1E1E1E; /* dark-700 */
   border-radius: 0.75rem;
   overflow: hidden;
   box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
 }
 .skeleton-image, .skeleton-text {
-  background-color: #4B5563; /* dark-600 */
-  background-image: linear-gradient(90deg, #4B5563 25%, #6B7280 50%, #4B5563 75%);
+  background-color: #2A2A2A; /* dark-600 */
+  background-image: linear-gradient(90deg, #2A2A2A 25%, #3A3A3A 50%, #2A2A2A 75%);
   background-size: 200px 100%;
   animation: skeletonShine 1.8s infinite linear;
 }

@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useAdminData } from '../hooks/useAdminData.js';
 import { AdminLayout } from '../components/features/admin/AdminLayout.js';
 import { AdminHeader } from '../components/features/admin/AdminHeader.js';
@@ -17,12 +19,14 @@ import {
     PopupBannerManagementPanel,
     StoreSettingsPanel,
     LoyaltyManagementPanel,
+    NotificationManagementPanel,
 } from '../components/features/admin/index.js';
 import { useApp } from '../contexts/AppContext.js';
 
-const AdminDashboardView = ({ onBack }) => {
-    const { currentUser, fetchInitialData, setToastMessage } = useApp();
-    const adminData = useAdminData(currentUser, fetchInitialData, setToastMessage);
+const AdminDashboardView = () => {
+    const { currentUser, fetchInitialData } = useApp();
+    const navigate = useNavigate();
+    const adminData = useAdminData(currentUser, fetchInitialData);
     const [activePanel, setActivePanel] = useState('home');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -41,6 +45,7 @@ const AdminDashboardView = ({ onBack }) => {
         reports: React.createElement(ReportsPanel, { ...adminData }),
         'store-settings': React.createElement(StoreSettingsPanel, { ...adminData }),
         loyalty: React.createElement(LoyaltyManagementPanel, { ...adminData }),
+        notifications: React.createElement(NotificationManagementPanel, { ...adminData }),
     }), [adminData]);
     
     const panelTitles = {
@@ -57,31 +62,38 @@ const AdminDashboardView = ({ onBack }) => {
         fees: 'قواعد الرسوم',
         reports: 'التقارير',
         'store-settings': 'إعدادات المتجر',
-        loyalty: 'إدارة برنامج الولاء'
+        loyalty: 'إدارة برنامج الولاء',
+        notifications: 'إرسال الإشعارات'
     };
 
     if (!currentUser || currentUser.role !== 'admin') {
         return React.createElement("div", { className: "container mx-auto px-4 py-12 pt-24 text-center min-h-[calc(100vh-16rem)]" }, 
+            React.createElement(Helmet, null, React.createElement("title", null, "غير مصرح به - World Technology")),
             React.createElement("p", null, "ليس لديك صلاحية الوصول لهذه الصفحة.")
         );
     }
 
     return (
-        React.createElement(AdminLayout, { 
-            activePanel: activePanel, 
-            setActivePanel: setActivePanel,
-            onBack: onBack,
-            isSidebarOpen: isSidebarOpen,
-            setIsSidebarOpen: setIsSidebarOpen
-        },
-            React.createElement(AdminHeader, { 
-                title: panelTitles[activePanel] || 'لوحة التحكم',
-                notifications: adminData.adminNotifications,
+        React.createElement(React.Fragment, null,
+            React.createElement(Helmet, null, 
+                React.createElement("title", null, `لوحة التحكم: ${panelTitles[activePanel]} - World Technology`)
+            ),
+            React.createElement(AdminLayout, { 
+                activePanel: activePanel, 
                 setActivePanel: setActivePanel,
-                onToggleSidebar: () => setIsSidebarOpen(prev => !prev)
-            }),
-            React.createElement("div", { className: "p-4 sm:p-6 w-full" },
-                panelComponents[activePanel] || React.createElement("div", null, "لوحة غير معروفة.")
+                onBack: () => navigate('/'),
+                isSidebarOpen: isSidebarOpen,
+                setIsSidebarOpen: setIsSidebarOpen
+            },
+                React.createElement(AdminHeader, { 
+                    title: panelTitles[activePanel] || 'لوحة التحكم',
+                    notifications: adminData.adminNotifications,
+                    setActivePanel: setActivePanel,
+                    onToggleSidebar: () => setIsSidebarOpen(prev => !prev)
+                }),
+                React.createElement("div", { className: "p-4 sm:p-6 w-full" },
+                    panelComponents[activePanel] || React.createElement("div", null, "لوحة غير معروفة.")
+                )
             )
         )
     );

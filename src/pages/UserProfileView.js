@@ -1,5 +1,8 @@
 
+
 import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { StaticPageView } from './Static-Pages/StaticPageView.js';
 import { UserIcon, StarIcon, ShoppingBagIcon, HeartIcon } from '../components/icons/index.js';
 import { LOYALTY_TIERS as LOYALTY_TIERS_FALLBACK } from '../constants/loyaltyTiers.js';
@@ -8,8 +11,9 @@ import { FloatingInput } from '../components/ui/forms/FloatingInput.js';
 import { useApp } from '../contexts/AppContext.js';
 
 
-const UserProfileView = ({ currentUser, onBack, onNavigate, onUpdateProfile }) => {
-    const { loyaltySettings } = useApp();
+const UserProfileView = ({ onBack }) => {
+    const { currentUser, onUpdateProfile, loyaltySettings } = useApp();
+    const navigate = useNavigate();
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
@@ -64,8 +68,9 @@ const UserProfileView = ({ currentUser, onBack, onNavigate, onUpdateProfile }) =
     
     if (!currentUser) {
         return React.createElement("div", { className: "container mx-auto px-4 py-12 pt-24 sm:pt-32 text-center" },
+            React.createElement(Helmet, null, React.createElement("title", null, "تسجيل الدخول مطلوب - World Technology")),
             React.createElement("p", {className: "text-xl mb-4 text-dark-700 dark:text-dark-100"}, "يرجى تسجيل الدخول لعرض هذه الصفحة."),
-             React.createElement("button", { onClick: onBack, className: "mt-4 bg-primary hover:bg-primary-hover text-white font-semibold py-2 px-4 rounded-lg" }, "العودة")
+             React.createElement("button", { onClick: () => navigate(-1), className: "mt-4 bg-primary hover:bg-primary-hover text-white font-semibold py-2 px-4 rounded-lg" }, "العودة")
         );
     }
 
@@ -85,6 +90,9 @@ const UserProfileView = ({ currentUser, onBack, onNavigate, onUpdateProfile }) =
     const labelClassName = "block text-sm font-medium mb-1 text-dark-800 dark:text-dark-100";
 
     return React.createElement(StaticPageView, { title: "حسابي", onBack: onBack, icon: UserIcon },
+        React.createElement(Helmet, null, 
+            React.createElement("title", null, "حسابي - World Technology")
+        ),
         React.createElement("div", { className: "space-y-8" },
             React.createElement("div", { className: "text-center mb-6" },
                 React.createElement("p", { className: "text-xl text-dark-800 dark:text-dark-100" }, `أهلاً بك، `, React.createElement("strong", {className: "text-primary"}, currentUser.name),`!`)
@@ -92,11 +100,11 @@ const UserProfileView = ({ currentUser, onBack, onNavigate, onUpdateProfile }) =
             React.createElement("section", null,
                 React.createElement("h2", { className: "text-xl sm:text-2xl font-semibold text-dark-900 dark:text-dark-50 mb-4 border-b border-light-300 dark:border-dark-600 pb-2" }, "إجراءات سريعة"),
                 React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-4" },
-                    React.createElement("button", { onClick: () => onNavigate('navigateToOrdersHistory'), className: "p-4 bg-light-100 dark:bg-dark-700 rounded-lg flex items-center space-x-3 space-x-reverse hover:bg-primary/10 hover:border-primary border border-transparent transition-all" },
+                    React.createElement(Link, { to: "/orders", className: "p-4 bg-light-100 dark:bg-dark-700 rounded-lg flex items-center space-x-3 space-x-reverse hover:bg-primary/10 hover:border-primary border border-transparent transition-all" },
                         React.createElement(ShoppingBagIcon, { className: "w-8 h-8 text-primary" }),
                         React.createElement("span", { className: "font-semibold text-dark-800 dark:text-dark-100" }, "عرض طلباتي السابقة")
                     ),
-                    React.createElement("button", { onClick: () => onNavigate('navigateToWishlist'), className: "p-4 bg-light-100 dark:bg-dark-700 rounded-lg flex items-center space-x-3 space-x-reverse hover:bg-primary/10 hover:border-primary border border-transparent transition-all" },
+                    React.createElement(Link, { to: "/wishlist", className: "p-4 bg-light-100 dark:bg-dark-700 rounded-lg flex items-center space-x-3 space-x-reverse hover:bg-primary/10 hover:border-primary border border-transparent transition-all" },
                         React.createElement(HeartIcon, { className: "w-8 h-8 text-red-500" }),
                         React.createElement("span", { className: "font-semibold text-dark-800 dark:text-dark-100" }, "الانتقال إلى قائمة الرغبات")
                     )

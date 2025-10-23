@@ -1,13 +1,9 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { StarIcon } from '../../../icons/index.js';
 import { getStockStatus, calculatePointsToEarn } from '../../../../utils/productUtils.js';
 import { useReviewStats } from '../../../../hooks/useReviewStats.js';
 import { useScrollSpy } from '../../../../hooks/useScrollSpy.js';
-
-// New DynamicServiceRenderer import
 import { DynamicServiceRenderer } from '../../services/forms/DynamicServiceRenderer.js';
-
-// Import newly created sub-components
 import { ImageCarousel } from './ImageCarousel.js';
 import { ProductInfo } from './ProductInfo.js';
 import { PriceDisplay } from './PriceDisplay.js';
@@ -18,9 +14,10 @@ import { ReviewsAccordion } from './ReviewsAccordion.js';
 import { RelatedProducts } from './RelatedProducts.js';
 import { StickyBar } from './StickyBar.js';
 import { QuickNavLink } from './QuickNavLink.js';
-import { useQuickNav } from './useQuickNav.js'; // New import
+import { useQuickNav } from './useQuickNav.js';
+import { ProductBenefits } from './ProductBenefits.js';
 
-const ProductDetailView = ({ product, allProducts, onAddToCart, onViewDetails, onBack, onToggleWishlist, isInWishlist, currentUser, onLoginRequest, wishlistItems, onInitiateDirectCheckout, onPendingReviewLogin, allDigitalPackages, allFeeRules }) => {
+const ProductDetailView = ({ product, allProducts, onAddToCart, onBack, onToggleWishlist, isInWishlist, currentUser, onLoginRequest, onInitiateDirectCheckout, onPendingReviewLogin, allDigitalPackages, allFeeRules, setToastMessage, wishlistItems }) => {
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [activeTab, setActiveTab] = useState('overview');
     const [isReviewsAccordionOpen, setIsReviewsAccordionOpen] = useState(false);
@@ -36,10 +33,9 @@ const ProductDetailView = ({ product, allProducts, onAddToCart, onViewDetails, o
     
     const isDynamicService = product && product.isDynamicElectronicPayments;
 
-    // Custom Hooks
     const { liveRating, liveReviewCount, isLoadingReviewStats } = useReviewStats(product);
     const { isStickyBarVisible, activeQuickNav } = useScrollSpy(sectionsRef, mainActionRef, [product]);
-    const { quickNavLinksData, handleQuickNavClick } = useQuickNav(product, setActiveTab, setIsReviewsAccordionOpen); // New hook usage
+    const { quickNavLinksData, handleQuickNavClick } = useQuickNav(product, setActiveTab, setIsReviewsAccordionOpen);
     
     const carouselProduct = useMemo(() => {
         if (!product) return null;
@@ -99,8 +95,6 @@ const ProductDetailView = ({ product, allProducts, onAddToCart, onViewDetails, o
         }
         onToggleWishlist(product.id);
     };
-
-    // Removed handleQuickNavClick and quickNavLinksData
     
     return (
         React.createElement("div", null,
@@ -118,28 +112,32 @@ const ProductDetailView = ({ product, allProducts, onAddToCart, onViewDetails, o
                     className: "mb-6 text-primary hover:text-primary-hover font-semibold flex items-center space-x-2 space-x-reverse transition-colors"
                 }, React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor", className: "w-5 h-5 transform rtl:rotate-180" }, React.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" })), React.createElement("span", null, "العودة")),
                 React.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start" },
-                    React.createElement("div", { className: "lg:sticky lg:top-40 z-30" }, React.createElement(ImageCarousel, { product: carouselProduct })),
+                    React.createElement("div", null, React.createElement(ImageCarousel, { product: carouselProduct })),
                     React.createElement("div", { className: "space-y-5" },
                         React.createElement(ProductInfo, { product: product, isLoadingReviewStats: isLoadingReviewStats, liveRating: liveRating, liveReviewCount: liveReviewCount, setIsReviewsAccordionOpen: setIsReviewsAccordionOpen }),
                         isDynamicService
-                            ? React.createElement(DynamicServiceRenderer, {
-                                product: product,
-                                onInitiateDirectCheckout: onInitiateDirectCheckout,
-                                allDigitalPackages: allDigitalPackages,
-                                allFeeRules: allFeeRules
-                              })
+                            ? React.createElement(React.Fragment, null,
+                                React.createElement(DynamicServiceRenderer, {
+                                    product: product,
+                                    onInitiateDirectCheckout: onInitiateDirectCheckout,
+                                    allDigitalPackages: allDigitalPackages,
+                                    allFeeRules: allFeeRules
+                                }),
+                                React.createElement(ProductBenefits, { product: product })
+                              )
                             : React.createElement("div", { ref: mainActionRef },
                                 React.createElement(PriceDisplay, { product: product }),
                                 React.createElement(VariantsSelector, { product: product, selectedVariant: selectedVariant, setSelectedVariant: setSelectedVariant }),
                                 (pointsToEarn > 0) && React.createElement("div", { className: "mt-2 flex items-center gap-1.5 text-sm text-yellow-600 dark:text-yellow-400 font-semibold" }, React.createElement(StarIcon, { filled: true, className: "w-5 h-5" }), React.createElement("span", null, `ستربح ${pointsToEarn} نقطة عند شراء هذا المنتج`)),
                                 React.createElement("p", { className: `text-sm font-semibold mt-2 ${stockStatusColor}` }, stockStatusText),
-                                React.createElement(ActionButtons, { product: product, currentStock: currentStock, handleActionClick: handleActionClick, handleWishlistToggle: handleWishlistToggle, isInWishlist: isInWishlist })
+                                React.createElement(ActionButtons, { product: product, currentStock: currentStock, handleActionClick: handleActionClick, handleWishlistToggle: handleWishlistToggle, isInWishlist: isInWishlist }),
+                                React.createElement(ProductBenefits, { product: product })
                             )
                     )
                 ),
-                React.createElement(TabsSection, { product: product, activeTab: activeTab, setActiveTab: setActiveTab, sectionsRef: sectionsRef }),
-                React.createElement(ReviewsAccordion, { product: product, isReviewsAccordionOpen: isReviewsAccordionOpen, setIsReviewsAccordionOpen: setIsReviewsAccordionOpen, sectionsRef: sectionsRef, currentUser: currentUser, onPendingReviewLogin: onPendingReviewLogin }),
-                React.createElement(RelatedProducts, { relatedProducts: relatedProducts, onAddToCart: onAddToCart, onViewDetails: onViewDetails, onToggleWishlist: onToggleWishlist, wishlistItems: wishlistItems, currentUser: currentUser, onLoginRequest: onLoginRequest, onInitiateDirectCheckout: onInitiateDirectCheckout })
+                 React.createElement(TabsSection, { product: product, activeTab: activeTab, setActiveTab: setActiveTab, sectionsRef: sectionsRef }),
+                 React.createElement(ReviewsAccordion, { product: product, isReviewsAccordionOpen: isReviewsAccordionOpen, setIsReviewsAccordionOpen: setIsReviewsAccordionOpen, sectionsRef: sectionsRef, currentUser: currentUser, onPendingReviewLogin: onPendingReviewLogin, setToastMessage: setToastMessage }),
+                 React.createElement(RelatedProducts, { relatedProducts: relatedProducts, onAddToCart: onAddToCart, onToggleWishlist: onToggleWishlist, wishlistItems: wishlistItems, currentUser: currentUser, onLoginRequest: onLoginRequest, onInitiateDirectCheckout: onInitiateDirectCheckout })
             )
         )
     );

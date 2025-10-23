@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 const SingleServiceDetails = ({ item }) => {
@@ -13,8 +14,7 @@ const SingleServiceDetails = ({ item }) => {
             React.createElement("h3", { className: "text-lg font-bold text-dark-800 dark:text-dark-100 mb-3" }, `تفاصيل خدمة: ${product.arabicName}`),
             React.createElement("div", { className: "space-y-2 text-sm" },
                 formData && formData.map((field) => (
-                    // ✅ FIX: Added the unique "key" prop here
-                    React.createElement("p", { key: field.label, className: "flex justify-between" },
+                    React.createElement("p", { key: field.id || field.label, className: "flex justify-between" },
                         React.createElement("span", { className: "text-dark-600 dark:text-dark-300" }, `${field.label}:`),
                         React.createElement("span", { className: "font-semibold text-dark-800 dark:text-dark-100" }, field.value)
                     )

@@ -41,7 +41,9 @@ const ServiceManagementPanel = ({ digitalServices, isLoading, handleServiceSave,
     };
     
     const handleDelete = async (service, pkg) => {
-        await handleServicePackageDelete(service.id, pkg);
+        if (window.confirm(`هل أنت متأكد من حذف باقة "${pkg.name || `كارت ${pkg.price}`}"؟`)) {
+            await handleServicePackageDelete(service.id, pkg);
+        }
     };
 
     return (
@@ -56,7 +58,7 @@ const ServiceManagementPanel = ({ digitalServices, isLoading, handleServiceSave,
             isLoading
                 ? React.createElement("p", null, "جاري تحميل الخدمات...")
                 : React.createElement("div", { className: "space-y-8" },
-                    digitalServices.map(service => (
+                    [...digitalServices].sort((a,b) => (a.name || '').localeCompare(b.name || '', 'ar')).map(service => (
                         React.createElement("div", { key: service.id, className: "p-6 bg-white dark:bg-dark-800 rounded-lg border border-light-200 dark:border-dark-700" },
                             React.createElement("div", { className: "flex justify-between items-center mb-4" },
                                 React.createElement("h2", { className: "text-xl font-semibold" }, service.name || `خدمة: ${service.id}`,

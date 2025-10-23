@@ -1,9 +1,5 @@
-
-
-
-
 import React, { useState, useMemo, useEffect } from 'react';
-import { ShoppingCartIcon, StarIcon, InfoIcon } from '../../../icons/index.js';
+import { ShoppingCartIcon, StarIcon } from '../../../icons/index.js';
 import { FloatingInput } from '../../../ui/forms/FloatingInput.js';
 
 const GameTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPackages }) => {

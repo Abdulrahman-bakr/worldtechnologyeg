@@ -2,7 +2,7 @@ import React from 'react';
 import { ProductCard } from './ProductCard.js';
 
 // --- START OF SpecialOffersPreviewSection.tsx ---
-const SpecialOffersPreviewSection = ({ title, offerProducts, onAddToCart, onViewDetails, onViewAllOffersClick, onToggleWishlist, wishlistItems = [], currentUser, onLoginRequest }) => {
+const SpecialOffersPreviewSection = ({ title, offerProducts, onAddToCart, onViewAllOffersClick, onToggleWishlist, wishlistItems = [], currentUser, onLoginRequest }) => {
     if (!offerProducts || offerProducts.length === 0) return null;
     const isProductInWishlist = (productId) => wishlistItems.includes(productId);
 
@@ -25,7 +25,6 @@ const SpecialOffersPreviewSection = ({ title, offerProducts, onAddToCart, onView
                         }, React.createElement(ProductCard, { 
                             product: product, 
                             onAddToCart: onAddToCart, 
-                            onViewDetails: onViewDetails,
                             onToggleWishlist: onToggleWishlist,
                             isInWishlist: isProductInWishlist(product.id),
                             currentUser: currentUser,

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { db, storage } from '../services/firebase/config.js';
-import { collection, getDocs, query, orderBy, doc, setDoc, addDoc, deleteDoc, updateDoc, writeBatch, serverTimestamp, arrayUnion, arrayRemove, getDoc, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, setDoc, addDoc, deleteDoc, updateDoc, writeBatch, serverTimestamp, arrayUnion, arrayRemove, getDoc, Timestamp, where, limit } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const getJsDate = (timestamp) => {
@@ -61,7 +61,7 @@ export const useAdminData = (currentUser, onDataChange) => {
                 return {
                     id: doc.id,
                     ...data,
-                    createdAt: getJsDate(data.createdAt)
+                    createdAt: getJsDate(data.createdAt) || getJsDate(data.clientCreatedAt)
                 };
             });
             const usersData = usersSnapshot.docs.map(doc => {
@@ -471,6 +471,70 @@ export const useAdminData = (currentUser, onDataChange) => {
         }
     };
 
+    const handleSendNotification = useCallback(async (target, notificationData) => {
+        if (!currentUser || currentUser.role !== 'admin') {
+            return { success: false, error: 'غير مصرح لك.' };
+        }
+        
+        const notificationPayload = {
+            ...notificationData,
+            createdAt: serverTimestamp(),
+            isRead: false,
+        };
+        
+        try {
+            if (target.type === 'all') {
+                const allUsers = users || []; // users state from useAdminData
+                if (allUsers.length === 0) {
+                    return { success: false, error: 'لا يوجد مستخدمون لإرسال الإشعارات لهم.' };
+                }
+                
+                const batches = [];
+                for (let i = 0; i < allUsers.length; i += 500) {
+                    const batch = writeBatch(db);
+                    const chunk = allUsers.slice(i, i + 500);
+                    chunk.forEach(user => {
+                        const notificationRef = doc(collection(db, 'users', user.id, 'user_notifications'));
+                        batch.set(notificationRef, notificationPayload);
+                    });
+                    batches.push(batch);
+                }
+
+                await Promise.all(batches.map(batch => batch.commit()));
+                return { success: true, sentTo: allUsers.length };
+            } 
+            else if (target.type === 'user' && target.identifier) {
+                let userQuery;
+                if (target.identifier.includes('@')) {
+                    userQuery = query(collection(db, 'users'), where("email", "==", target.identifier), limit(1));
+                } else {
+                    const userRef = doc(db, 'users', target.identifier);
+                    const userSnap = await getDoc(userRef);
+                    if (userSnap.exists()) {
+                        await addDoc(collection(db, 'users', userSnap.id, 'user_notifications'), notificationPayload);
+                        return { success: true, sentTo: 1 };
+                    } else {
+                        // If not found by ID, try searching by phone as a fallback
+                         userQuery = query(collection(db, 'users'), where("phone", "==", target.identifier), limit(1));
+                    }
+                }
+                
+                const querySnapshot = await getDocs(userQuery);
+                if (querySnapshot.empty) {
+                    return { success: false, error: `لم يتم العثور على مستخدم بالمعرف: ${target.identifier}` };
+                }
+                const userDoc = querySnapshot.docs[0];
+                await addDoc(collection(db, 'users', userDoc.id, 'user_notifications'), notificationPayload);
+                return { success: true, sentTo: 1 };
+            }
+            return { success: false, error: 'هدف غير صالح.' };
+        } catch (error) {
+            console.error("Error sending notification:", error);
+            return { success: false, error: "حدث خطأ أثناء إرسال الإشعار." };
+        }
+
+    }, [currentUser, users]);
+
     const adminNotifications = useMemo(() => {
         const newOrders = orders.filter(o => o.status === 'pending_payment_confirmation' || o.status === 'pending_fulfillment');
         const lowStockProducts = products.filter(p => !p.isDynamicElectronicPayments && p.stock <= (p.lowStockThreshold ?? 10));
@@ -499,5 +563,6 @@ export const useAdminData = (currentUser, onDataChange) => {
         handlePopupBannerSave, handlePopupBannerDelete,
         handleStoreSettingsSave,
         handleLoyaltySettingsSave,
+        handleSendNotification,
     };
 };

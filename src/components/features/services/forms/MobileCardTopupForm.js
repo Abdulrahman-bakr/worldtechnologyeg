@@ -1,7 +1,6 @@
 
-
 import React, { useState, useMemo, useEffect } from 'react';
-import { ShoppingCartIcon, StarIcon, InfoIcon } from '../../../icons/index.js';
+import { StarIcon, InfoIcon } from '../../../icons/index.js';
 import { FloatingInput } from '../../../ui/forms/FloatingInput.js';
 import { MOBILE_OPERATOR_CONFIG, ETISALAT_CARD_OPTIONS, ORANGE_CARD_OPTIONS } from '../../../../constants/index.js';
 
@@ -30,17 +29,26 @@ const renderGroupedBenefits = (benefits) => {
 };
 
 const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPackages }) => {
+    const [selectedPackage, setSelectedPackage] = useState(null);
+    const [formData, setFormData] = useState({});
+    const [formStep, setFormStep] = useState('packageSelection');
+    const [formError, setFormError] = useState('');
     const [rechargeType, setRechargeType] = useState('code');
     const [selectedCardOperatorKey, setSelectedCardOperatorKey] = useState('');
-    const [selectedCardPackage, setSelectedCardPackage] = useState(null);
     const [cardPhoneNumber, setCardPhoneNumber] = useState('');
     const [etisalatOption, setEtisalatOption] = useState('mixat');
     const [orangeOption, setOrangeOption] = useState('el_kabeer_internet');
-    const [formError, setFormError] = useState('');
+    const [packagesLoading, setPackagesLoading] = useState(true);
+    const [servicePackages, setServicePackages] = useState([]);
+
+    const fieldsForService = useMemo(() => {
+        if (!product) return [];
+        return product.requiredFields || [];
+    }, [product]);
 
     const pointsToEarn = useMemo(() => {
-        return selectedCardPackage ? Math.floor(Number(selectedCardPackage.price) || 0) : 0;
-    }, [selectedCardPackage]);
+        return selectedPackage ? Math.floor(Number(selectedPackage.price) || 0) : 0;
+    }, [selectedPackage]);
 
     const operatorCardPackages = useMemo(() => {
         if (!selectedCardOperatorKey || !allDigitalPackages || !product) return [];
@@ -79,11 +87,70 @@ const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPack
         }
         
         return packages.sort((a, b) => (a.price || 0) - (b.price || 0));
-    }, [selectedCardOperatorKey, allDigitalPackages, product?.dynamicServiceId, rechargeType, etisalatOption, orangeOption]);
+    }, [selectedCardOperatorKey, allDigitalPackages, product, rechargeType, etisalatOption, orangeOption]);
+    
+    const hasAnyPackagesForService = useMemo(() => {
+        if (!product?.dynamicServiceId || !allDigitalPackages) return false;
+        const packageDoc = allDigitalPackages.find(doc => doc.serviceId === product.dynamicServiceId && Array.isArray(doc.packages));
+        return !!packageDoc && packageDoc.packages.length > 0;
+    }, [product, allDigitalPackages]);
+
+    useEffect(() => {
+        if (!product) {
+            setServicePackages([]);
+            setPackagesLoading(false);
+            setFormError('');
+            return;
+        }
+
+        setPackagesLoading(true);
+        if (allDigitalPackages && allDigitalPackages.length > 0 && product.dynamicServiceId) {
+            let foundPackages = [];
+            const packageDocument = allDigitalPackages.find(doc => doc.serviceId === product.dynamicServiceId && Array.isArray(doc.packages));
+
+            if (packageDocument) {
+                foundPackages = packageDocument.packages.map((p, index) => ({
+                    ...p,
+                    id: p.id || `${product.dynamicServiceId}-${(p.name || `pkg-${index}`).replace(/\s/g, '')}`
+                }));
+            }
+
+            if (foundPackages.length > 0) {
+                foundPackages.sort((a, b) => (a.price || 0) - (b.price || 0));
+                setServicePackages(foundPackages);
+                setFormError('');
+            } else {
+                setServicePackages([]);
+                setFormError("لا توجد باقات شحن متاحة لهذه الخدمة حالياً.");
+            }
+        }
+        setPackagesLoading(false);
+    }, [product, allDigitalPackages]);
+
+    const handleProceedToDetails = () => {
+        if (selectedPackage) {
+            if (!fieldsForService || fieldsForService.length === 0) {
+                const serviceDetails = {
+                    serviceName: product.arabicName,
+                    packageName: selectedPackage.name,
+                    packagePrice: Number(selectedPackage.price || 0),
+                    finalPrice: Number(selectedPackage.price || 0),
+                    package: { imageUrl: selectedPackage.imageUrl || null },
+                    formData: []
+                };
+                onInitiateDirectCheckout(product, serviceDetails);
+            } else {
+                setFormStep('details');
+                setFormError('');
+            }
+        } else {
+            setFormError('يرجى اختيار باقة أولاً للمتابعة.');
+        }
+    };
 
     const handleMobileCardTopupCheckout = () => {
         setFormError('');
-        if (!selectedCardPackage) {
+        if (!selectedPackage) {
             setFormError('الرجاء اختيار فئة الكارت.');
             return;
         }
@@ -91,17 +158,17 @@ const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPack
             setFormError('لشحن الهواء، يرجى إدخال رقم هاتف صحيح من 11 رقمًا.');
             return;
         }
-        const cardPrice = Number(selectedCardPackage.price || 0);
-        const packageName = (selectedCardPackage.name && selectedCardPackage.name.trim()) 
-            ? selectedCardPackage.name 
+        const cardPrice = Number(selectedPackage.price || 0);
+        const packageName = (selectedPackage.name && selectedPackage.name.trim()) 
+            ? selectedPackage.name 
             : `كارت ${MOBILE_OPERATOR_CONFIG[selectedCardOperatorKey].arabicName} ${cardPrice}`;
 
         onInitiateDirectCheckout(product, {
             finalPrice: cardPrice,
             rechargeType: rechargeType,
             operator: MOBILE_OPERATOR_CONFIG[selectedCardOperatorKey].arabicName,
-            cardValue: selectedCardPackage.cardValue,
-            validity: selectedCardPackage.validity,
+            cardValue: selectedPackage.cardValue,
+            validity: selectedPackage.validity,
             phoneNumber: rechargeType === 'direct' ? cardPhoneNumber : undefined,
             etisalatOption: (rechargeType === 'direct' && selectedCardOperatorKey === '011') ? etisalatOption : undefined,
             orangeOption: (rechargeType === 'direct' && selectedCardOperatorKey === '012') ? orangeOption : undefined,
@@ -111,7 +178,7 @@ const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPack
                 { label: 'نوع الشحن', value: rechargeType === 'code' ? 'استلام كود' : 'شحن مباشر' },
                 { label: 'الشبكة', value: MOBILE_OPERATOR_CONFIG[selectedCardOperatorKey].arabicName },
                 { label: 'سعر الكارت', value: `${cardPrice} ج.م` },
-                ...(selectedCardPackage.validity ? [{ label: 'صلاحية الكارت', value: selectedCardPackage.validity }] : []),
+                ...(selectedPackage.validity ? [{ label: 'صلاحية الكارت', value: selectedPackage.validity }] : []),
                 ...(rechargeType === 'direct' ? [{ label: 'رقم الهاتف', value: cardPhoneNumber }] : []),
                 ...(rechargeType === 'direct' && selectedCardOperatorKey === '011' && etisalatOption !== 'default_credit' 
                     ? [{ label: 'تحويل إلى', value: ETISALAT_CARD_OPTIONS.find(o => o.value === etisalatOption)?.label }] 
@@ -120,14 +187,43 @@ const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPack
         });
     };
     
-    const isCheckoutDisabled = !selectedCardPackage || (rechargeType === 'direct' && (!cardPhoneNumber || !/^\d{11}$/.test(cardPhoneNumber)));
+    if (packagesLoading) {
+        return React.createElement("div", { className: "text-center" },
+            React.createElement("p", { className: "text-dark-800 dark:text-dark-100" }, "جاري تحميل الباقات...")
+        );
+    }
+
+    if (servicePackages.length === 0 && !packagesLoading) {
+        return React.createElement("div", { className: "text-center" },
+            React.createElement("p", { className: "text-red-500" }, formError || "لا توجد باقات متاحة لهذه الخدمة.")
+        );
+    }
+    
+    const isCheckoutDisabled = !selectedPackage || (rechargeType === 'direct' && (!cardPhoneNumber || !/^\d{11}$/.test(cardPhoneNumber)));
     let stepCounter = 1;
 
     const OperatorLogo = selectedCardOperatorKey ? MOBILE_OPERATOR_CONFIG[selectedCardOperatorKey].logo : null;
 
+    if (!allDigitalPackages) {
+        return React.createElement("div", { className: "text-center" },
+            React.createElement("p", { className: "text-dark-800 dark:text-dark-100" }, "جاري تحميل الباقات...")
+        );
+    }
+    
+    if (!hasAnyPackagesForService) {
+        return React.createElement("div", { className: "text-center" },
+            React.createElement("p", { className: "text-red-500" }, "لا توجد باقات شحن متاحة لهذه الخدمة حالياً.")
+        );
+    }
+
+    const isDetailsFormValid = fieldsForService.length > 0 && fieldsForService.every(field => formData[field.id] && formData[field.id].trim() !== '');
+    const packageStepTitle = product.packageSelectionStepTitle || "1. اختر الباقة";
+    const detailsStepTitle = product.detailsStepTitle || `2. بيانات ${product.arabicName}`;
+
+
     return React.createElement("form", {
         onSubmit: (e) => { e.preventDefault(); handleMobileCardTopupCheckout(); },
-        className: "space-y-4"
+        className: "mt-4 space-y-4"
     },
         React.createElement("h3", { className: "text-lg font-semibold text-dark-900 dark:text-dark-50 mb-3 text-center" }, "شحن كروت الموبايل"),
         React.createElement("fieldset", null,
@@ -150,7 +246,7 @@ const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPack
         React.createElement("fieldset", null,
             React.createElement("legend", { className: "block text-sm font-medium mb-2 text-dark-800 dark:text-dark-100" }, `${stepCounter++}. اختر الشبكة`),
             React.createElement("div", { className: "flex items-center gap-3" },
-                React.createElement("select", { value: selectedCardOperatorKey, onChange: (e) => { setSelectedCardOperatorKey(e.target.value); setSelectedCardPackage(null); }, className: "flex-grow w-full p-2.5 rounded-md border border-light-300 dark:border-dark-600 bg-white dark:bg-dark-700" },
+                React.createElement("select", { value: selectedCardOperatorKey, onChange: (e) => { setSelectedCardOperatorKey(e.target.value); setSelectedPackage(null); }, className: "flex-grow w-full p-2.5 rounded-md border border-light-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-dark-900 dark:text-dark-50" },
                     React.createElement("option", { value: "" }, "اختر الشبكة..."),
                     Object.entries(MOBILE_OPERATOR_CONFIG).map(([key, op]) => React.createElement("option", { key: key, value: key }, op.arabicName))
                 ),
@@ -159,13 +255,13 @@ const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPack
         ),
         (rechargeType === 'direct' && selectedCardOperatorKey === '011') && React.createElement("fieldset", null,
             React.createElement("legend", { className: "block text-sm font-medium mb-2 text-dark-800 dark:text-dark-100" }, `${stepCounter++}. اختر نوع الشحن (اتصالات)`),
-            React.createElement("select", { value: etisalatOption, onChange: e => setEtisalatOption(e.target.value), className: "w-full p-2.5 rounded-md border border-light-300 dark:border-dark-600" },
+            React.createElement("select", { value: etisalatOption, onChange: e => setEtisalatOption(e.target.value), className: "w-full p-2.5 rounded-md border border-light-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-dark-900 dark:text-dark-50" },
                 ETISALAT_CARD_OPTIONS.map(opt => React.createElement("option", { key: opt.value, value: opt.value }, opt.label))
             )
         ),
         (rechargeType === 'direct' && selectedCardOperatorKey === '012') && React.createElement("fieldset", null,
             React.createElement("legend", { className: "block text-sm font-medium mb-2 text-dark-800 dark:text-dark-100" }, `${stepCounter++}. اختر نوع الكارت (اورانج)`),
-            React.createElement("select", { value: orangeOption, onChange: e => setOrangeOption(e.target.value), className: "w-full p-2.5 rounded-md border border-light-300 dark:border-dark-600" },
+            React.createElement("select", { value: orangeOption, onChange: e => setOrangeOption(e.target.value), className: "w-full p-2.5 rounded-md border border-light-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-dark-900 dark:text-dark-50" },
                 ORANGE_CARD_OPTIONS.map(opt => React.createElement("option", { key: opt.value, value: opt.value }, opt.label))
             )
         ),
@@ -180,8 +276,8 @@ const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPack
                     let benefitText = rechargeType === 'direct' && pkg.benefits ? (pkg.benefits[selectedCardOperatorKey === '011' ? etisalatOption : orangeOption] || `يعطيك ${pkg.benefits.default_credit}`) : null;
                     const displayName = (pkg.name && pkg.name.trim()) ? pkg.name : `كارت فكة ${pkg.price} ج.م`;
                     return React.createElement("button", {
-                        key: `${pkg.price}-${pkg.cardValue}`, type: "button", onClick: () => setSelectedCardPackage(pkg),
-                        className: `p-2 text-center rounded-xl border-2 ${selectedCardPackage?.cardValue === pkg.cardValue && selectedCardPackage?.price === pkg.price ? 'border-primary bg-primary/5' : 'border-light-300 dark:border-dark-600'}`
+                        key: `${pkg.price}-${pkg.cardValue}`, type: "button", onClick: () => setSelectedPackage(pkg),
+                        className: `p-2 text-center rounded-xl border-2 ${selectedPackage?.cardValue === pkg.cardValue && selectedPackage?.price === pkg.price ? 'border-primary bg-primary/5' : 'border-light-300 dark:border-dark-600'}`
                     },
                         React.createElement("img", { src: product.imageUrl, alt: displayName, className: "w-full h-16 object-contain mb-2", loading: "lazy" }),
                         React.createElement("p", { className: "font-bold text-md" }, displayName),
@@ -196,8 +292,8 @@ const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPack
         ),
         formError && React.createElement("p", { className: "text-red-500 text-xs mt-1 text-center" }, formError),
         React.createElement("div", { className: "pt-4 border-t border-light-200 dark:border-dark-600 mt-auto" },
-            selectedCardPackage && React.createElement("div", { className: "text-center mb-3" },
-                React.createElement("p", { className: "text-lg font-bold text-primary" }, `الإجمالي: ${Number(selectedCardPackage.price || 0).toFixed(2)} ج.م`),
+            selectedPackage && React.createElement("div", { className: "text-center mb-3" },
+                React.createElement("p", { className: "text-lg font-bold text-primary" }, `الإجمالي: ${Number(selectedPackage.price || 0).toFixed(2)} ج.م`),
                 (pointsToEarn > 0) && React.createElement("p", { className: "mt-1 flex items-center justify-center gap-1 text-xs text-yellow-700 font-medium" },
                     React.createElement(StarIcon, { filled: true, className: "w-3.5 h-3.5" }), `ستحصل على ${pointsToEarn} نقطة`)
             ),

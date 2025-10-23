@@ -50,7 +50,7 @@ const AIChatModal = ({ isOpen, onClose, products, categories, recentlyViewedIds 
     className: `fixed inset-0 z-[110] flex items-center justify-center p-2 sm:p-4 ${isRendered ? '' : 'hidden'}`,
     role: "dialog", "aria-modal": "true", "aria-labelledby": "ai-chat-title"
   },
-    React.createElement("div", { className: `modal-overlay absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`, onClick: handleOverlayClick }),
+    React.createElement("div", { className: `modal-overlay absolute inset-0 bg-black/85 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`, onClick: handleOverlayClick }),
     React.createElement("div", { className: `modal-content ai-chat-modal-content bg-white dark:bg-dark-800 rounded-xl shadow-2xl w-full max-w-lg relative ${contentAnimation} border border-light-200 dark:border-dark-700` },
       React.createElement(ChatHeader, { onClose: onClose }),
       React.createElement(ChatMessages, { history: history, isLoading: isLoading, error: error, messagesEndRef: messagesEndRef }),

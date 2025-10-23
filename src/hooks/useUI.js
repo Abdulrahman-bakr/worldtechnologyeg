@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ProductCategory } from '../constants/index.js';
 
 export const useUI = () => {
-    const [currentView, setCurrentView] = useState('home');
-    const [detailedProduct, setDetailedProduct] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState(ProductCategory.All);
     const [showAllOffersView, setShowAllOffersView] = useState(false);
     const [recentlyViewedIds, setRecentlyViewedIds] = useState(() => {
@@ -49,8 +47,6 @@ export const useUI = () => {
     const closeAllPopovers = useCallback(() => setActivePopover(null), []);
 
     return {
-        currentView, setCurrentView,
-        detailedProduct, setDetailedProduct,
         selectedCategory, setSelectedCategory,
         showAllOffersView, setShowAllOffersView,
         recentlyViewedIds, setRecentlyViewedIds,

@@ -2,7 +2,7 @@ import React from 'react';
 import { ProductCard } from './ProductCard.js';
 
 // --- START OF RecentlyViewedSection.tsx ---
-const RecentlyViewedSection = ({ products, onAddToCart, onViewDetails, onToggleWishlist, wishlistItems = [], currentUser, onLoginRequest }) => {
+const RecentlyViewedSection = ({ products, onAddToCart, onToggleWishlist, wishlistItems = [], currentUser, onLoginRequest }) => {
     if (!products || products.length === 0) return null;
     const isProductInWishlist = (productId) => (wishlistItems || []).includes(productId);
 
@@ -18,7 +18,6 @@ const RecentlyViewedSection = ({ products, onAddToCart, onViewDetails, onToggleW
                     }, React.createElement(ProductCard, {
                         product: product,
                         onAddToCart: onAddToCart,
-                        onViewDetails: onViewDetails,
                         onToggleWishlist: onToggleWishlist,
                         isInWishlist: isProductInWishlist(product.id),
                         currentUser: currentUser,

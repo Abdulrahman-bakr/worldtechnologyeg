@@ -4,7 +4,7 @@ import { SortOptions } from './SortOptions.js';
 import { ViewModeToggle } from './ViewModeToggle.js';
 
 export const ProductGrid = ({
-    products, title, onAddToCart, onViewDetails, viewMode, onViewModeChange,
+    products, title, onAddToCart, viewMode, onViewModeChange,
     sortOption, onSortChange, isLoading, onToggleWishlist, wishlistItems,
     currentUser, onLoginRequest, onInitiateDirectCheckout
 }) => {
@@ -29,7 +29,6 @@ export const ProductGrid = ({
                 viewMode,
                 isLoading,
                 onAddToCart,
-                onViewDetails,
                 onToggleWishlist,
                 wishlistItems,
                 currentUser,

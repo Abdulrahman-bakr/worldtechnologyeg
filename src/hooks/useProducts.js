@@ -1,16 +1,14 @@
-
 // world-technology-store/src/hooks/useProducts.js
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { filterAndSortProducts } from '../utils/productUtils.js';
 import { ProductCategory, SortOption } from '../constants/index.js';
 import { db } from '../services/firebase/config.js';
-import { collection, query, getDocs, orderBy, where, limit, doc, getDoc } from "firebase/firestore";
+import { collection, query, getDocs, doc, getDoc } from "firebase/firestore";
 
 export const useProducts = (setToastMessage, selectedCategory, showAllOffersView) => {
     const [products, setProducts] = useState([]);
     const [productsLoading, setProductsLoading] = useState(true);
     const [filteredAndSortedProducts, setFilteredAndSortedProducts] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
     
     const [initialMaxPrice, setInitialMaxPrice] = useState(1000);
     
@@ -37,13 +35,16 @@ export const useProducts = (setToastMessage, selectedCategory, showAllOffersView
             const popupQuery = query(collection(db, 'popup_banners'));
             const settingsQuery = getDoc(doc(db, 'settings', 'storeInfo'));
             const loyaltyQuery = getDoc(doc(db, 'settings', 'loyaltyTiers'));
+            const feeRulesQuery = getDocs(collection(db, 'feeRules'));
 
-            const [productsSnapshot, packagesSnapshot, popupSnapshot, settingsSnap, loyaltySnap] = await Promise.all([
+
+            const [productsSnapshot, packagesSnapshot, popupSnapshot, settingsSnap, loyaltySnap, feeRulesSnapshot] = await Promise.all([
                 getDocs(productsQuery),
                 getDocs(packagesQuery),
                 getDocs(popupQuery),
                 settingsQuery,
                 loyaltyQuery,
+                feeRulesQuery,
             ]);
 
             const productsData = productsSnapshot.docs
@@ -52,6 +53,7 @@ export const useProducts = (setToastMessage, selectedCategory, showAllOffersView
                 .sort((a, b) => (a.arabicName || '').localeCompare(b.arabicName || '', 'ar'));
                 
             const packagesData = packagesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const feeRulesData = feeRulesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
             const allPopups = popupSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             const firstActivePopup = allPopups.find(p => p.isActive === true);
@@ -71,7 +73,7 @@ export const useProducts = (setToastMessage, selectedCategory, showAllOffersView
 
             setProducts(productsData);
             setAllDigitalPackages(packagesData);
-            setAllFeeRules([]);
+            setAllFeeRules(feeRulesData);
 
             if (productsData.length > 0) {
                 const maxPrice = Math.ceil(Math.max(...productsData.map(p => p.price).filter(p => !isNaN(p)), 0) / 100) * 100;
@@ -140,8 +142,6 @@ export const useProducts = (setToastMessage, selectedCategory, showAllOffersView
     useEffect(() => {
         if (productsLoading) return;
         
-        setIsLoading(true);
-
         const processedProducts = filterAndSortProducts({
             products: baseFilteredProducts, // Filter from the base set
             sortOption,
@@ -151,8 +151,7 @@ export const useProducts = (setToastMessage, selectedCategory, showAllOffersView
         
         const timer = setTimeout(() => {
             setFilteredAndSortedProducts(processedProducts);
-            setIsLoading(false);
-        }, 200);
+        }, 150); // A small debounce to prevent jarring updates while sliding price
 
         return () => clearTimeout(timer);
 
@@ -174,21 +173,52 @@ export const useProducts = (setToastMessage, selectedCategory, showAllOffersView
     const filterCounts = useMemo(() => {
         const counts = { brands: {}, specs: {} };
 
+        // --- Brand Counts Calculation ---
+        let productsForBrandCounting = baseFilteredProducts;
+        productsForBrandCounting = productsForBrandCounting.filter(p => {
+            const price = p.discountPrice || p.price;
+            return p.isDynamicElectronicPayments ? true : (price >= priceRange.min && price <= priceRange.max);
+        });
+        if (activeFilters.discountedOnly) {
+            productsForBrandCounting = productsForBrandCounting.filter(p => p.discountPrice);
+        }
+        Object.entries(activeFilters.specs).forEach(([specName, specValues]) => {
+            if (specValues && specValues.length > 0) {
+                productsForBrandCounting = productsForBrandCounting.filter(p => p.specifications && specValues.includes(p.specifications[specName]));
+            }
+        });
         brands.forEach(brand => {
-            counts.brands[brand] = baseFilteredProducts.filter(p => p.brand === brand).length;
+            counts.brands[brand] = productsForBrandCounting.filter(p => p.brand === brand).length;
         });
 
+        // --- Specs Counts Calculation ---
         Object.entries(availableSpecFilters).forEach(([specName, specValues]) => {
             counts.specs[specName] = {};
+            let productsForSpecCounting = baseFilteredProducts;
+            productsForSpecCounting = productsForSpecCounting.filter(p => {
+                const price = p.discountPrice || p.price;
+                return p.isDynamicElectronicPayments ? true : (price >= priceRange.min && price <= priceRange.max);
+            });
+            if (activeFilters.discountedOnly) {
+                productsForSpecCounting = productsForSpecCounting.filter(p => p.discountPrice);
+            }
+            if (activeFilters.brands && activeFilters.brands.length > 0) {
+                productsForSpecCounting = productsForSpecCounting.filter(p => activeFilters.brands.includes(p.brand));
+            }
+            Object.entries(activeFilters.specs).forEach(([otherSpecName, otherSpecValues]) => {
+                if (specName !== otherSpecName && otherSpecValues && otherSpecValues.length > 0) {
+                    productsForSpecCounting = productsForSpecCounting.filter(p => p.specifications && otherSpecValues.includes(p.specifications[otherSpecName]));
+                }
+            });
             specValues.forEach(value => {
-                counts.specs[specName][value] = baseFilteredProducts.filter(
+                counts.specs[specName][value] = productsForSpecCounting.filter(
                     p => p.specifications && p.specifications[specName] === value
                 ).length;
             });
         });
 
         return counts;
-    }, [baseFilteredProducts, brands, availableSpecFilters]);
+    }, [baseFilteredProducts, brands, availableSpecFilters, activeFilters, priceRange]);
 
     const getProductsForCategory = useCallback((categoryIds, limit) => {
         if (productsLoading) return [];

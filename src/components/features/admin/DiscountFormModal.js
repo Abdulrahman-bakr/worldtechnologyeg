@@ -1,14 +1,22 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { CloseIcon } from '../../icons/index.js';
-import { CATEGORIES } from '../../../constants/index.js';
 
 const DiscountFormModal = ({ isOpen, onClose, onSave, discount, products }) => {
     const [formData, setFormData] = useState({
         code: '', type: 'percentage', value: 0, expiryDate: '',
         minPurchase: 0, usageLimit: 0, applicableCategories: '', applicableProducts: ''
     });
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
 
     useEffect(() => {
         if (discount) {
@@ -50,7 +58,7 @@ const DiscountFormModal = ({ isOpen, onClose, onSave, discount, products }) => {
 
     return (
         React.createElement("div", { className: "fixed inset-0 z-[110] flex items-center justify-center p-4" },
-            React.createElement("div", { className: "modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm", onClick: onClose }),
+            React.createElement("div", { className: "modal-overlay absolute inset-0 bg-black/85", onClick: onClose }),
             React.createElement("div", { className: "modal-content bg-light-50 dark:bg-dark-800 rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col relative" },
                 React.createElement("button", { onClick: onClose, className: "absolute top-4 left-4 p-1" }, React.createElement(CloseIcon, { className: "w-6 h-6" })),
                 React.createElement("h2", { className: "text-xl font-bold mb-4" }, discount ? 'تعديل الكوبون' : 'إضافة كوبون جديد'),

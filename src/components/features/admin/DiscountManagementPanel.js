@@ -23,6 +23,12 @@ const DiscountManagementPanel = ({ discounts, isLoading, handleDiscountSave, han
         }
     };
 
+    const onDelete = (discountId, discountCode) => {
+        if (window.confirm(`هل أنت متأكد من حذف كوبون "${discountCode}"؟`)) {
+            handleDiscountDelete(discountId);
+        }
+    };
+
     return (
         React.createElement("div", null,
             React.createElement("div", { className: "flex justify-between items-center mb-6" },
@@ -58,7 +64,7 @@ const DiscountManagementPanel = ({ discounts, isLoading, handleDiscountSave, han
                                     React.createElement("td", null, d.expiryDate ? d.expiryDate.toDate().toLocaleDateString('ar-EG') : 'لا يوجد'),
                                     React.createElement("td", { className: "space-x-2 space-x-reverse" },
                                         React.createElement("button", { onClick: () => handleOpenModal(d), className: "p-2 hover:text-primary" }, React.createElement(PencilSquareIcon, { className: "w-5 h-5" })),
-                                        React.createElement("button", { onClick: () => handleDiscountDelete(d.id), className: "p-2 hover:text-red-500" }, React.createElement(TrashIcon, { className: "w-5 h-5" }))
+                                        React.createElement("button", { onClick: () => onDelete(d.id, d.code), className: "p-2 hover:text-red-500" }, React.createElement(TrashIcon, { className: "w-5 h-5" }))
                                     )
                                 )
                             )

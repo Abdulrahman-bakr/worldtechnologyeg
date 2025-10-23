@@ -1,8 +1,9 @@
+
 // world-technology-store/src/components/features/admin/ProductFormModal.js
 
-import React, { useState, useEffect, useRef } from 'react';
-import { CATEGORIES } from '../../../constants/index.js';
-import { ArrowUpOnSquareIcon, CloseIcon, StarIcon, TrashIcon, ClipboardDocumentIcon, PlusCircleIcon, SparklesIcon } from '../../icons/index.js'; 
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { CATEGORIES, PRODUCT_BENEFITS_LIST } from '../../../constants/index.js';
+import { ArrowUpOnSquareIcon, CloseIcon, StarIcon, TrashIcon, ClipboardDocumentIcon, PlusCircleIcon, SparklesIcon, SearchIcon } from '../../icons/index.js'; 
 import { GoogleGenAI } from "@google/genai";
 
 const ImageGalleryManager = ({ imageUrl, imageUrls = [], onImageUpload, onUrlsChange, onMainUrlChange }) => {
@@ -123,14 +124,26 @@ const ProductFormModal = ({ isOpen, onClose, product, onSave, onImageUpload, dig
     const [proposedId, setProposedId] = useState('');
     const [idManuallyEdited, setIdManuallyEdited] = useState(false);
     const [copySuccess, setCopySuccess] = useState('');
+    const [benefitSearch, setBenefitSearch] = useState('');
 
     const slugify = (text) => text ? text.trim().toLowerCase().replace(/\s+/g, '-').replace(/[/?#[\]*()]/g, '') : '';
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
 
     const handleGenerateDescription = async () => {
         setIsGeneratingDesc(true);
         setFormError('');
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: process.env.REACT_APP_GOOGLE_AI_API_KEY });
             const specsText = (formData.specifications || [])
                 .map(([key, value]) => key && value ? `${key}: ${value}` : '')
                 .filter(Boolean).join(', ');
@@ -200,6 +213,9 @@ const ProductFormModal = ({ isOpen, onClose, product, onSave, onImageUpload, dig
                 features: product.features || [], imageUrls: product.imageUrls || (product.imageUrl ? [product.imageUrl] : []),
                 requiredFields: product.requiredFields || [],
                 variants: hasExistingVariants ? product.variants : [], lowStockThreshold: product.lowStockThreshold ?? 10,
+                benefitIds: product.benefitIds || [],
+                pointsForReview: product.pointsForReview ?? 0,
+                videoUrl: product.videoUrl || '',
             });
         } else {
             setHasVariants(false);
@@ -207,7 +223,9 @@ const ProductFormModal = ({ isOpen, onClose, product, onSave, onImageUpload, dig
                 arabicName: '', name: '', brand: '', category: '', price: 0, discountPrice: 0, stock: 0, lowStockThreshold: 10,
                 description: '', specifications: [], features: [], imageUrl: '', imageUrls: [], isNew: false, 
                 isDynamicElectronicPayments: false, allowDirectPurchase: false, requiredFields: [],
-                variants: [], status: 'draft'
+                variants: [], status: 'draft',
+                benefitIds: [], pointsForReview: 0,
+                videoUrl: '',
             });
             setProposedId('');
             setIdManuallyEdited(false);
@@ -261,6 +279,56 @@ const ProductFormModal = ({ isOpen, onClose, product, onSave, onImageUpload, dig
             });
         }
     };
+    const handleBenefitChange = (benefitId) => {
+        setFormData(prev => {
+            const currentIds = prev.benefitIds || [];
+            const newIds = currentIds.includes(benefitId)
+                ? currentIds.filter(id => id !== benefitId)
+                : [...currentIds, benefitId];
+            return { ...prev, benefitIds: newIds };
+        });
+    };
+
+    const groupedBenefits = useMemo(() => {
+        return PRODUCT_BENEFITS_LIST.reduce((acc, benefit) => {
+            const category = benefit.category || 'مزايا متنوعة';
+            if (!acc[category]) {
+                acc[category] = [];
+            }
+            acc[category].push(benefit);
+            return acc;
+        }, {});
+    }, []);
+
+    const handleToggleBenefitCategory = (category, selectAll) => {
+        const categoryBenefitIds = groupedBenefits[category].map(b => b.id);
+        setFormData(prev => {
+            const currentIds = new Set(prev.benefitIds || []);
+            if (selectAll) {
+                categoryBenefitIds.forEach(id => currentIds.add(id));
+            } else {
+                categoryBenefitIds.forEach(id => currentIds.delete(id));
+            }
+            return { ...prev, benefitIds: Array.from(currentIds) };
+        });
+    };
+    
+    const filteredBenefits = useMemo(() => {
+        if (!benefitSearch) return groupedBenefits;
+        const lowercasedSearch = benefitSearch.toLowerCase();
+        const filtered = {};
+        for (const category in groupedBenefits) {
+            const matchingBenefits = groupedBenefits[category].filter(b => 
+                b.title.toLowerCase().includes(lowercasedSearch) || 
+                b.description.toLowerCase().includes(lowercasedSearch)
+            );
+            if (matchingBenefits.length > 0) {
+                filtered[category] = matchingBenefits;
+            }
+        }
+        return filtered;
+    }, [benefitSearch, groupedBenefits]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setFormError('');
@@ -273,7 +341,7 @@ const ProductFormModal = ({ isOpen, onClose, product, onSave, onImageUpload, dig
         if (!product) dataToSave.customId = proposedId;
         if (dataToSave.isDynamicElectronicPayments) {
             dataToSave.requiredFields = (formData.requiredFields || []).filter(rf => rf && rf.id && rf.label);
-            const physicalProductKeys = ['price', 'discountPrice', 'stock', 'specifications', 'variants', 'lowStockThreshold'];
+            const physicalProductKeys = ['specifications', 'variants'];
             physicalProductKeys.forEach(key => delete dataToSave[key]);
         } else {
             dataToSave.specifications = (formData.specifications || []).reduce((acc, [key, value]) => {
@@ -295,6 +363,9 @@ const ProductFormModal = ({ isOpen, onClose, product, onSave, onImageUpload, dig
             const digitalServiceKeys = ['dynamicServiceId', 'dynamicServiceType', 'feeRuleId', 'requiredFields', 'packageSelectionStepTitle', 'detailsStepTitle', 'disableLightbox', 'isZoomDisabled'];
             digitalServiceKeys.forEach(key => delete dataToSave[key]);
         }
+        dataToSave.pointsForReview = Number(formData.pointsForReview) || 0;
+        dataToSave.benefitIds = formData.benefitIds || [];
+        dataToSave.videoUrl = formData.videoUrl || '';
         const result = await onSave(dataToSave);
         if (result && !result.success) setFormError(result.error || 'حدث خطأ غير معروف.');
     };
@@ -304,14 +375,15 @@ const ProductFormModal = ({ isOpen, onClose, product, onSave, onImageUpload, dig
     const labelClass = "block text-xs font-medium mb-1 text-dark-800 dark:text-dark-100";
     const tabs = [
         { id: 'basic', label: 'البيانات الأساسية' },
-        { id: 'media', label: 'الصور والمتغيرات' },
+        { id: 'media', label: 'الوسائط والمتغيرات' },
         { id: 'details', label: 'الوصف والمواصفات' },
+        { id: 'benefits', label: 'المزايا والمكافآت' },
         ...(formData.isDynamicElectronicPayments ? [{ id: 'digital', label: 'إعدادات الخدمات الرقمية' }] : [])
     ];
 
     return (
         React.createElement("div", { className: "fixed inset-0 z-[110] flex items-center justify-center p-4", role: "dialog", "aria-modal": "true" },
-            React.createElement("div", { className: "modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm", onClick: onClose }),
+            React.createElement("div", { className: "modal-overlay absolute inset-0 bg-black/85 backdrop-blur-sm", onClick: onClose }),
             React.createElement("div", { className: "modal-content bg-light-50 dark:bg-dark-800 rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] flex flex-col relative" },
                 React.createElement("button", { onClick: onClose, className: "absolute top-4 left-4 text-dark-600 dark:text-dark-300 hover:text-red-500 p-1 transition-colors", "aria-label": "إغلاق" }, React.createElement(CloseIcon, { className: "w-6 h-6" })),
                 React.createElement("h2", { className: "text-xl font-bold mb-4 text-dark-900 dark:text-light-50" }, product ? 'تعديل المنتج' : 'إضافة منتج جديد'),
@@ -327,17 +399,33 @@ const ProductFormModal = ({ isOpen, onClose, product, onSave, onImageUpload, dig
                             React.createElement("div", null, React.createElement("label", { className: labelClass }, "العلامة التجارية"), React.createElement("input", { value: formData.brand || '', onChange: e => setFormData({...formData, brand: e.target.value}), placeholder: "العلامة التجارية", className: inputClass })),
                             React.createElement("div", null, React.createElement("label", { className: labelClass }, "الفئة *"), React.createElement("select", { value: formData.category || '', onChange: e => setFormData({...formData, category: e.target.value}), className: inputClass, required: true }, React.createElement("option", { value: "" }, "اختر الفئة..."), CATEGORIES.filter(c => c.id !== 'All').map(c => React.createElement("option", { key: c.id, value: c.id }, c.arabicName)))),
                             React.createElement("div", null, React.createElement("label", { className: labelClass }, "حالة المنتج *"), React.createElement("select", { value: formData.status || 'draft', onChange: e => setFormData({...formData, status: e.target.value}), className: inputClass }, React.createElement("option", { value: "draft" }, "مسودة (مخفي)"), React.createElement("option", { value: "published" }, "منشور (ظاهر)"))),
-                            !hasVariants && !formData.isDynamicElectronicPayments && React.createElement(React.Fragment, null,
-                                React.createElement("div", null, React.createElement("label", { className: labelClass }, "السعر الأساسي *"), React.createElement("input", { value: formData.price || 0, onChange: e => setFormData({...formData, price: e.target.value}), placeholder: "السعر", type: "number", step: "0.01", className: inputClass, required: !hasVariants })),
+                            !hasVariants && React.createElement(React.Fragment, null,
+                                React.createElement("div", null, React.createElement("label", { className: labelClass }, "السعر الأساسي *"), React.createElement("input", { value: formData.price || 0, onChange: e => setFormData({...formData, price: e.target.value}), placeholder: "السعر", type: "number", step: "0.01", className: inputClass, required: !hasVariants && !formData.isDynamicElectronicPayments })),
                                 React.createElement("div", null, React.createElement("label", { className: labelClass }, "سعر الخصم (اختياري)"), React.createElement("input", { value: formData.discountPrice || 0, onChange: e => setFormData({...formData, discountPrice: e.target.value}), placeholder: "سعر الخصم", type: "number", step: "0.01", className: inputClass })),
-                                React.createElement("div", null, React.createElement("label", { className: labelClass }, "الكمية بالمخزون"), React.createElement("input", { value: formData.stock || 0, onChange: e => setFormData({...formData, stock: e.target.value}), placeholder: "المخزون", type: "number", className: inputClass })),
-                                React.createElement("div", null, React.createElement("label", { className: labelClass }, "تنبيه عند انخفاض المخزون عن"), React.createElement("input", { value: formData.lowStockThreshold || 10, onChange: e => setFormData({...formData, lowStockThreshold: e.target.value}), type: "number", className: inputClass })),
+                                !formData.isDynamicElectronicPayments && React.createElement(React.Fragment, null, 
+                                    React.createElement("div", null, React.createElement("label", { className: labelClass }, "الكمية بالمخزون"), React.createElement("input", { value: formData.stock || 0, onChange: e => setFormData({...formData, stock: e.target.value}), placeholder: "المخزون", type: "number", className: inputClass })),
+                                    React.createElement("div", null, React.createElement("label", { className: labelClass }, "تنبيه عند انخفاض المخزون عن"), React.createElement("input", { value: formData.lowStockThreshold || 10, onChange: e => setFormData({...formData, lowStockThreshold: e.target.value}), type: "number", className: inputClass }))
+                                )
                             ),
                              React.createElement("div", { className: "col-span-1 md:col-span-2 flex items-center flex-wrap gap-4 text-sm font-medium text-dark-800 dark:text-dark-100 pt-2 border-t mt-2" }, ["isNew", "isDynamicElectronicPayments"].map(key => React.createElement("label", { key: key, className: "flex items-center gap-2" }, React.createElement("input", { type: "checkbox", checked: !!formData[key], onChange: e => setFormData({...formData, [key]: e.target.checked}), className: "form-checkbox" }), key === 'isNew' ? 'منتج جديد؟' : 'خدمة رقمية؟')), !formData.isDynamicElectronicPayments && React.createElement("label", { className: "flex items-center gap-2" }, React.createElement("input", { type: "checkbox", checked: hasVariants, onChange: e => setHasVariants(e.target.checked), className: "form-checkbox" }), "هذا المنتج له متغيرات؟"))
                         )
                     ),
                     activeTab === 'media' && React.createElement("div", { className: "space-y-4 " },
                         React.createElement(ImageGalleryManager, { imageUrl: formData.imageUrls && formData.imageUrls[0], imageUrls: formData.imageUrls, onImageUpload: onImageUpload, onUrlsChange: (newUrls) => setFormData(prev => ({ ...prev, imageUrls: newUrls })), onMainUrlChange: (newMainUrl) => setFormData(prev => ({...prev, imageUrls: [newMainUrl, ...prev.imageUrls.filter(url => url !== newMainUrl)] })) }),
+                        React.createElement("div", { className: "pt-4 border-t" },
+                            React.createElement("h3", { className: "font-semibold mb-2 text-dark-900 dark:text-dark-50" }, "فيديو المنتج (اختياري)"),
+                            React.createElement("div", null,
+                                React.createElement("label", { htmlFor: "product-video-url", className: labelClass }, "رابط الفيديو (YouTube)"),
+                                React.createElement("input", {
+                                    id: "product-video-url",
+                                    value: formData.videoUrl || '',
+                                    onChange: (e) => setFormData({ ...formData, videoUrl: e.target.value }),
+                                    placeholder: "https://www.youtube.com/watch?v=...",
+                                    className: `${inputClass} font-mono`,
+                                    dir: "ltr"
+                                })
+                            )
+                        ),
                         hasVariants && !formData.isDynamicElectronicPayments && React.createElement("div", { className: "col-span-1 md:col-span-2 pt-4 border-t space-y-4 bg-light-100 dark:bg-dark-700/50 p-4 rounded-lg" }, React.createElement("h3", { className: "font-semibold text-dark-900 dark:text-dark-50" }, "متغيرات المنتج"), (formData.variants || []).map((variant, index) => React.createElement("div", { key: index, className: "p-3 border rounded-md bg-white dark:bg-dark-800 space-y-4" }, React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-4" }, React.createElement("div", null, React.createElement("label", { className: labelClass }, "اسم اللون/المتغير *"), React.createElement("input", { value: variant.colorName || '', onChange: e => handleVariantChange(index, 'colorName', e.target.value), placeholder: "مثال: أحمر", className: inputClass, required: true })), React.createElement("div", null, React.createElement("label", { className: labelClass }, "كود اللون (Hex) *"), React.createElement("div", { className: "flex items-center gap-2" }, React.createElement("input", { type: "color", value: variant.colorHex || '#ffffff', onChange: e => handleVariantChange(index, 'colorHex', e.target.value), className: "h-11 w-12 p-1 border-none rounded-md cursor-pointer bg-transparent" }), React.createElement("input", { type: "text", value: variant.colorHex || '', onChange: e => handleVariantChange(index, 'colorHex', e.target.value), placeholder: "#FF0000", className: inputClass, required: true })))), React.createElement("div", { className: "flex items-center gap-2" }, React.createElement("input", { value: variant.imageUrl || '', readOnly: true, placeholder: "رابط صورة المتغير (اختياري)", className: `${inputClass} bg-light-100 dark:bg-dark-600` }), React.createElement("label", { className: `${btnClass} bg-light-200 dark:bg-dark-600 text-xs cursor-pointer`}, "رفع", React.createElement("input",{type: "file", className: "hidden", onChange: e => handleVariantFileChange(e, index)}))), React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-3" }, React.createElement("div", null, React.createElement("label", { className: labelClass }, "السعر *"), React.createElement("input", { value: variant.price || '', onChange: e => handleVariantChange(index, 'price', e.target.value), placeholder: "السعر", type: "number", step: "0.01", className: inputClass, required: true })), React.createElement("div", null, React.createElement("label", { className: labelClass }, "سعر الخصم"), React.createElement("input", { value: variant.discountPrice || '', onChange: e => handleVariantChange(index, 'discountPrice', e.target.value), placeholder: "سعر الخصم", type: "number", step: "0.01", className: inputClass })), React.createElement("div", null, React.createElement("label", { className: labelClass }, "المخزون *"), React.createElement("input", { value: variant.stock || '', onChange: e => handleVariantChange(index, 'stock', e.target.value), placeholder: "المخزون", type: "number", className: inputClass, required: true }))), React.createElement("button", { type: "button", onClick: () => handleRemoveVariant(index), className: "flex items-center gap-1 text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-semibold pt-2" }, React.createElement(TrashIcon, { className: "w-4 h-4" }), "حذف المتغير"))), React.createElement("button", { type: "button", onClick: handleAddVariant, className: "flex items-center gap-2 text-sm text-primary hover:text-primary-hover font-semibold mt-4" }, React.createElement(PlusCircleIcon, {className: "w-5 h-5"}), "إضافة متغير جديد"))
                     ),
                     activeTab === 'details' && React.createElement("div", { className: "space-y-4 " },
@@ -356,6 +444,48 @@ const ProductFormModal = ({ isOpen, onClose, product, onSave, onImageUpload, dig
                         ),
                         React.createElement("div", { className: "pt-4 border-t" }, React.createElement("h3", { className: "font-semibold mb-2" }, "المواصفات الفنية"), (formData.specifications || []).map((spec, index) => React.createElement("div", { key: index, className: "flex gap-2 mb-2" }, React.createElement("input", { value: spec[0], onChange: e => handleSpecChange(index, e.target.value, spec[1]), placeholder: "اسم المواصفة", className: inputClass }), React.createElement("input", { value: spec[1], onChange: e => handleSpecChange(index, spec[0], e.target.value), placeholder: "قيمة المواصفة", className: inputClass }), React.createElement("button", { type: "button", onClick: () => handleRemoveSpec(index), className: `${btnClass} bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300` }, React.createElement(TrashIcon, { className: 'w-4 h-4' })))), React.createElement("button", { type: "button", onClick: handleAddSpec, className: "text-sm text-primary font-semibold mt-2" }, "+ إضافة مواصفة")),
                         React.createElement("div", { className: "pt-4 border-t" }, React.createElement("h3", { className: "font-semibold mb-2" }, "المميزات"), (formData.features || []).map((feature, index) => React.createElement("div", { key: index, className: "flex gap-2 mb-2" }, React.createElement("input", { value: feature, onChange: e => handleArrayChange('features', index, e.target.value), placeholder: "ميزة...", className: inputClass }), React.createElement("button", { type: "button", onClick: () => handleRemoveArrayItem('features', index), className: `${btnClass} bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300` }, React.createElement(TrashIcon, { className: 'w-4 h-4' })))), React.createElement("button", { type: "button", onClick: () => handleAddArrayItem('features'), className: "text-sm text-primary font-semibold mt-2" }, "+ إضافة ميزة"))
+                    ),
+                    activeTab === 'benefits' && React.createElement("div", { className: "space-y-6" },
+                        React.createElement("div", null,
+                            React.createElement("h3", { className: "text-lg font-semibold text-dark-900 dark:text-dark-50 mb-3" }, "نقاط مراجعة المنتج"),
+                            React.createElement("label", { htmlFor: "pointsForReview", className: labelClass }, "نقاط المكافأة عند إضافة مراجعة"),
+                            React.createElement("input", { id: "pointsForReview", type: "number", value: formData.pointsForReview || '', onChange: e => setFormData({...formData, pointsForReview: Number(e.target.value) }), className: inputClass, placeholder: "e.g., 50" }),
+                            React.createElement("p", { className: "text-xs text-dark-600 dark:text-dark-300 mt-1" }, "سيحصل العميل على هذا العدد من النقاط عند كتابة مراجعة للمنتج. أدخل 0 لتعطيل المكافأة.")
+                        ),
+                        React.createElement("div", { className: "pt-4 border-t border-light-300 dark:border-dark-600" },
+                            React.createElement("h3", { className: "text-lg font-semibold text-dark-900 dark:text-dark-50 mb-3" }, "مزايا المنتج المعروضة"),
+                            React.createElement("div", { className: "relative mb-4" },
+                                React.createElement("input", { type: "search", value: benefitSearch, onChange: e => setBenefitSearch(e.target.value), placeholder: "ابحث عن ميزة...", className: `${inputClass} pl-10` }),
+                                React.createElement(SearchIcon, { className: "w-5 h-5 absolute top-1/2 -translate-y-1/2 left-3 text-dark-500" })
+                            ),
+                            React.createElement("div", { className: "space-y-6 max-h-80 overflow-y-auto pr-2" },
+                                Object.entries(filteredBenefits).map(([category, benefits]) => (
+                                    React.createElement("div", { key: category },
+                                        React.createElement("div", { className: "flex justify-between items-center mb-2" },
+                                            React.createElement("h4", { className: "font-semibold text-md text-primary" }, category),
+                                            React.createElement("div", { className: "flex gap-2" },
+                                                React.createElement("button", { type: "button", onClick: () => handleToggleBenefitCategory(category, true), className: "text-xs font-semibold text-blue-500 hover:underline" }, "تحديد الكل"),
+                                                React.createElement("button", { type: "button", onClick: () => handleToggleBenefitCategory(category, false), className: "text-xs font-semibold text-red-500 hover:underline" }, "إلغاء الكل")
+                                            )
+                                        ),
+                                        React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-4" },
+                                            benefits.map(benefit => (
+                                                React.createElement("label", { key: benefit.id, className: "flex items-start gap-3 p-3 bg-light-100 dark:bg-dark-700/50 rounded-lg border border-transparent has-[:checked]:border-primary has-[:checked]:bg-primary/10 cursor-pointer" },
+                                                    React.createElement("input", { type: "checkbox", checked: (formData.benefitIds || []).includes(benefit.id), onChange: () => handleBenefitChange(benefit.id), className: "form-checkbox h-5 w-5 rounded text-primary focus:ring-primary mt-1 flex-shrink-0" }),
+                                                    React.createElement("div", { className: "flex items-start gap-2 flex-grow" },
+                                                        React.createElement(benefit.icon, { className: "w-6 h-6 text-primary flex-shrink-0" }),
+                                                        React.createElement("div", { className: "flex-grow" },
+                                                            React.createElement("p", { className: "font-semibold" }, benefit.title),
+                                                            React.createElement("p", { className: "text-xs text-dark-600 dark:text-dark-300" }, benefit.description)
+                                                        )
+                                                    )
+                                                )
+                                            ))
+                                        )
+                                    )
+                                ))
+                            )
+                        )
                     ),
                     activeTab === 'digital' && formData.isDynamicElectronicPayments && React.createElement("div", { className: "space-y-4 " }, React.createElement("h3", { className: "font-semibold text-dark-900 dark:text-dark-50" }, "إعدادات الخدمة الرقمية"), React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4" }, React.createElement("div", null, React.createElement("label", { className: labelClass }, "معرف الخدمة (Service ID)"), React.createElement("select", { value: formData.dynamicServiceId || '', onChange: e => setFormData(p => ({...p, dynamicServiceId: e.target.value})), className: inputClass }, React.createElement("option", { value: "" }, "اختر خدمة..."), (digitalServices || []).map(service => React.createElement("option", { key: service.id, value: service.id }, service.id)))), React.createElement("div", null, React.createElement("label", { className: labelClass }, "نوع الخدمة (Service Type)"), React.createElement("input", { value: formData.dynamicServiceType || '', onChange: e => setFormData(p => ({...p, dynamicServiceType: e.target.value})), placeholder: "e.g., internet_bill", className: inputClass })), React.createElement("div", null, React.createElement("label", { className: labelClass }, "معرف قاعدة الرسوم (Fee Rule ID)"), React.createElement("select", { value: formData.feeRuleId || '', onChange: e => setFormData(p => ({...p, feeRuleId: e.target.value})), className: inputClass }, React.createElement("option", { value: "" }, "اختر قاعدة رسوم..."), (feeRules || []).map(rule => React.createElement("option", { key: rule.id, value: rule.id }, rule.id)))), React.createElement("div", null, React.createElement("label", { className: labelClass }, "عنوان خطوة اختيار الباقة"), React.createElement("input", { value: formData.packageSelectionStepTitle || '', onChange: e => setFormData(p => ({...p, packageSelectionStepTitle: e.target.value})), placeholder: "e.g., اختر باقة الشحن", className: inputClass })), React.createElement("div", { className: "md:col-span-2" }, React.createElement("label", { className: labelClass }, "عنوان خطوة إدخال التفاصيل"), React.createElement("input", { value: formData.detailsStepTitle || '', onChange: e => setFormData(p => ({...p, detailsStepTitle: e.target.value})), placeholder: "e.g., أدخل رقم الخط الأرضي", className: inputClass }))), React.createElement("div", { className: "pt-4 border-t" }, React.createElement("h3", { className: "font-semibold mb-2" }, "الحقول المطلوبة من المستخدم"), (formData.requiredFields || []).map((field, index) => React.createElement("div", { key: index, className: "grid grid-cols-1 md:grid-cols-5 gap-2 mb-3 p-3 border rounded-md bg-white dark:bg-dark-800" }, React.createElement("input", { value: field.id || '', onChange: e => handleRequiredFieldChange(index, 'id', e.target.value), placeholder: "ID الحقل", className: inputClass }), React.createElement("input", { value: field.label || '', onChange: e => handleRequiredFieldChange(index, 'label', e.target.value), placeholder: "العنوان (Label)", className: inputClass }), React.createElement("select", { value: field.type || 'text', onChange: e => handleRequiredFieldChange(index, 'type', e.target.value), className: inputClass }, React.createElement("option", { value: "text" }, "نص"), React.createElement("option", { value: "tel" }, "هاتف"), React.createElement("option", { value: "number" }, "رقم")), React.createElement("input", { value: field.placeholder || '', onChange: e => handleRequiredFieldChange(index, 'placeholder', e.target.value), placeholder: "النص المؤقت", className: inputClass }), React.createElement("button", { type: "button", onClick: () => handleRemoveRequiredField(index), className: `${btnClass} bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300` }, React.createElement(TrashIcon, { className: 'w-4 h-4' })))), React.createElement("button", { type: "button", onClick: handleAddRequiredField, className: "text-sm text-primary font-semibold mt-2" }, "+ إضافة حقل مطلوب")))
                 ),

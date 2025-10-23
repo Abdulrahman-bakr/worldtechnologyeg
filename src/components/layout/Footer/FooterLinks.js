@@ -1,25 +1,37 @@
-
-
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { useApp } from '../../../contexts/AppContext.js';
 
-const FooterLinks = ({ onNavigate }) => {
-    const handleNav = (e, action, params = {}) => {
-        e.preventDefault();
-        onNavigate(action, params);
-    };
+const FooterLinks = () => {
+    const { currentUser } = useApp();
+
+    const links = [
+        { label: "الرئيسية", to: '/' },
+        { label: "جميع الفئات", to: '/products' },
+        { label: "طلباتي", to: '/orders', requiresLogin: true },
+        { label: "تتبع طلبك", to: '/track-order' },
+        { label: "النسخ الصوتي", to: '/transcribe' },
+        { label: "الشروط والأحكام", to: '/terms' },
+        { label: "الأسئلة الشائعة", to: '/faq' },
+        { label: "من نحن", to: '/about-us' },
+        { label: "حسابي", to: '/profile', requiresLogin: true }
+    ];
 
     return (
         React.createElement("div", null,
             React.createElement("h4", { className: "text-lg font-semibold text-dark-900 dark:text-dark-50 mb-4" }, "روابط سريعة"),
             React.createElement("ul", { className: "space-y-2.5" },
-                React.createElement("li", null, React.createElement("a", { href: "#", onClick: (e) => handleNav(e, 'navigateToHome'), className: "text-dark-700 dark:text-dark-100 hover:text-primary transition-colors text-sm" }, "الرئيسية")),
-                React.createElement("li", null, React.createElement("a", { href: "#", onClick: (e) => handleNav(e, 'navigateToAllCategories'), className: "text-dark-700 dark:text-dark-100 hover:text-primary transition-colors text-sm" }, "جميع الفئات")),
-                React.createElement("li", null, React.createElement("a", { href: "#", onClick: (e) => handleNav(e, 'navigateToOrdersHistory'), className: "text-dark-700 dark:text-dark-100 hover:text-primary transition-colors text-sm" }, "طلباتي")),
-                React.createElement("li", null, React.createElement("a", { href: "#", onClick: (e) => handleNav(e, 'navigateToOrderTracking'), className: "text-dark-700 dark:text-dark-100 hover:text-primary transition-colors text-sm" }, "تتبع طلبك")),
-                React.createElement("li", null, React.createElement("a", { href: "#", onClick: (e) => handleNav(e, 'navigateToTerms'), className: "text-dark-700 dark:text-dark-100 hover:text-primary transition-colors text-sm" }, "الشروط والأحكام")),
-                React.createElement("li", null, React.createElement("a", { href: "#", onClick: (e) => handleNav(e, 'navigateToFAQ'), className: "text-dark-700 dark:text-dark-100 hover:text-primary transition-colors text-sm" }, "الأسئلة الشائعة")),
-                React.createElement("li", null, React.createElement("a", { href: "#", onClick: (e) => handleNav(e, 'navigateToAboutUs'), className: "text-dark-700 dark:text-dark-100 hover:text-primary transition-colors text-sm" }, "من نحن")),
-                React.createElement("li", null, React.createElement("a", { href: "#", onClick: (e) => handleNav(e, 'navigateToUserProfile'), className: "text-dark-700 dark:text-dark-100 hover:text-primary transition-colors text-sm" }, "حسابي"))
+                links.map((item) => {
+                    if (item.requiresLogin && !currentUser) return null;
+                    return React.createElement("li", { key: item.to },
+                        React.createElement(Link, {
+                            to: item.to,
+                            className:
+                                "block text-dark-700 dark:text-dark-100 text-sm rounded-md transition-all duration-200 " +
+                                "hover:text-primary hover:bg-light-200/60 dark:hover:bg-dark-700/50 px-2 py-1"
+                        }, item.label)
+                    )
+                })
             )
         )
     );

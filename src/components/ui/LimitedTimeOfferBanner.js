@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { CloseIcon, TimerIcon } from '../icons/index.js';
 
 const CountdownUnit = ({ value, label }) => (
@@ -9,7 +9,7 @@ const CountdownUnit = ({ value, label }) => (
 );
 
 const LimitedTimeOfferBanner = ({ product, onDismiss, onNavigate }) => {
-    const calculateTimeLeft = () => {
+    const calculateTimeLeft = useCallback(() => {
         const difference = +new Date(product.offerEndTime) - +new Date();
         let timeLeft = {};
 
@@ -22,7 +22,7 @@ const LimitedTimeOfferBanner = ({ product, onDismiss, onNavigate }) => {
             };
         }
         return timeLeft;
-    };
+    }, [product.offerEndTime]);
 
     const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
@@ -37,7 +37,7 @@ const LimitedTimeOfferBanner = ({ product, onDismiss, onNavigate }) => {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [product.offerEndTime, onDismiss]);
+    }, [calculateTimeLeft, onDismiss]);
 
     const handleNavigate = () => {
         onNavigate('selectProductSuggestion', { productId: product.id });

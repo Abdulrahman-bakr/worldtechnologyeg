@@ -1,5 +1,7 @@
 
+
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { SearchIcon } from '../../icons/index.js';
 
 export const MobileMenu = ({ 
@@ -7,10 +9,15 @@ export const MobileMenu = ({
     searchTerm, 
     onSearchTermChange, 
     navLinks, 
-    handleNavLinkClick, 
-    isLinkActive, 
     currentUser 
 }) => {
+    const linkClasses = ({ isActive }) => 
+        `block px-3 py-2 rounded-md font-medium text-base transition-colors ${
+            isActive
+            ? 'bg-primary/10 text-primary'
+            : 'text-dark-800 dark:text-dark-100 hover:bg-primary/10 hover:text-primary'
+        }`;
+
     return (
         React.createElement("div", { className: "md:hidden pt-2 pb-4 border-t border-light-200/50 dark:border-dark-700/50 mobile-menu-bg" },
             React.createElement("nav", { className: "flex flex-col space-y-2 px-2" },
@@ -26,22 +33,17 @@ export const MobileMenu = ({
                         React.createElement(SearchIcon, { className: "w-5 h-5" })
                     )
                 ),
-                navLinks.map((link) =>
-                    React.createElement("a", {
+                navLinks.map((link) => {
+                    if (link.requiresLogin && !currentUser) return null;
+                    return React.createElement(NavLink, {
                         key: link.name,
-                        href: "#",
-                        onClick: (e) => handleNavLinkClick(e, link),
-                        className: `block px-3 py-2 rounded-md font-medium text-base transition-colors ${isLinkActive(link)
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-dark-800 dark:text-dark-100 hover:bg-primary/10 hover:text-primary'}`
-                    }, link.name)
-                ),
-                currentUser && React.createElement("a", {
-                    href: "#",
-                    onClick: (e) => handleNavLinkClick(e, { action: 'navigateToOrdersHistory' }),
-                    className: `block px-3 py-2 rounded-md font-medium text-base transition-colors ${isLinkActive({ action: 'navigateToOrdersHistory' })
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-dark-800 dark:text-dark-100 hover:bg-primary/10 hover:text-primary'}`
+                        to: link.to,
+                        className: linkClasses
+                    }, link.name);
+                }),
+                currentUser && React.createElement(NavLink, {
+                    to: "/orders",
+                    className: linkClasses
                 }, "طلباتي")
             )
         )

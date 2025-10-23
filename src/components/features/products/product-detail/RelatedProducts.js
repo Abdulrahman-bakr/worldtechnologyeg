@@ -1,7 +1,7 @@
 import React from 'react';
 import { ProductCard } from '../ProductCard.js';
 
-const RelatedProducts = ({ relatedProducts, onAddToCart, onViewDetails, onToggleWishlist, wishlistItems, currentUser, onLoginRequest, onInitiateDirectCheckout }) => {
+const RelatedProducts = ({ relatedProducts, onAddToCart, onToggleWishlist, wishlistItems, currentUser, onLoginRequest, onInitiateDirectCheckout }) => {
     const isProductInWishlist = (productId) => wishlistItems ? wishlistItems.includes(productId) : false;
 
     if (!relatedProducts || relatedProducts.length === 0) return null;
@@ -21,7 +21,6 @@ const RelatedProducts = ({ relatedProducts, onAddToCart, onViewDetails, onToggle
                         React.createElement(ProductCard, {
                             product: relatedProd,
                             onAddToCart: onAddToCart,
-                            onViewDetails: onViewDetails,
                             onToggleWishlist: onToggleWishlist,
                             isInWishlist: isProductInWishlist(relatedProd.id),
                             currentUser: currentUser,

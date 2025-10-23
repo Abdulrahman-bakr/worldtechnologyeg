@@ -40,7 +40,9 @@ const FeeRuleManagementPanel = ({ feeRules, isLoading, handleFeeRuleSave, handle
     };
 
     const handleDelete = async (rule, tier) => {
-        await handleFeeRuleTierDelete(rule.id, tier);
+        if (window.confirm(`هل أنت متأكد من حذف الشريحة (من ${tier.minAmount} إلى ${tier.maxAmount})؟`)) {
+            await handleFeeRuleTierDelete(rule.id, tier);
+        }
     };
 
     return (
@@ -55,7 +57,7 @@ const FeeRuleManagementPanel = ({ feeRules, isLoading, handleFeeRuleSave, handle
              isLoading
                 ? React.createElement("p", null, "جاري تحميل قواعد الرسوم...")
                 : React.createElement("div", { className: "space-y-8" },
-                    feeRules.map(rule => (
+                    [...feeRules].sort((a,b) => a.id.localeCompare(b.id)).map(rule => (
                         React.createElement("div", { key: rule.id, className: "p-6 bg-white dark:bg-dark-800 rounded-lg border border-light-200 dark:border-dark-700" },
                             React.createElement("div", { className: "flex justify-between items-center mb-4" },
                                 React.createElement("h2", { className: "text-xl font-semibold" }, `قاعدة: ${rule.id}`),

@@ -109,7 +109,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
     className: `fixed inset-0 z-[110] flex items-center justify-center p-4 ${isRendered ? '' : 'hidden'}`,
     role: "dialog", "aria-modal": "true"
   },
-  React.createElement("div", { className: `modal-overlay absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`, onClick: onClose }),
+  React.createElement("div", { className: `modal-overlay absolute inset-0 bg-black/85 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`, onClick: onClose }),
   React.createElement("div", { className: `modal-content bg-white dark:bg-dark-800 rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-md relative ${contentAnimation} border border-light-200 dark:border-dark-700` },
     React.createElement("button", { onClick: onClose, className: "absolute top-4 left-4 text-dark-600 dark:text-dark-300 p-1", "aria-label": "إغلاق" }, React.createElement(CloseIcon, { className: "w-5 h-5" })),
     

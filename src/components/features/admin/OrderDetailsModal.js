@@ -5,12 +5,19 @@ import { getStatusDisplayInfo } from '../orders/ordersUtils.js';
 
 const OrderDetailsModal = ({ isOpen, onClose, order, onShippingUpdate }) => {
     const { setToastMessage } = useApp();
-    const [isRendered, setIsRendered] = useState(isOpen);
-    const [overlayAnimation, setOverlayAnimation] = useState('');
-    const [contentAnimation, setContentAnimation] = useState('');
     const [shippingCompany, setShippingCompany] = useState('');
     const [trackingNumber, setTrackingNumber] = useState('');
 
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
     
     useEffect(() => {
         if (order) {
@@ -34,7 +41,7 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onShippingUpdate }) => {
         if (e.target === e.currentTarget) onClose();
     };
 
-    if (!isRendered || !order) return null;
+    if (!isOpen || !order) return null;
     
     // Helper to safely convert Firestore Timestamps or JS Dates to a JS Date object
     const getJsDate = (timestamp) => {
@@ -52,8 +59,8 @@ const OrderDetailsModal = ({ isOpen, onClose, order, onShippingUpdate }) => {
 
     return (
         React.createElement("div", { className: "fixed inset-0 z-[110] flex items-center justify-center p-4", role: "dialog", "aria-modal": "true" },
-            React.createElement("div", { className: `modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm ${overlayAnimation}`, onClick: handleOverlayClick }),
-            React.createElement("div", { className: `modal-content relative bg-light-50 dark:bg-dark-800 rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col ${contentAnimation}` },
+            React.createElement("div", { className: `modal-overlay absolute inset-0 bg-black/85 backdrop-blur-sm`, onClick: handleOverlayClick }),
+            React.createElement("div", { className: `modal-content relative bg-light-50 dark:bg-dark-800 rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col` },
                 React.createElement("button", { onClick: onClose, className: "absolute top-4 left-4 text-dark-600 dark:text-dark-300 p-1", "aria-label": "إغلاق" }, React.createElement(CloseIcon, { className: "w-5 h-5 sm:w-6 sm:h-6" })),
                 React.createElement("h2", { className: "text-xl font-bold mb-4 flex-shrink-0" }, `تفاصيل الطلب: ${order.displayOrderId}`),
                 React.createElement("div", { className: "flex-grow overflow-y-auto pr-2 space-y-6 text-sm" },

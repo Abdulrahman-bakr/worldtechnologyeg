@@ -1,9 +1,13 @@
 
+
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { StaticPageView } from './StaticPageView.js';
 
 // --- START OF FAQView.tsx ---
-const FAQView = ({ onBack }) => {
+const FAQView = () => {
+  const navigate = useNavigate();
   const faqs = [
     { q: "ما هي طرق الدفع المتاحة؟", a: "حاليًا، ندعم الدفع عبر فودافون كاش وإنستاباي. سيتم توضيح التفاصيل عند إتمام الشراء." },
     { q: "هل يوجد شحن لجميع المحافظات؟", a: "نعم، نقوم بالشحن إلى جميع محافظات جمهورية مصر العربية. قد تختلف رسوم الشحن حسب المنطقة." },
@@ -13,7 +17,11 @@ const FAQView = ({ onBack }) => {
     { q: "كيف يتم حساب تكلفة دفع فاتورة الإنترنت WE؟", a: "عند شحن رصيد فاتورة الإنترنت، يتم إضافة ضريبة القيمة المضافة (14%) ورسوم الخدمة على صافي الرصيد الذي ترغب في شحنه، وذلك وفقًا للقوانين المصرية. يعرض لك متجرنا التكلفة الإجمالية بوضوح قبل إتمام عملية الدفع." }
   ];
 
-  return React.createElement(StaticPageView, { title: "الأسئلة الشائعة", onBack: onBack },
+  return React.createElement(StaticPageView, { title: "الأسئلة الشائعة", onBack: () => navigate(-1) },
+    React.createElement(Helmet, null, 
+        React.createElement("title", null, "الأسئلة الشائعة - World Technology"),
+        React.createElement("meta", { name: "description", content: "ابحث عن إجابات لأسئلتك الأكثر شيوعًا حول الدفع، الشحن، الإرجاع، وتتبع الطلبات في متجر World Technology." })
+    ),
     React.createElement("div", { className: "space-y-6" },
       faqs.map((faq, index) =>
         React.createElement("details", { key: index, className: "group bg-light-100 dark:bg-dark-700 p-4 rounded-lg border border-light-200 dark:border-dark-600" },

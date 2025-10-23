@@ -1,6 +1,5 @@
-
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GoogleGenAI } from "@google/genai";
 
 export const useAIChatLogic = ({ isOpen, products, categories, recentlyViewedIds }) => {
@@ -9,13 +8,15 @@ export const useAIChatLogic = ({ isOpen, products, categories, recentlyViewedIds
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isOpen || chat) return;
 
     const initializeChat = () => {
         try {
-            const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
+           
+           const ai = new GoogleGenAI({apiKey: process.env.REACT_APP_GOOGLE_AI_API_KEY});
 
             const productSample = products
                 .filter(p => p.arabicName) 
@@ -106,7 +107,7 @@ ${productSample}
         }
     };
     initializeChat();
-  }, [isOpen, products, categories, recentlyViewedIds]);
+  }, [isOpen, products, categories, recentlyViewedIds, chat]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();

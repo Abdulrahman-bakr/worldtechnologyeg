@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { db } from '../services/firebase/config.js';
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 export const useCheckout = ({ currentUser, cartItems, setIsCartOpen, setCartItems, setToastMessage, setIsLoginModalOpen, setPendingActionAfterLogin, handleUpdateCurrentUserAddress }) => {
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
@@ -71,7 +71,7 @@ export const useCheckout = ({ currentUser, cartItems, setIsCartOpen, setCartItem
         }
         
         setToastMessage({ text: "تم إرسال طلبك بنجاح! سيتم التواصل معك للتأكيد.", type: "success" });
-    }, [currentUser, setCartItems, setToastMessage, handleUpdateCurrentUserAddress]);
+    }, [currentUser, setCartItems, setToastMessage]);
 
     return {
         isCheckoutModalOpen, setIsCheckoutModalOpen,

@@ -1,6 +1,6 @@
 
 
-import React, { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { ProductCategory, SortOption } from '../constants/index.js';
 
 export const useNavigation = ({
@@ -83,7 +83,7 @@ export const useNavigation = ({
                 case 'productDetail': return `/product/${newState.productDetailId}`;
                 case 'terms': return '/terms';
                 case 'faq': return '/faq';
-                case 'aboutUs': return '/about-us';
+                case 'about-us': return '/about-us';
                 case 'orderTracking': return '/track-order';
                 default: return '/';
             }

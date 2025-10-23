@@ -1,9 +1,8 @@
 
-
 import React, { useState, useMemo } from 'react';
-import { useAdminData } from '../hooks/useAdminData.js';
-import { AdminLayout } from '../components/features/admin/AdminLayout.js';
-import { AdminHeader } from '../components/features/admin/AdminHeader.js';
+import { useAdminData } from '../../../hooks/useAdminData.js';
+import { AdminLayout } from './AdminLayout.js';
+import { AdminHeader } from './AdminHeader.js';
 import {
     DashboardHomePanel,
     ProductManagementPanel,
@@ -18,12 +17,14 @@ import {
     ReportsPanel,
     PopupBannerManagementPanel,
     StoreSettingsPanel,
-} from '../components/features/admin/index.js';
-import { useApp } from '../contexts/srcContext.js';
+    LoyaltyManagementPanel,
+    NotificationManagementPanel,
+} from './index.js';
+import { useApp } from '../../../contexts/AppContext.js';
 
 const AdminDashboardView = ({ onBack }) => {
-    const { currentUser, fetchInitialData, setToastMessage } = useApp();
-    const adminData = useAdminData(currentUser, fetchInitialData, setToastMessage);
+    const { currentUser, fetchInitialData } = useApp();
+    const adminData = useAdminData(currentUser, fetchInitialData);
     const [activePanel, setActivePanel] = useState('home');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -41,6 +42,8 @@ const AdminDashboardView = ({ onBack }) => {
         reviews: React.createElement(ReviewManagementPanel, { ...adminData }),
         reports: React.createElement(ReportsPanel, { ...adminData }),
         'store-settings': React.createElement(StoreSettingsPanel, { ...adminData }),
+        loyalty: React.createElement(LoyaltyManagementPanel, { ...adminData }),
+        notifications: React.createElement(NotificationManagementPanel, { ...adminData }),
     }), [adminData]);
     
     const panelTitles = {
@@ -56,11 +59,13 @@ const AdminDashboardView = ({ onBack }) => {
         services: 'الخدمات الرقمية',
         fees: 'قواعد الرسوم',
         reports: 'التقارير',
-        'store-settings': 'إعدادات المتجر'
+        'store-settings': 'إعدادات المتجر',
+        loyalty: 'إدارة برنامج الولاء',
+        notifications: 'إرسال الإشعارات'
     };
 
     if (!currentUser || currentUser.role !== 'admin') {
-        return React.createElement("div", { className: "container mx-auto px-4 py-12 pt-24 text-center" }, 
+        return React.createElement("div", { className: "container mx-auto px-4 py-12 pt-24 text-center min-h-[calc(100vh-16rem)]" }, 
             React.createElement("p", null, "ليس لديك صلاحية الوصول لهذه الصفحة.")
         );
     }
@@ -79,7 +84,7 @@ const AdminDashboardView = ({ onBack }) => {
                 setActivePanel: setActivePanel,
                 onToggleSidebar: () => setIsSidebarOpen(prev => !prev)
             }),
-            React.createElement("div", { className: "p-4 sm:p-6" },
+            React.createElement("div", { className: "p-4 sm:p-6 w-full" },
                 panelComponents[activePanel] || React.createElement("div", null, "لوحة غير معروفة.")
             )
         )

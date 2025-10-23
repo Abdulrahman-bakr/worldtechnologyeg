@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { ShoppingCartIcon, StarIcon } from '../../../icons/index.js';
 import { FloatingInput } from '../../../ui/forms/FloatingInput.js';
 import { MOBILE_OPERATOR_CONFIG } from '../../../../constants/index.js';
 
@@ -15,6 +14,11 @@ const MobileBillForm = ({ product, onInitiateDirectCheckout }) => {
     const isCheckoutDisabled = !mobileBillOperator || !formData.phoneNumber || formData.phoneNumber.length < 11 || !formData.paymentAmount || Number(formData.paymentAmount) <= 0;
 
     const handleCheckout = () => {
+        if (isCheckoutDisabled) {
+            setFormError("يرجى ملء جميع الحقول المطلوبة.");
+            return;
+        }
+        setFormError('');
         onInitiateDirectCheckout(product, {
             finalPrice: Number(formData.paymentAmount),
             formData: [

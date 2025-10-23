@@ -1,11 +1,17 @@
 
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { StaticPageView } from './StaticPageView.js';
 
 // --- START OF TermsAndConditionsView.tsx ---
-const TermsView = ({ onBack }) => {
-  return React.createElement(StaticPageView, { title: "الشروط والأحكام", onBack: onBack },
+const TermsView = () => {
+  const navigate = useNavigate();
+  return React.createElement(StaticPageView, { title: "الشروط والأحكام", onBack: () => navigate(-1) },
+        React.createElement(Helmet, null, 
+            React.createElement("title", null, "الشروط والأحكام - World Technology")
+        ),
         React.createElement("h2", { className: "text-xl sm:text-2xl font-semibold mt-6 mb-3" }, "1. مقدمة"),
         React.createElement("p", null, "مرحبًا بك في متجر World Technology. تحكم هذه الشروط والأحكام استخدامك لموقعنا الإلكتروني وتطبيق الهاتف المحمول (يشار إليهما إجمالاً باسم \"الخدمة\"). باستخدامك للخدمة، فإنك توافق على هذه الشروط بالكامل. إذا كنت لا توافق على أي جزء من هذه الشروط، يجب ألا تستخدم خدمتنا."),
         React.createElement("h2", { className: "text-xl sm:text-2xl font-semibold mt-6 mb-3" }, "2. حقوق الملكية الفكرية"),

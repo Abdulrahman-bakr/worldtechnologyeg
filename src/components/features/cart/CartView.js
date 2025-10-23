@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { CartHeader } from './CartHeader.js';
 import { EmptyCart } from './EmptyCart.js';
@@ -21,23 +22,28 @@ const CartView = ({
 }) => {
   const [isRendered, setIsRendered] = useState(isOpen);
   const [animationClass, setAnimationClass] = useState('');
+  const [showItems, setShowItems] = useState(false); // For delayed rendering
 
   useEffect(() => {
+    let itemsTimer;
     if (isOpen) {
       setIsRendered(true);
-      document.body.style.overflow = 'hidden';
+      // Delay showing content to allow animation to start smoothly
+      itemsTimer = setTimeout(() => setShowItems(true), 80);
       requestAnimationFrame(() => {
         setAnimationClass('animate-slide-in-right');
       });
     } else if (isRendered) {
-      document.body.style.overflow = '';
+      setShowItems(false);
       setAnimationClass('animate-slide-out-right');
       const timer = setTimeout(() => {
         setIsRendered(false);
-      }, 300);
+      }, 250); // Match new animation duration
       return () => clearTimeout(timer);
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+        if (itemsTimer) clearTimeout(itemsTimer);
+    };
   }, [isOpen, isRendered]);
 
   const totalItemCount = useMemo(() => cartItems.reduce((sum, item) => sum + item.quantity, 0), [cartItems]);
@@ -53,13 +59,13 @@ const CartView = ({
   }
 
   return React.createElement("div", {
-    className: `fixed inset-0 z-[100] flex justify-end ${isRendered ? '' : 'hidden'}`,
+    className: `fixed inset-0 z-[100] flex justify-end overflow-hidden ${isRendered ? '' : 'hidden'}`,
     role: "dialog",
     "aria-modal": "true",
     "aria-labelledby": "cart-title"
   },
     React.createElement("div", {
-      className: `absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${isOpen && animationClass === 'animate-slide-in-right' ? "opacity-100" : "opacity-0"}`,
+      className: `absolute inset-0 bg-black/50 transition-opacity duration-300 ${isOpen && animationClass === 'animate-slide-in-right' ? "opacity-100" : "opacity-0"}`,
       onClick: handleOverlayClick,
       "aria-hidden": "true"
     }),
@@ -67,7 +73,7 @@ const CartView = ({
       className: `cart-panel fixed top-0 bottom-0 right-0 w-full max-w-md bg-white dark:bg-dark-800 shadow-xl flex flex-col text-dark-900 dark:text-dark-50 ${animationClass}`
     },
       React.createElement(CartHeader, { onClose: onClose }),
-      cartItems.length === 0 ? (
+      showItems && (cartItems.length === 0 ? (
         React.createElement(EmptyCart, { 
             onClose: onClose, 
             recentlyViewedProducts: recentlyViewedProducts, 
@@ -93,7 +99,7 @@ const CartView = ({
               couponDiscount: couponDiscount
           })
         )
-      )
+      ))
     )
   );
 };

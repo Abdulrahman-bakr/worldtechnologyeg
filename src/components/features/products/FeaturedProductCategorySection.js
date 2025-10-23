@@ -2,7 +2,7 @@ import React from 'react';
 import { ProductCard } from './ProductCard.js';
 
 // --- START OF FeaturedProductCategorySection.tsx ---
-const FeaturedProductCategorySection = ({ title, categoryProducts, onAddToCart, onViewDetails, onViewAllClick, onToggleWishlist, wishlistItems = [], currentUser, onLoginRequest }) => {
+const FeaturedProductCategorySection = ({ title, categoryProducts, onAddToCart, onViewAllClick, onToggleWishlist, wishlistItems = [], currentUser, onLoginRequest }) => {
     if (!categoryProducts || categoryProducts.length === 0) return null;
     const isProductInWishlist = (productId) => (wishlistItems || []).includes(productId);
 
@@ -25,7 +25,6 @@ const FeaturedProductCategorySection = ({ title, categoryProducts, onAddToCart, 
                         }, React.createElement(ProductCard, { 
                             product: product, 
                             onAddToCart: onAddToCart, 
-                            onViewDetails: onViewDetails,
                             onToggleWishlist: onToggleWishlist,
                             isInWishlist: isProductInWishlist(product.id),
                             currentUser: currentUser,

@@ -13,3 +13,4 @@ export * from './appSettings.js';
 export * from './errorMessages.js';
 export * from './orderStatuses.js';
 export * from './paymentMethods.js';
+export * from './productBenefits.js';

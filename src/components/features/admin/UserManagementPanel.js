@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { PencilSquareIcon } from '../../icons/index.js';
 import { CustomerDetailsModal } from './CustomerDetailsModal.js'; // Changed import
+import { ChevronUpIcon, ChevronDownIcon } from '../../icons/index.js';
 
 const UserManagementPanel = ({ users, orders, isLoading, handleUserUpdate }) => {
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
 
     const usersWithStats = useMemo(() => {
         if (!users || !orders) return [];
@@ -20,6 +21,30 @@ const UserManagementPanel = ({ users, orders, isLoading, handleUserUpdate }) => 
             };
         });
     }, [users, orders]);
+    
+    const requestSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortedUsers = useMemo(() => {
+        let sortableItems = [...usersWithStats];
+        if (sortConfig !== null) {
+            sortableItems.sort((a, b) => {
+                if (a[sortConfig.key] < b[sortConfig.key]) {
+                    return sortConfig.direction === 'ascending' ? -1 : 1;
+                }
+                if (a[sortConfig.key] > b[sortConfig.key]) {
+                    return sortConfig.direction === 'ascending' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sortableItems;
+    }, [usersWithStats, sortConfig]);
 
     const handleViewDetails = (user) => {
         setSelectedCustomer(user);
@@ -32,12 +57,25 @@ const UserManagementPanel = ({ users, orders, isLoading, handleUserUpdate }) => 
     };
 
     const filteredUsers = useMemo(() => {
-        return usersWithStats.filter(u =>
+        return sortedUsers.filter(u =>
             (u.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (u.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (u.phone || '').toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [usersWithStats, searchTerm]);
+    }, [sortedUsers, searchTerm]);
+
+    const SortableHeader = ({ children, sortKey }) => (
+        React.createElement("th", null,
+            React.createElement("button", { onClick: () => requestSort(sortKey), className: "flex items-center gap-1 group" },
+                children,
+                React.createElement("span", { className: "opacity-30 group-hover:opacity-100 transition-opacity" },
+                    sortConfig.key === sortKey
+                        ? (sortConfig.direction === 'ascending' ? React.createElement(ChevronUpIcon, { className: "w-4 h-4" }) : React.createElement(ChevronDownIcon, { className: "w-4 h-4" }))
+                        : React.createElement(ChevronUpIcon, { className: "w-4 h-4 opacity-0 group-hover:opacity-30" })
+                )
+            )
+        )
+    );
 
     return (
         React.createElement("div", null,
@@ -57,12 +95,12 @@ const UserManagementPanel = ({ users, orders, isLoading, handleUserUpdate }) => 
                     React.createElement("table", { className: "admin-table" },
                         React.createElement("thead", null,
                             React.createElement("tr", null,
-                                React.createElement("th", null, "الاسم"),
-                                React.createElement("th", null, "البريد الإلكتروني"),
-                                React.createElement("th", null, "إجمالي الطلبات"),
-                                React.createElement("th", null, "إجمالي الإنفاق"),
-                                React.createElement("th", null, "النقاط"),
-                                React.createElement("th", null, "الدور"),
+                                React.createElement(SortableHeader, { sortKey: "name" }, "الاسم"),
+                                React.createElement(SortableHeader, { sortKey: "email" }, "البريد الإلكتروني"),
+                                React.createElement(SortableHeader, { sortKey: "totalOrders" }, "إجمالي الطلبات"),
+                                React.createElement(SortableHeader, { sortKey: "totalSpent" }, "إجمالي الإنفاق"),
+                                React.createElement(SortableHeader, { sortKey: "loyaltyPoints" }, "النقاط"),
+                                React.createElement(SortableHeader, { sortKey: "role" }, "الدور"),
                                 React.createElement("th", null, "إجراءات")
                             )
                         ),

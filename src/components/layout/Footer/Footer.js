@@ -5,7 +5,7 @@ import { FooterLinks } from './FooterLinks.js';
 import { FooterContact } from './FooterContact.js';
 import { FooterPayments } from './FooterPayments.js';
 
-const Footer = ({ onNavigate, storeSettings }) => {
+const Footer = ({ storeSettings }) => {
     const currentYear = new Date().getFullYear();
 
     return (
@@ -13,7 +13,7 @@ const Footer = ({ onNavigate, storeSettings }) => {
             React.createElement("div", { className: "container mx-auto px-4 sm:px-6 lg:px-8" },
                 React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8" },
                     React.createElement(FooterAbout, null),
-                    React.createElement(FooterLinks, { onNavigate: onNavigate }),
+                    React.createElement(FooterLinks, null),
                     React.createElement(FooterContact, { storeSettings: storeSettings }),
                     React.createElement(FooterPayments, null)
                 ),

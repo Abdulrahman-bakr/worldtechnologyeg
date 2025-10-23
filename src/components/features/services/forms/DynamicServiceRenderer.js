@@ -9,6 +9,7 @@ import { FawryPayForm } from "./FawryPayForm.js";
 import { TrainTicketForm } from "./TrainTicketForm.js";
 import { InstaPayForm } from "./InstaPayForm.js";
 import { CashToInstaPayForm } from "./CashToInstaPayForm.js";
+import { VerificationPaymentForm } from './VerificationPaymentForm.js';
 
 export const DynamicServiceRenderer = ({ product, onInitiateDirectCheckout, allDigitalPackages, allFeeRules }) => {
   const forms = {
@@ -22,11 +23,12 @@ export const DynamicServiceRenderer = ({ product, onInitiateDirectCheckout, allD
     "train-ticket-booking": TrainTicketForm,
     "instapay-transfer": InstaPayForm,
     "cash-to-instapay": CashToInstaPayForm,
+    "meta_verified_payment": VerificationPaymentForm,
   };
 
   let componentKey = (product.dynamicServiceType || '').replace(/_/g, '-');
-  if (componentKey === 'bill-payment') {
-      componentKey = product.dynamicServiceId;
+  if (forms[product.dynamicServiceId]) {
+    componentKey = product.dynamicServiceId;
   }
   
   const ServiceComponent = forms[componentKey];

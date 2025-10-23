@@ -1,4 +1,5 @@
 import React from 'react';
+import { markdownToHtml } from '../../../../utils/helpers/formatters.js';
 
 const TabButton = ({ id, activeTab, setActiveTab, children }) => {
     const isActive = activeTab === id;
@@ -31,7 +32,7 @@ const TabsSection = ({ product, activeTab, setActiveTab, sectionsRef }) => {
             ),
             React.createElement("div", { className: "p-4 sm:p-6" },
                 React.createElement("div", { role: "tabpanel", id: "tab-panel-overview", hidden: activeTab !== 'overview' },
-                    product.description && React.createElement("div", { className: "prose prose-sm sm:prose-base max-w-none text-dark-800 dark:text-dark-100 dark:prose-invert", dangerouslySetInnerHTML: { __html: product.description } })
+                    product.description && React.createElement("div", { className: "prose prose-sm sm:prose-base max-w-none text-dark-800 dark:text-dark-100 dark:prose-invert", dangerouslySetInnerHTML: { __html: markdownToHtml(product.description) } })
                 ),
                 React.createElement("div", { role: "tabpanel", id: "tab-panel-features", hidden: activeTab !== 'features' },
                     (product.features && product.features.length > 0) &&

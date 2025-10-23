@@ -1,1 +1,21 @@
 /* Structural (non-animation) styles for modals and side panels can go here. */
+
+/*
+  Performance optimizations for modals and side panels, especially on desktop.
+  This hints to the browser that these elements will be animated,
+  allowing it to promote them to their own layer for smoother rendering.
+  The use of `transform: translateZ(0)` is a common technique to force hardware acceleration.
+*/
+.cart-panel,
+.modal-content {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/*
+  The backdrop-blur filter can be performance-intensive.
+  Applying `will-change` can help the browser optimize for its rendering.
+*/
+.modal-overlay {
+  will-change: opacity;
+}

@@ -3,7 +3,7 @@
 import React from 'react';
 import { ReviewSection } from '../../reviews/index.js';
 
-const ReviewsAccordion = ({ product, isReviewsAccordionOpen, setIsReviewsAccordionOpen, sectionsRef, currentUser, onPendingReviewLogin }) => {
+const ReviewsAccordion = ({ product, isReviewsAccordionOpen, setIsReviewsAccordionOpen, sectionsRef, currentUser, onPendingReviewLogin, setToastMessage }) => {
     return (
         React.createElement("div", { id: "reviews-accordion", ref: el => sectionsRef.current.reviews = el, "data-section": "reviews", className: "mt-6 bg-white dark:bg-dark-800 rounded-lg shadow-md border border-light-200 dark:border-dark-700 scroll-mt-24" },
             React.createElement("button", {
@@ -21,9 +21,10 @@ const ReviewsAccordion = ({ product, isReviewsAccordionOpen, setIsReviewsAccordi
             isReviewsAccordionOpen &&
                 React.createElement("div", { id: "reviews-accordion-content", className: "p-4 sm:p-6 border-t border-light-200 dark:border-dark-700" },
                     React.createElement(ReviewSection, {
-                        productId: product.id,
+                        product: product,
                         currentUser: currentUser,
-                        onPendingReviewLogin: () => onPendingReviewLogin(product.id)
+                        onPendingReviewLogin: () => onPendingReviewLogin(product.id),
+                        setToastMessage: setToastMessage
                     })
                 )
         )

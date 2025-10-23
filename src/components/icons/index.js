@@ -32,12 +32,18 @@ export { ShoppingBagIcon } from './commerce/ShoppingBagIcon.js';
 export { ShoppingCartIcon } from './commerce/ShoppingCartIcon.js';
 export { TrashIcon } from './commerce/TrashIcon.js';
 export { ScaleIcon } from './commerce/ScaleIcon.js';
+export { GiftIcon } from './commerce/GiftIcon.js';
+export { TagIcon } from './commerce/TagIcon.js';
+export { WalletIcon } from './commerce/WalletIcon.js';
+export { Cashdelivery } from './commerce/Cashdelivery.js'
+export { ReliablestoreIcon } from './commerce/ReliablestoreIcon.js';
 
 // Logo Icons
 export * from './logo/index.js';
 
 // Navigation Icons
 export { ChevronDownIcon } from './navigation/ChevronDownIcon.js';
+export { ChevronUpIcon } from './navigation/ChevronUpIcon.js';
 export { GridViewIcon } from './navigation/GridViewIcon.js';
 export { ListViewIcon } from './navigation/ListViewIcon.js';
 export { SearchIcon } from './navigation/SearchIcon.js';
@@ -65,6 +71,39 @@ export { TimerIcon } from './system/TimerIcon.js';
 export { UserIcon } from './system/UserIcon.js';
 export { ExclamationTriangleIcon } from './system/ExclamationTriangleIcon.js';
 export { CalendarDaysIcon } from './system/CalendarDaysIcon.js';
+export { ChatBubbleBottomCenterTextIcon } from './system/ChatBubbleBottomCenterTextIcon.js';
+export { ClockIcon } from './system/ClockIcon.js';
+export { GlobeAltIcon } from './system/GlobeAltIcon.js';
+export { LockClosedIcon } from './system/LockClosedIcon.js';
+export { ShieldExclamationIcon } from './system/ShieldExclamationIcon.js';
+export { BellAlertIcon } from './system/BellAlertIcon.js';
+export { Battery100Icon } from './system/Battery100Icon.js';
+export { AcademicCapIcon } from './system/AcademicCapIcon.js';
+export { BeakerIcon } from './system/BeakerIcon.js';
+export { CloudArrowDownIcon } from './system/CloudArrowDownIcon.js';
+export { ComputerDesktopIcon } from './system/ComputerDesktopIcon.js';
+export { CpuChipIcon } from './system/CpuChipIcon.js';
+export { FireIcon } from './system/FireIcon.js';
+export { InboxStackIcon } from './system/InboxStackIcon.js';
+export { LinkIcon } from './system/LinkIcon.js';
+export { MapPinIcon } from './system/MapPinIcon.js';
+export { PaperClipIcon } from './system/PaperClipIcon.js';
+export { PuzzlePieceIcon } from './system/PuzzlePieceIcon.js';
+export { VideoCameraIcon } from './system/VideoCameraIcon.js';
+export { WifiIcon } from './system/WifiIcon.js';
+export { WindowIcon } from './system/WindowIcon.js';
+export { ArrowTrendingUpIcon } from './system/ArrowTrendingUpIcon.js';
+export { CircleStackIcon } from './system/CircleStackIcon.js';
+export {SparepartsIcon } from './system/SparepartsIcon.js';
+export { BuildingStorefrontIcon } from './system/BuildingStorefrontIcon.js';
+export { OriginalIcon } from './system/OriginalIcon.js';
+export { InstallmentplansIcon } from './system/InstallmentplansIcon.js';
+export { CustomizableIcon } from './system/CustomizableIcon.js';
+export { LightweightIcon } from './system/LightweightIcon.js';
+export { bundleIcon } from './system/bundleIcon.js';
+
+
+
 
 // Admin Icons
 export { ArrowUpOnSquareIcon } from './admin/ArrowUpOnSquareIcon.js';
@@ -79,6 +118,10 @@ export { ChartPieIcon } from './admin/ChartPieIcon.js';
 export { DocumentChartBarIcon } from './admin/DocumentChartBarIcon.js';
 export { ViewfinderCircleIcon } from './admin/ViewfinderCircleIcon.js';
 export { WrenchScrewdriverIcon } from './admin/WrenchScrewdriverIcon.js';
+export { ArchiveBoxIcon } from './admin/ArchiveBoxIcon.js';
+export { ClipboardDocumentCheckIcon } from './admin/ClipboardDocumentCheckIcon.js';
+
+
 
 
 // UI Icons
@@ -88,3 +131,13 @@ export { HeartIcon } from './ui/HeartIcon.js';
 export { StarIcon } from './ui/StarIcon.js';
 export { ShareIcon } from './ui/ShareIcon.js';
 export { LogOutIcon } from './ui/LogOutIcon.js';
+export { TruckIcon } from './ui/TruckIcon.js';
+export { ShieldCheckIcon } from './ui/ShieldCheckIcon.js';
+export { ArrowUturnLeftIcon } from './ui/ArrowUturnLeftIcon.js';
+export { PlayCircleIcon } from './ui/PlayCircleIcon.js';
+export { HandThumbUpIcon } from './ui/HandThumbUpIcon.js';
+export { TrophyIcon } from './ui/TrophyIcon.js';
+export { CheckBadgeIcon } from './ui/CheckBadgeIcon.js';
+export { CubeIcon } from './ui/CubeIcon.js';
+export { MicrophoneIcon } from './ui/MicrophoneIcon.js';
+export { StopCircleIcon } from './ui/StopCircleIcon.js';

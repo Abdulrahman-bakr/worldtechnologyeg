@@ -1,22 +1,16 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { StarRating } from '../../../ui/feedback/StarRating.js';
 import { ShoppingCartIcon } from '../../../icons/index.js';
 import { getImageUrl } from '../../../../utils/imageUrl.js';
 
-// --- START OF ProductListItem.tsx ---
-const ProductListItem = ({ product, onAddToCart, onViewDetails }) => {
+const ProductListItem = ({ product, onAddToCart }) => {
   const isDynamicService = product.isDynamicElectronicPayments;
 
   const handleActionClick = () => {
-    if (isDynamicService) {
-      onViewDetails(product);
-    } else if (product.stock > 0) {
+    if (!isDynamicService && product.stock > 0) {
       onAddToCart(product, null);
     }
-  };
-
-  const handleViewDetailsClick = () => {
-    onViewDetails(product);
   };
 
   const itemClasses = [
@@ -37,19 +31,21 @@ const ProductListItem = ({ product, onAddToCart, onViewDetails }) => {
   return React.createElement("div", {
       className: itemClasses,
     },
-    React.createElement("img", {
-      src: getImageUrl(product.imageUrl),
-      alt: product.arabicName,
-      loading: "lazy",
-      className: "w-full sm:w-1/3 md:w-1/4 h-48 sm:h-auto object-cover cursor-pointer",
-      onClick: handleViewDetailsClick
-    }),
+    React.createElement(Link, { to: `/product/${product.id}`, className: "w-full sm:w-1/3 md:w-1/4 h-48 sm:h-auto cursor-pointer flex-shrink-0" },
+        React.createElement("img", {
+            src: getImageUrl(product.imageUrl),
+            alt: product.arabicName,
+            loading: "lazy",
+            className: "w-full h-full object-cover",
+        })
+    ),
     React.createElement("div", { className: "p-5 flex flex-col flex-grow justify-between" },
       React.createElement("div", null,
-        React.createElement("h3", { 
-            onClick: handleViewDetailsClick,
-            className: "text-xl sm:text-2xl font-semibold text-dark-900 dark:text-dark-50 mb-1 hover:text-primary transition-colors cursor-pointer" 
-        }, product.arabicName),
+        React.createElement(Link, { to: `/product/${product.id}` },
+            React.createElement("h3", { 
+                className: "text-xl sm:text-2xl font-semibold text-dark-900 dark:text-dark-50 mb-1 hover:text-primary transition-colors cursor-pointer" 
+            }, product.arabicName)
+        ),
         product.brand && React.createElement("p", {className: "text-sm text-dark-700 dark:text-dark-300 mb-2"}, product.brand),
         !isDynamicService && React.createElement(React.Fragment, null,
             React.createElement("div", { className: "flex items-center mb-1" },
@@ -61,7 +57,7 @@ const ProductListItem = ({ product, onAddToCart, onViewDetails }) => {
       ),
       React.createElement("div", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4" },
         isDynamicService ? (
-            React.createElement("p", { className: "text-xl sm:text-2xl font-bold text-primary mb-3 sm:mb-0" }, "خدمة حسب الطلب")
+            React.createElement(Link, { to: `/product/${product.id}`, className: "text-xl sm:text-2xl font-bold text-primary mb-3 sm:mb-0" }, "خدمة حسب الطلب")
         ) : product.discountPrice ? (
           React.createElement("div", { className: "flex items-baseline space-x-2 space-x-reverse mb-3 sm:mb-0" },
             React.createElement("p", { className: "text-2xl sm:text-3xl font-bold text-primary" }, `${product.discountPrice} ج.م`),
@@ -71,15 +67,14 @@ const ProductListItem = ({ product, onAddToCart, onViewDetails }) => {
         ) : (
           React.createElement("p", { className: "text-2xl sm:text-3xl font-bold text-primary mb-3 sm:mb-0" }, `${(product.price || 0).toFixed(2)} ج.م`)
         ),
-        React.createElement("button", {
-          onClick: (e) => { e.stopPropagation(); handleActionClick(); },
-          disabled: !isDynamicService && product.stock === 0,
-          className: `w-full sm:w-auto bg-primary hover:bg-primary-hover text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 space-x-reverse ${(!isDynamicService && product.stock === 0) ? 'opacity-50 cursor-not-allowed bg-dark-500 hover:bg-dark-500' : ''}`,
-          "aria-label": isDynamicService ? `اطلب خدمة ${product.arabicName}` : (product.stock > 0 ? `أضف ${product.arabicName} إلى السلة` : `${product.arabicName} نفذ من المخزون`)
+        React.createElement(Link, {
+            to: isDynamicService ? `/product/${product.id}` : '#',
+            onClick: (e) => { if (!isDynamicService) { e.preventDefault(); handleActionClick(); } },
+            className: `w-full sm:w-auto bg-primary hover:bg-primary-hover text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 space-x-reverse ${(!isDynamicService && product.stock === 0) ? 'opacity-50 cursor-not-allowed bg-dark-500 hover:bg-dark-500 pointer-events-none' : ''}`,
+            "aria-label": isDynamicService ? `اطلب خدمة ${product.arabicName}` : (product.stock > 0 ? `أضف ${product.arabicName} إلى السلة` : `${product.arabicName} نفذ المخزون`)
         }, React.createElement(ShoppingCartIcon, { className: "w-5 h-5" }), React.createElement("span", null, actionButtonText))
       )
     )
   );
 };
-// --- END OF ProductListItem.tsx ---
 export { ProductListItem };

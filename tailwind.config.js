@@ -3,42 +3,42 @@ module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
-  darkMode: 'class', // Handles .dark class on html for Tailwind's dark variants
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        primary: '#10B981', // Emerald-500
-        'primary-hover': '#059669', // Emerald-600
-        secondary: '#3B82F6', // Blue-500
-        'secondary-hover': '#2563EB', // Blue-600
+        primary: "#10B981", // Emerald-500
+        "primary-hover": "#059669", // Emerald-600
+        secondary: "#3B82F6", // Blue-500
+        "secondary-hover": "#2563EB", // Blue-600
         light: {
-          50:  '#F9FAFB',
-          100: '#F3F4F6',
-          200: '#E5E7EB',
-          300: '#D1D5DB',
-          900: '#1F2937',
-          750: '#ffffffb2',
+          50: "#F9FAFB",
+          100: "#F3F4F6",
+          200: "#E5E7EB",
+          300: "#D1D5DB",
+          900: "#1F2937",
+          750: "#ffffffb2",
         },
         dark: {
-          900: '#111827',
-          800: '#1F2937',
-          700: '#374151',
-          600: '#4B5563',
-          500: '#6B7280',
-          50: '#F9FAFB',
-          100: '#F3F4F6',
-          200: '#E5E7EB',
-          300: '#D1D5DB',
-          650: '#e47c0d',
-          750: '#ffffffb2',
+          900: "#0D0D0D",
+          800: "#141414",
+          700: "#1E1E1E",
+          600: "#2A2A2A",
+          500: "#3A3A3A",
+          50: "#F9FAFB",
+          100: "#E5E7EB",
+          200: "#D1D5DB",
+          300: "#9CA3AF",
+          650: "#e47c0d",
+          750: "#ffffffb2",
         },
         orange: {
-          100: '#FFEDD5',
-          300: '#FDBA74',
-          700: '#C2410C',
-          750: '#ffffffb2',
+          100: "#FFEDD5",
+          300: "#FDBA74",
+          700: "#C2410C",
+          750: "#ffffffb2",
         },
-        skeleton: '#E5E7EB'
+        skeleton: "#E5E7EB",
       },
       fontFamily: {
         sans: ['Tajawal', 'sans-serif'],
