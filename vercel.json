@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "rewrites": [
     {
       "source": "/((?!api/|assets/|static/|favicon.ico|site.webmanifest).*)",
@@ -7,12 +6,3 @@
     }
   ]
 }
-=======
-  "builds": [
-    { "src": "package.json", "use": "@vercel/static-build" }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/index.html" }
-  ]
-}
->>>>>>> 6882e440becf71c00ec5508fdea534934e98da16
