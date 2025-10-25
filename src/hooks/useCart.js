@@ -1,22 +1,26 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
-export const useCart = (setToastMessage) => {
-    const [cartItems, setCartItems] = useState([]);
+export const useCart = (setToastMessage, setActivePopover) => {
+    const [cartItems, setCartItems] = useState(() => {
+        try {
+            if (typeof localStorage !== 'undefined') {
+                const storedCart = localStorage.getItem('cartItems');
+                // Basic validation to ensure it's an array
+                const parsed = storedCart ? JSON.parse(storedCart) : [];
+                return Array.isArray(parsed) ? parsed : [];
+            }
+        } catch (error) { console.error("Error loading cart from localStorage:", error); }
+        return [];
+    });
+    
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [miniCartTriggerTimestamp, setMiniCartTriggerTimestamp] = useState(null);
 
     useEffect(() => {
         try {
             if (typeof localStorage !== 'undefined') {
-                const storedCart = localStorage.getItem('cartItems');
-                if (storedCart) setCartItems(JSON.parse(storedCart));
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
             }
-        } catch (error) { console.error("Error loading cart from localStorage:", error); }
-    }, []);
-
-    useEffect(() => {
-        try {
-            if (typeof localStorage !== 'undefined') localStorage.setItem('cartItems', JSON.stringify(cartItems));
         } catch (e) { console.error("Error saving cart to localStorage:", e); }
     }, [cartItems]);
 
@@ -41,7 +45,7 @@ export const useCart = (setToastMessage) => {
             } else {
                 const newItem = {
                     id: cartId,
-                    product: productToAdd,
+                    productId: productToAdd.id,
                     quantity: 1,
                     variant: variantDetails,
                     serviceDetails: null
@@ -82,15 +86,6 @@ export const useCart = (setToastMessage) => {
     }, []);
 
     const cartItemCount = useMemo(() => cartItems.reduce((sum, item) => sum + item.quantity, 0), [cartItems]);
-    
-    const headerCartTotalPrice = useMemo(() => {
-        return cartItems.reduce((sum, item) => {
-            const price = (item.serviceDetails && item.serviceDetails.finalPrice)
-                          ? item.serviceDetails.finalPrice 
-                          : (item.product.discountPrice || item.product.price);
-            return sum + price * item.quantity;
-        }, 0);
-    }, [cartItems]);
 
     return {
         cartItems, setCartItems,
@@ -99,7 +94,6 @@ export const useCart = (setToastMessage) => {
         handleUpdateQuantity,
         handleRemoveFromCart,
         cartItemCount,
-        headerCartTotalPrice,
         miniCartTriggerTimestamp, setMiniCartTriggerTimestamp
     };
 };

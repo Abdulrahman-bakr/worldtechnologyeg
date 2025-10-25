@@ -28,7 +28,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist, cur
 
   const cardClasses = [
     "bg-white text-dark-900 dark:bg-dark-800 dark:text-dark-50 rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-primary/20 hover:transform hover:-translate-y-1 group flex flex-col h-full border border-light-200 dark:border-dark-700 hover:border-primary/50",
-    (product.discountPrice && !product.isDynamicElectronicPayments) ? 'ring-2 ring-red-500 ring-offset-2 ring-offset-white dark:ring-offset-dark-800' : ''
+    (product.discountPrice && product.discountPrice > 0 && !product.isDynamicElectronicPayments) ? 'ring-2 ring-red-500 ring-offset-2 ring-offset-white dark:ring-offset-dark-800' : ''
   ].join(' ');
 
   return React.createElement("div", {

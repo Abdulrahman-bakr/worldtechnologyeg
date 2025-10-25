@@ -15,11 +15,11 @@ const ProductListItem = ({ product, onAddToCart }) => {
 
   const itemClasses = [
     "bg-white dark:bg-dark-800 rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-primary/10 flex flex-col sm:flex-row border border-light-200 dark:border-dark-700 hover:border-primary/30",
-    (product.discountPrice && !isDynamicService) ? 'ring-1 ring-red-500 ring-offset-1 ring-offset-white dark:ring-offset-dark-800' : ''
+    (product.discountPrice && product.discountPrice > 0 && !isDynamicService) ? 'ring-1 ring-red-500 ring-offset-1 ring-offset-white dark:ring-offset-dark-800' : ''
   ].join(' ');
 
   let discountPercentageText = "";
-  if (!isDynamicService && product.discountPrice && product.price > 0) {
+  if (!isDynamicService && product.discountPrice > 0 && product.price > 0) {
       const percentage = Math.round(((product.price - product.discountPrice) / product.price) * 100);
       discountPercentageText = ` (خصم ${percentage}%)`;
   }
@@ -58,9 +58,9 @@ const ProductListItem = ({ product, onAddToCart }) => {
       React.createElement("div", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4" },
         isDynamicService ? (
             React.createElement(Link, { to: `/product/${product.id}`, className: "text-xl sm:text-2xl font-bold text-primary mb-3 sm:mb-0" }, "خدمة حسب الطلب")
-        ) : product.discountPrice ? (
+        ) : (product.discountPrice && product.discountPrice > 0) ? (
           React.createElement("div", { className: "flex items-baseline space-x-2 space-x-reverse mb-3 sm:mb-0" },
-            React.createElement("p", { className: "text-2xl sm:text-3xl font-bold text-primary" }, `${product.discountPrice} ج.م`),
+            React.createElement("p", { className: "text-2xl sm:text-3xl font-bold text-primary" }, `${product.discountPrice.toFixed(2)} ج.م`),
             React.createElement("p", { className: "text-md text-dark-600 dark:text-dark-300 line-through" }, `${(product.price || 0).toFixed(2)} ج.م`),
             discountPercentageText && React.createElement("span", {className: "text-sm text-red-600 font-semibold"}, discountPercentageText)
           )

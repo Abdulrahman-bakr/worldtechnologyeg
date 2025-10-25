@@ -53,7 +53,7 @@ const CategoryTabs = ({ categories, selectedCategory }) => {
           return React.createElement("button", {
             key: category.id,
             onClick: () => handleSelect(category.id),
-            className: `flex items-center space-x-1.5 space-x-reverse px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md ${selectedCategory === category.id ? 'bg-primary text-white' : 'bg-white dark:bg-dark-700 text-dark-700 dark:text-dark-100 hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary border border-light-300 dark:border-dark-600'}`
+            className: `flex items-center space-x-1.5 space-x-reverse px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md ${selectedCategory === category.id ? 'bg-primary text-white' : 'bg-white dark:bg-dark-700 text-gray-800 dark:text-gray-200 hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary border border-light-300 dark:border-dark-600'}`
           }, 
             React.createElement("span", null, category.arabicName),
             IconComponent && React.createElement(IconComponent, { className: "w-5 h-5 object-contain" }) 

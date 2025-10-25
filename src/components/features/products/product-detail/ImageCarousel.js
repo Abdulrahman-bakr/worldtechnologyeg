@@ -1,6 +1,6 @@
 // --- START OF ImageCarousel.tsx ---
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { CloseIcon, PlayCircleIcon } from "../../../icons/index.js";
+import { CloseIcon } from "../../../icons/index.js";
 import { getImageUrl } from "../../../../utils/imageUrl.js";
 
 const ZoomIcon = ({ className }) => (

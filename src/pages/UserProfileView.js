@@ -12,7 +12,7 @@ import { useApp } from '../contexts/AppContext.js';
 
 
 const UserProfileView = ({ onBack }) => {
-    const { currentUser, onUpdateProfile, loyaltySettings } = useApp();
+    const { currentUser, handleUpdateUserProfileData: onUpdateProfile, loyaltySettings } = useApp();
     const navigate = useNavigate();
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [name, setName] = useState('');

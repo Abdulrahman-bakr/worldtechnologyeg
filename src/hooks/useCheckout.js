@@ -70,7 +70,10 @@ export const useCheckout = ({ currentUser, cartItems, setIsCartOpen, setCartItem
             }
         }
         
-        setToastMessage({ text: "تم إرسال طلبك بنجاح! سيتم التواصل معك للتأكيد.", type: "success" });
+        setToastMessage({ text: "تم إنشاء طلبك بنجاح! جاري توجيهك...", type: "success" });
+        // Dispatch a custom event to signal completion, allowing other components to react (e.g., for navigation).
+        window.dispatchEvent(new CustomEvent('orderCompleted'));
+
     }, [currentUser, setCartItems, setToastMessage]);
 
     return {

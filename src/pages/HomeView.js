@@ -6,7 +6,7 @@ import { RecentlyViewedSection } from '../components/features/products/RecentlyV
 import { SpecialOffersPreviewSection } from '../components/features/products/SpecialOffersPreviewSection.js';
 import { FeaturedProductCategorySection } from '../components/features/products/FeaturedProductCategorySection.js';
 import { PromoBanner } from '../components/ui/PromoBanner.js';
-import { FEATURED_CATEGORIES_ON_HOME, ProductCategory } from '../constants/index.js';
+import { FEATURED_CATEGORIES_ON_HOME } from '../constants/index.js';
 
 export const HomeView = () => {
     const {

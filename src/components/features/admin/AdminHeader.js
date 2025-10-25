@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BellIcon, ShoppingCartIcon as ShoppingCartIconAdmin, ExclamationTriangleIcon as ExclamationTriangleIconAdmin, DocumentTextIcon as DocumentTextIconAdmin, Bars3Icon } from '../../icons/index.js';
+import { BellIcon, ShoppingCartIcon as ShoppingCartIconAdmin, ExclamationTriangleIcon as ExclamationTriangleIconAdmin, DocumentTextIcon as DocumentTextIconAdmin, Bars3Icon, LogOutIcon } from '../../icons/index.js';
 
-const AdminHeader = ({ title, notifications, setActivePanel, onToggleSidebar }) => {
+const AdminHeader = ({ title, notifications, setActivePanel, onToggleSidebar, onBack }) => {
     const [popoverOpen, setPopoverOpen] = useState(false);
     const triggerRef = useRef(null);
     const popoverRef = useRef(null);
@@ -42,34 +42,43 @@ const AdminHeader = ({ title, notifications, setActivePanel, onToggleSidebar }) 
                 ),
                 React.createElement("h1", { className: "text-xl font-bold text-dark-900 dark:text-dark-50" }, title)
             ),
-            React.createElement("div", { className: "relative", ref: triggerRef },
+            React.createElement("div", { className: "flex items-center gap-4" },
                 React.createElement("button", {
-                    onClick: () => setPopoverOpen(prev => !prev),
-                    className: "relative p-2 rounded-full text-dark-700 dark:text-dark-200 hover:bg-light-100 dark:hover:bg-dark-700"
+                    onClick: onBack,
+                    className: "flex items-center gap-2 text-sm font-semibold text-dark-700 dark:text-dark-200 hover:text-primary transition-colors"
                 },
-                    React.createElement(BellIcon, { className: "w-6 h-6" }),
-                    unreadCount > 0 && React.createElement("span", { className: "absolute top-0 right-0 block h-3 w-3 rounded-full bg-red-500 border-2 border-white dark:border-dark-800" })
+                    React.createElement(LogOutIcon, { className: "w-5 h-5 transform rotate-180" }),
+                    React.createElement("span", { className: "hidden sm:inline" }, "العودة للمتجر")
                 ),
-                popoverOpen && React.createElement("div", {
-                    ref: popoverRef,
-                    className: "absolute left-0 mt-2 w-72 bg-white dark:bg-dark-700 rounded-lg shadow-xl border border-light-200 dark:border-dark-600 z-30 "
-                },
-                    React.createElement("div", { className: "p-3 font-semibold border-b border-light-200 dark:border-dark-600" }, "الإشعارات العاجلة"),
-                    React.createElement("div", { className: "p-2" },
-                        notifications.length > 0 ? (
-                            notifications.map(notif => {
-                                const Icon = iconMap[notif.icon];
-                                return React.createElement("button", {
-                                    key: notif.id,
-                                    onClick: () => handleNotificationClick(notif.panel),
-                                    className: "w-full text-right flex items-center gap-3 p-2 rounded-md hover:bg-light-100 dark:hover:bg-dark-600"
-                                },
-                                    Icon && React.createElement(Icon, { className: "w-5 h-5 text-primary" }),
-                                    React.createElement("span", { className: "text-sm" }, `${notif.count} ${notif.text}`)
-                                )
-                            })
-                        ) : (
-                            React.createElement("p", { className: "text-center text-sm text-dark-600 p-4" }, "لا توجد إشعارات جديدة.")
+                React.createElement("div", { className: "relative", ref: triggerRef },
+                    React.createElement("button", {
+                        onClick: () => setPopoverOpen(prev => !prev),
+                        className: "relative p-2 rounded-full text-dark-700 dark:text-dark-200 hover:bg-light-100 dark:hover:bg-dark-700"
+                    },
+                        React.createElement(BellIcon, { className: "w-6 h-6" }),
+                        unreadCount > 0 && React.createElement("span", { className: "absolute top-0 right-0 block h-3 w-3 rounded-full bg-red-500 border-2 border-white dark:border-dark-800" })
+                    ),
+                    popoverOpen && React.createElement("div", {
+                        ref: popoverRef,
+                        className: "absolute left-0 mt-2 w-72 bg-white dark:bg-dark-700 rounded-lg shadow-xl border border-light-200 dark:border-dark-600 z-30 "
+                    },
+                        React.createElement("div", { className: "p-3 font-semibold border-b border-light-200 dark:border-dark-600" }, "الإشعارات العاجلة"),
+                        React.createElement("div", { className: "p-2" },
+                            notifications.length > 0 ? (
+                                notifications.map(notif => {
+                                    const Icon = iconMap[notif.icon];
+                                    return React.createElement("button", {
+                                        key: notif.id,
+                                        onClick: () => handleNotificationClick(notif.panel),
+                                        className: "w-full text-right flex items-center gap-3 p-2 rounded-md hover:bg-light-100 dark:hover:bg-dark-600"
+                                    },
+                                        Icon && React.createElement(Icon, { className: "w-5 h-5 text-primary" }),
+                                        React.createElement("span", { className: "text-sm" }, `${notif.count} ${notif.text}`)
+                                    )
+                                })
+                            ) : (
+                                React.createElement("p", { className: "text-center text-sm text-dark-600 p-4" }, "لا توجد إشعارات جديدة.")
+                            )
                         )
                     )
                 )

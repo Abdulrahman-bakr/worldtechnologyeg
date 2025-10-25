@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { StarIcon, InfoIcon } from '../../../icons/index.js';
 import { FloatingInput } from '../../../ui/forms/FloatingInput.js';
@@ -30,8 +29,6 @@ const renderGroupedBenefits = (benefits) => {
 
 const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPackages }) => {
     const [selectedPackage, setSelectedPackage] = useState(null);
-    const [formData, setFormData] = useState({});
-    const [formStep, setFormStep] = useState('packageSelection');
     const [formError, setFormError] = useState('');
     const [rechargeType, setRechargeType] = useState('code');
     const [selectedCardOperatorKey, setSelectedCardOperatorKey] = useState('');
@@ -40,11 +37,6 @@ const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPack
     const [orangeOption, setOrangeOption] = useState('el_kabeer_internet');
     const [packagesLoading, setPackagesLoading] = useState(true);
     const [servicePackages, setServicePackages] = useState([]);
-
-    const fieldsForService = useMemo(() => {
-        if (!product) return [];
-        return product.requiredFields || [];
-    }, [product]);
 
     const pointsToEarn = useMemo(() => {
         return selectedPackage ? Math.floor(Number(selectedPackage.price) || 0) : 0;
@@ -127,27 +119,6 @@ const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPack
         setPackagesLoading(false);
     }, [product, allDigitalPackages]);
 
-    const handleProceedToDetails = () => {
-        if (selectedPackage) {
-            if (!fieldsForService || fieldsForService.length === 0) {
-                const serviceDetails = {
-                    serviceName: product.arabicName,
-                    packageName: selectedPackage.name,
-                    packagePrice: Number(selectedPackage.price || 0),
-                    finalPrice: Number(selectedPackage.price || 0),
-                    package: { imageUrl: selectedPackage.imageUrl || null },
-                    formData: []
-                };
-                onInitiateDirectCheckout(product, serviceDetails);
-            } else {
-                setFormStep('details');
-                setFormError('');
-            }
-        } else {
-            setFormError('يرجى اختيار باقة أولاً للمتابعة.');
-        }
-    };
-
     const handleMobileCardTopupCheckout = () => {
         setFormError('');
         if (!selectedPackage) {
@@ -215,11 +186,6 @@ const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPack
             React.createElement("p", { className: "text-red-500" }, "لا توجد باقات شحن متاحة لهذه الخدمة حالياً.")
         );
     }
-
-    const isDetailsFormValid = fieldsForService.length > 0 && fieldsForService.every(field => formData[field.id] && formData[field.id].trim() !== '');
-    const packageStepTitle = product.packageSelectionStepTitle || "1. اختر الباقة";
-    const detailsStepTitle = product.detailsStepTitle || `2. بيانات ${product.arabicName}`;
-
 
     return React.createElement("form", {
         onSubmit: (e) => { e.preventDefault(); handleMobileCardTopupCheckout(); },

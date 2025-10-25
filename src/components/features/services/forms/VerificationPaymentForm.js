@@ -8,7 +8,6 @@ const VerificationPaymentForm = ({ product, onInitiateDirectCheckout }) => {
     const [formError, setFormError] = useState('');
 
     const price = useMemo(() => product.discountPrice || product.price || 0, [product]);
-    const pointsToEarn = useMemo(() => Math.floor(price), [price]);
 
     const handleCheckout = () => {
         if (!profileLink.trim().startsWith('https://')) {

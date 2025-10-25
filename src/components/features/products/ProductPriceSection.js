@@ -8,7 +8,7 @@ export const ProductPriceSection = ({ product }) => {
     return React.createElement("div", { className: "mb-3.5 mt-auto" },
         isDynamicService ? (
             React.createElement("p", { className: "text-md sm:text-lg font-semibold text-primary" }, "خدمة حسب الطلب")
-        ) : product.discountPrice ? (
+        ) : (product.discountPrice && product.discountPrice > 0) ? (
             React.createElement("div", { className: "flex items-baseline space-x-2 space-x-reverse" },
                 React.createElement("p", { className: "text-lg sm:text-xl font-bold text-primary" }, `${product.discountPrice.toFixed(2)} ج.م`),
                 React.createElement("p", { className: "text-sm text-dark-600 dark:text-dark-300 line-through" }, `${(product.price || 0).toFixed(2)} ج.م`)

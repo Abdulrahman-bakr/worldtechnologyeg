@@ -53,7 +53,7 @@ export const useAuth = (setToastMessage) => {
         return () => unsubscribe();
     }, []);
 
-    const handleLoginSuccess = useCallback(async (firebaseUser, signupData) => {
+    const handleLoginSuccess = useCallback(async (firebaseUser, signupData = null) => {
         let nameToUse = (signupData && signupData.name) || firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'مستخدم');
 
         if (signupData && signupData.name && firebaseUser.displayName !== signupData.name) {
@@ -122,7 +122,8 @@ export const useAuth = (setToastMessage) => {
             } catch(e) { console.error("Error setting currentUser in localStorage from address update:", e); }
             return updatedUser;
         });
-    }, []);
+        setToastMessage({ text: "تم حفظ العنوان كعنوان شحن افتراضي للطلبات القادمة.", type: 'info' });
+    }, [setToastMessage]);
 
     const handleUpdateUserProfileData = useCallback(async (dataToUpdate) => {
         if (!currentUser?.uid) {
