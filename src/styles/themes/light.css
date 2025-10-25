@@ -1,3 +1,4 @@
+
 /* Light Theme (when html has .theme-light class) */
 html.theme-light body {
   background-color: #F9FAFB; /* light-50 */
@@ -28,16 +29,15 @@ html.theme-light .header-scrolled {
 html.theme-light .header-transparent {
     background-color: transparent !important;
 }
-html.theme-light .header-scrolled .text-dark-800, html.theme-light .header-transparent .text-dark-800 {
-    color: #1F2937;
-}
-html.theme-light .header-scrolled .hover\\:text-primary:hover, html.theme-light .header-transparent .hover\\:text-primary:hover {
+
+html.theme-light .header-scrolled .hover\:text-primary:hover, html.theme-light .header-transparent .hover\:text-primary:hover {
     color: #10B981;
 }
 html.theme-light .mobile-menu-bg {
     background-color: rgba(243, 244, 246, 0.95) !important;
 }
 
+/* Skeleton styles */
 html.theme-light .skeleton-card {
   background-color: #F3F4F6; /* light-100 */
 }

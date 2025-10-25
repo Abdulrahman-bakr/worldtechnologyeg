@@ -75,8 +75,8 @@ const CustomerDetailsModal = ({ isOpen, onClose, customer, onUserUpdate }) => {
 
     return (
         React.createElement("div", { className: "fixed inset-0 z-[110] flex items-center justify-center p-4" },
-            React.createElement("div", { className: "modal-overlay absolute inset-0 bg-black/85", onClick: onClose }),
-            React.createElement("div", { className: "modal-content bg-light-50 dark:bg-dark-800 rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] flex flex-col relative" },
+            React.createElement("div", { className: "modal-overlay absolute inset-0 bg-black/85" }),
+            React.createElement("div", { className: "modal-content bg-light-50 dark:bg-dark-800 rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] flex flex-col relative", onClick: (e) => e.stopPropagation() },
                 React.createElement("button", { onClick: onClose, className: "absolute top-4 left-4 p-1" }, React.createElement(CloseIcon, { className: "w-6 h-6" })),
                 
                 React.createElement("div", { className: "flex justify-between items-center mb-4 pb-4 border-b border-light-300 dark:border-dark-600" },

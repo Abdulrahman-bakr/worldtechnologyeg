@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ShoppingCartIcon, StarIcon } from '../../../icons/index.js';
 import { FloatingInput } from '../../../ui/forms/FloatingInput.js';
-import { INSTAPAY_BANKS } from '../../../../constants/index.js';
 
 const getFawryPayFee = (amount) => {
     const numAmount = Number(amount);

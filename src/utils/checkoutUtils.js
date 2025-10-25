@@ -86,7 +86,7 @@ export const generateWhatsAppMessage = ({
     itemsForCheckout.forEach(item => {
         if (item.serviceDetails) {
             // Detailed view for services
-            message += `• *خدمة:* ${item.product.arabicName}\n`;
+            message += `• *خدمة:* ${item.name || item.product?.arabicName}\n`;
             if (item.serviceDetails.packageName) {
                 message += `  - *الباقة/النوع:* ${item.serviceDetails.packageName}\n`;
             }
@@ -97,12 +97,12 @@ export const generateWhatsAppMessage = ({
                     }
                 });
             }
-             message += `  - *التكلفة:* ${(item.serviceDetails.finalPrice || 0).toFixed(2)} ج.م\n`;
+             message += `  - *التكلفة:* ${(item.serviceDetails.finalPrice || item.price || 0).toFixed(2)} ج.م\n`;
 
         } else {
-            // Standard product view
-            const displayName = item.variant ? `${item.product.arabicName} (${item.variant.colorName})` : item.product.arabicName;
-            const price = item.product.discountPrice || item.product.price || 0;
+            // Standard product view - resilient to both cart item and order item structure
+            const displayName = item.name || (item.variant ? `${item.product.arabicName} (${item.variant.colorName})` : item.product.arabicName);
+            const price = item.price || item.product.discountPrice || item.product.price || 0;
             message += `• ${displayName} (×${item.quantity}) - ${price.toFixed(2)} ج.م\n`;
         }
     });

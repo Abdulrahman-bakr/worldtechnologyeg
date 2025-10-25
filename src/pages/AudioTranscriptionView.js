@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { GoogleGenAI, Modality, Blob } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { StaticPageView } from './Static-Pages/StaticPageView.js';
 import { MicrophoneIcon, StopCircleIcon, ClipboardDocumentIcon } from '../components/icons/index.js';
 import { useApp } from '../contexts/AppContext.js';
@@ -95,7 +95,7 @@ export const AudioTranscriptionView = () => {
             source.connect(scriptProcessorRef.current);
             scriptProcessorRef.current.connect(audioContextRef.current.destination);
 
-            const ai = new GoogleGenAI({ apiKey: process.env.REACT_APP_GOOGLE_AI_API_KEY });
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             
             sessionPromiseRef.current = ai.live.connect({
                 model: 'gemini-2.5-flash-native-audio-preview-09-2025',

@@ -14,7 +14,7 @@ const ProductDetailView = () => {
         if (product) {
             app.addRecentlyViewed(product.id);
         }
-    }, [product, app.addRecentlyViewed]);
+    }, [product, app]);
 
     if (app.productsLoading) {
         return React.createElement("div", { className: "w-full min-h-[calc(100vh-200px)] flex items-center justify-center" },
@@ -34,11 +34,15 @@ const ProductDetailView = () => {
         );
     }
     
+    // Explicitly map handleAddToCart and handleToggleWishlist to the expected prop names.
     return React.createElement(ProductDetailOrchestrator, { 
         ...app,
         product: product,
         onBack: () => navigate(-1),
         onViewDetails: (p) => navigate(`/product/${p.id}`),
+        // Pass the correct functions for adding to cart and toggling wishlist
+        onAddToCart: app.handleAddToCart,
+        onToggleWishlist: app.handleToggleWishlist,
         isInWishlist: (app.wishlistItems || []).includes(product.id),
         onLoginRequest: () => app.setIsLoginModalOpen(true),
         onInitiateDirectCheckout: app.handleInitiateDirectCheckout,

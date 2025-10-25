@@ -40,6 +40,7 @@ export const useScrollSpy = (sectionsRef, mainActionRef, deps = []) => {
         handleScroll(); 
         
         return () => window.removeEventListener('scroll', handleScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mainActionRef, sectionsRef, ...deps]); // Rerun if product changes, for example
 
      useEffect(() => {

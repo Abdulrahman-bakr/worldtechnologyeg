@@ -1,7 +1,7 @@
 
 
 import React, { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout.js';
 import { useApp } from './contexts/AppContext.js';
 
@@ -28,10 +28,25 @@ const LoadingFallback = () => (
 
 const App = () => {
   const { fetchInitialData } = useApp();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchInitialData();
   }, [fetchInitialData]);
+
+  useEffect(() => {
+    const handleOrderNavigation = () => {
+        setTimeout(() => {
+            navigate('/orders');
+        }, 1000); // Delay to allow user to see the success toast
+    };
+
+    window.addEventListener('orderCompleted', handleOrderNavigation);
+
+    return () => {
+        window.removeEventListener('orderCompleted', handleOrderNavigation);
+    };
+  }, [navigate]);
   
   return (
       React.createElement(Suspense, { fallback: React.createElement(LoadingFallback, null) },

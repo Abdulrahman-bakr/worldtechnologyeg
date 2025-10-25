@@ -89,7 +89,8 @@ const AdminDashboardView = () => {
                     title: panelTitles[activePanel] || 'لوحة التحكم',
                     notifications: adminData.adminNotifications,
                     setActivePanel: setActivePanel,
-                    onToggleSidebar: () => setIsSidebarOpen(prev => !prev)
+                    onToggleSidebar: () => setIsSidebarOpen(prev => !prev),
+                    onBack: () => navigate('/')
                 }),
                 React.createElement("div", { className: "p-4 sm:p-6 w-full" },
                     panelComponents[activePanel] || React.createElement("div", null, "لوحة غير معروفة.")

@@ -2,28 +2,21 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { db } from '../services/firebase/config.js';
-import { collection, query, where, orderBy, limit, getDocs, onSnapshot, startAfter } from 'firebase/firestore';
-
-const ORDERS_PER_PAGE = 10;
+import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 
 export const useOrdersData = (currentUser) => {
     const [orders, setOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [lastVisible, setLastVisible] = useState(null);
-    const [hasMore, setHasMore] = useState(true);
-    const [isFetchingMore, setIsFetchingMore] = useState(false);
     
     const unsubscribeRef = useRef(null);
 
-    const processSnapshot = (documentSnapshots, isInitial) => {
+    const processSnapshot = (documentSnapshots) => {
         const newOrders = documentSnapshots.docs.map(doc => {
             const data = doc.data();
-
             const createdAtDate = data.createdAt && typeof data.createdAt.toDate === 'function' 
                 ? data.createdAt.toDate() 
                 : null;
-            
             const clientCreatedAtDate = data.clientCreatedAt && typeof data.clientCreatedAt.toDate === 'function'
                 ? data.clientCreatedAt.toDate()
                 : (data.clientCreatedAt ? new Date(data.clientCreatedAt) : null);
@@ -31,72 +24,59 @@ export const useOrdersData = (currentUser) => {
             return {
                 id: doc.id,
                 ...data,
-                createdAt: createdAtDate,
-                clientCreatedAt: clientCreatedAtDate,
+                createdAt: createdAtDate || clientCreatedAtDate, // Fallback for sorting if server timestamp is missing
             };
         });
         
-        setLastVisible(documentSnapshots.docs[documentSnapshots.docs.length - 1]);
-        setHasMore(newOrders.length === ORDERS_PER_PAGE);
-
-        if (isInitial) {
-            setOrders(newOrders);
-        } else {
-            setOrders(prevOrders => {
-                const existingIds = new Set(prevOrders.map(o => o.id));
-                const filteredNewOrders = newOrders.filter(o => !existingIds.has(o.id));
-                return [...prevOrders, ...filteredNewOrders];
-            });
-        }
+        // Sorting is handled by the Firestore query with orderBy, so client-side sort is not needed.
+        setOrders(newOrders);
     };
     
     const fetchMoreOrders = useCallback(async () => {
-        if (!currentUser?.uid || !hasMore || isFetchingMore || !lastVisible) return;
-
-        setIsFetchingMore(true);
-        setError(null);
-
-        try {
-            const ordersRef = collection(db, 'orders');
-            const q = query(ordersRef, where("userId", "==", currentUser.uid), orderBy('createdAt', 'desc'), startAfter(lastVisible), limit(ORDERS_PER_PAGE));
-            const documentSnapshots = await getDocs(q);
-            processSnapshot(documentSnapshots, false);
-        } catch (err) {
-            console.error("Error fetching more orders:", err);
-            setError("حدث خطأ أثناء جلب المزيد من الطلبات.");
-        } finally {
-            setIsFetchingMore(false);
-        }
-    }, [currentUser?.uid, lastVisible, hasMore, isFetchingMore]);
+        // Pagination is currently disabled. This function is a placeholder.
+    }, []);
 
     useEffect(() => {
-        if (unsubscribeRef.current) unsubscribeRef.current();
+        // Cleanup previous listener
+        if (unsubscribeRef.current) {
+            unsubscribeRef.current();
+        }
 
         if (currentUser?.uid) {
             setIsLoading(true);
             setOrders([]);
-            setLastVisible(null);
-            setHasMore(true);
+            setError(null);
 
             const ordersRef = collection(db, 'orders');
-            const q = query(ordersRef, where("userId", "==", currentUser.uid), orderBy('createdAt', 'desc'), limit(ORDERS_PER_PAGE));
+            
+            // Query for user's orders, sorted by creation date (newest first).
+            // This requires a composite index on (userId, createdAt desc) in Firestore.
+            const q = query(ordersRef, where("userId", "==", currentUser.uid), orderBy("createdAt", "desc"));
+            
             const unsubscribe = onSnapshot(q, snapshot => {
-                processSnapshot(snapshot, true);
+                processSnapshot(snapshot);
                 setIsLoading(false);
             }, err => {
-                console.error("Error with order listener:", err);
-                setError("حدث خطأ أثناء تحديث الطلبات.");
+                console.error("[useOrders] onSnapshot: ERROR:", err);
+                setError("حدث خطأ أثناء تحديث الطلبات. قد تحتاج إلى إنشاء فهرس في Firestore.");
                 setIsLoading(false);
             });
+            
             unsubscribeRef.current = unsubscribe;
+
         } else {
+            // If no user, clear orders and stop loading
             setOrders([]);
             setIsLoading(false);
-            setHasMore(true);
         }
 
-        return () => { if (unsubscribeRef.current) unsubscribeRef.current(); };
+        // Cleanup listener on component unmount or user change
+        return () => { 
+            if (unsubscribeRef.current) {
+                unsubscribeRef.current(); 
+            }
+        };
     }, [currentUser?.uid]);
     
-    return { orders, isLoading, error, fetchMoreOrders, hasMore, isFetchingMore };
+    return { orders, isLoading, error, fetchMoreOrders, hasMore: false, isFetchingMore: false };
 };

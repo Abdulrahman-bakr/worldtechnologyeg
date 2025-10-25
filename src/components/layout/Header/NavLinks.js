@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { CATEGORIES, ProductCategory } from '../../../constants/index.js';
@@ -11,7 +12,7 @@ export const NavLinks = ({ navLinks, currentUser }) => {
         `transition-colors duration-200 text-sm lg:text-base font-medium flex items-center gap-1 px-2 py-1 rounded-md ${
             isActive
                 ? 'text-primary dark:text-primary font-semibold'
-                : 'text-dark-800 dark:text-dark-100 hover:text-primary dark:hover:text-primary hover:bg-light-100 dark:hover:bg-dark-700/60'
+                : 'text-dark-800 dark:text-dark-100 hover:text-primary hover:bg-light-100 dark:hover:bg-dark-700/60'
         }`;
 
     return (

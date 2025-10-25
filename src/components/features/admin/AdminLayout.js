@@ -113,15 +113,12 @@ const AdminLayout = ({ children, activePanel, setActivePanel, onBack, isSidebarO
                         })
                     ))
                 )
-            ),
-            React.createElement("div", { className: "flex-shrink-0 mt-4 pt-4 border-t border-light-200 dark:border-dark-600" },
-                React.createElement("button", { onClick: onBack, className: "admin-nav-link" }, React.createElement(LogOutIcon, { className: "w-5 h-5 transform rotate-180" }), "العودة للمتجر")
             )
         )
     );
 
     return (
-        React.createElement("div", { className: "flex h-screen bg-light-50 dark:bg-dark-900 text-dark-900 dark:text-dark-50" },
+        React.createElement("div", { className: "flex h-screen bg-light-50 dark:bg-dark-900 text-dark-900 dark:text-dark-50 overflow-hidden" },
             isSidebarOpen && React.createElement("div", { 
                 className: "fixed inset-0 bg-black/85 z-30 md:hidden",
                 onClick: () => setIsSidebarOpen(false) 

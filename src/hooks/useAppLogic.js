@@ -40,9 +40,7 @@ export const useAppLogic = () => {
         brands,
         availableSpecFilters,
         activeFilters,
-        setActiveFilters,
         priceRange,
-        setPriceRange,
         handleFilterChange,
         handlePriceRangeChange,
         handleResetFilters,
@@ -87,10 +85,27 @@ export const useAppLogic = () => {
     }, [uiState.recentlyViewedIds, allProducts]);
 
     const {
-        cartItems, setCartItems, isCartOpen, setIsCartOpen,
+        cartItems: rawCartItems, setCartItems, isCartOpen, setIsCartOpen,
         handleAddToCart, handleUpdateQuantity, handleRemoveFromCart,
         cartItemCount
     } = useCart(setToastMessage, setActivePopover);
+    
+    const cartItems = useMemo(() => {
+        if (!rawCartItems || rawCartItems.length === 0 || !allProducts || allProducts.length === 0) {
+            return [];
+        }
+        return rawCartItems.map(item => {
+            const product = allProducts.find(p => p.id === item.productId);
+            if (!product) {
+                // This can happen if a product is removed but still in user's localStorage cart
+                console.warn(`Product with id ${item.productId} not found in cart hydration`);
+                return null;
+            }
+            // Return a hydrated item with the full product object
+            return { ...item, product };
+        }).filter(Boolean); // Filter out any nulls from products that were not found
+    }, [rawCartItems, allProducts]);
+
     
     const [couponCodeInput, setCouponCodeInput] = useState('');
     const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -105,10 +120,11 @@ export const useAppLogic = () => {
                 itemSubtotal = servicePrice * item.quantity;
                 itemGrandTotal = servicePrice * item.quantity;
             } else {
-                const originalPrice = item.product.price || 0;
-                const discountPrice = item.product.discountPrice;
+                const originalPrice = (item.variant?.price || item.product?.price) ?? 0;
+                const discountPrice = (item.variant?.discountPrice || item.product?.discountPrice);
+                
                 itemSubtotal = originalPrice * item.quantity;
-                itemGrandTotal = (discountPrice ?? originalPrice) * item.quantity;
+                itemGrandTotal = ((discountPrice && discountPrice > 0) ? discountPrice : originalPrice) * item.quantity;
             }
             acc.cartSubtotal += itemSubtotal;
             acc.subtotalAfterProductDiscounts += itemGrandTotal;
@@ -132,7 +148,7 @@ export const useAppLogic = () => {
         if (appliedCoupon.applicableCategories && appliedCoupon.applicableCategories.length > 0) {
             applicableAmount = cartItems.reduce((sum, item) => {
                 if (appliedCoupon.applicableCategories.includes(item.product.category)) {
-                    const price = item.product.discountPrice || item.product.price || 0;
+                    const price = (item.product.discountPrice && item.product.discountPrice > 0) ? item.product.discountPrice : (item.product.price || 0);
                     return sum + price * item.quantity;
                 }
                 return sum;
@@ -140,7 +156,7 @@ export const useAppLogic = () => {
         } else if (appliedCoupon.applicableProducts && appliedCoupon.applicableProducts.length > 0) {
             applicableAmount = cartItems.reduce((sum, item) => {
                 if (appliedCoupon.applicableProducts.includes(item.product.id)) {
-                    const price = item.product.discountPrice || item.product.price || 0;
+                    const price = (item.product.discountPrice && item.product.discountPrice > 0) ? item.product.discountPrice : (item.product.price || 0);
                     return sum + price * item.quantity;
                 }
                 return sum;
@@ -247,7 +263,7 @@ export const useAppLogic = () => {
         if (categoryId) { // If a specific category is chosen, turn off the offers view.
              uiState.setShowAllOffersView(false);
         }
-    }, [uiState.setSelectedCategory, uiState.setShowAllOffersView]);
+    }, [uiState]);
 
     return {
         products: filteredAndSortedProducts, allProducts, productsLoading, initialMaxPrice,
