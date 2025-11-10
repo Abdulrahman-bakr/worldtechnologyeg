@@ -55,8 +55,8 @@ const ProfileSidebar = ({ currentUser, activeTab, setActiveTab, onLogout }) => {
     );
 };
 
-const ProfileInfoSection = () => {
-    const { currentUser, handleUpdateUserProfileData, loyaltySettings, setToastMessage } = useApp();
+const ProfileInfoSection = ({ currentUser, handleUpdateUserProfileData, loyaltySettings }) => {
+    const { setToastMessage } = useApp();
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [name, setName] = useState(currentUser.name || '');
     const [phone, setPhone] = useState(currentUser.phone || '');
@@ -233,7 +233,7 @@ export const UserProfileView = () => {
         switch (activeTab) {
             case 'security': return React.createElement(SecuritySettingsSection, null);
             case 'profile':
-            default: return React.createElement(ProfileInfoSection, null);
+            default: return React.createElement(ProfileInfoSection, { currentUser, handleUpdateUserProfileData, loyaltySettings });
         }
     };
 

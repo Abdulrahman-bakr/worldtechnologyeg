@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { ShoppingBagIcon } from '../components/icons/index.js';
 import { useOrdersData } from '../hooks/useOrders.js';
 import { OrderList, OrdersTabs, EmptyOrders, LoadingOrders, CustomerOrderDetailsModal } from '../components/features/orders/index.js';
-import { getStatusDisplayInfo, ORDER_STATUS_GROUPS } from '../components/features/orders/ordersUtils.js';
+import { ORDER_STATUS_GROUPS } from '../components/features/orders/ordersUtils.js';
 import { useApp } from '../contexts/AppContext.js';
 
 const OrdersView = () => {
