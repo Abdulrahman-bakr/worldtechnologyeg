@@ -56,6 +56,9 @@ export { FacebookIcon } from './social/FacebookIcon.js';
 export { GoogleIcon } from './social/GoogleIcon.js';
 export { WhatsAppIcon } from './social/WhatsAppIcon.js';
 export { TwitterIcon } from './social/TwitterIcon.js';
+export { PlayStationIcon } from './social/PlayStationIcon.js';
+export { GooglePlayIcon } from './social/GooglePlayIcon.js';
+export { RazerGoldIcon } from './social/RazerGoldIcon.js';
 
 // System Icons
 export { BellIcon } from './system/BellIcon.js';
@@ -101,9 +104,11 @@ export { InstallmentplansIcon } from './system/InstallmentplansIcon.js';
 export { CustomizableIcon } from './system/CustomizableIcon.js';
 export { LightweightIcon } from './system/LightweightIcon.js';
 export { bundleIcon } from './system/bundleIcon.js';
-
-
-
+export { birthdateIcon } from './system/birthdateIcon.js';
+export { PlaneIcon } from './system/PlaneIcon.js';
+export { ArrowRightIcon } from './system/ArrowRightIcon.js';
+export { GlobeIcon } from './system/GlobeIcon.js';
+export { FlightDatesIcon } from './system/FlightDatesIcon.js';
 
 // Admin Icons
 export { ArrowUpOnSquareIcon } from './admin/ArrowUpOnSquareIcon.js';
@@ -131,6 +136,7 @@ export { HeartIcon } from './ui/HeartIcon.js';
 export { StarIcon } from './ui/StarIcon.js';
 export { ShareIcon } from './ui/ShareIcon.js';
 export { LogOutIcon } from './ui/LogOutIcon.js';
+export { LogInIcon } from './ui/LogInIcon.js';
 export { TruckIcon } from './ui/TruckIcon.js';
 export { ShieldCheckIcon } from './ui/ShieldCheckIcon.js';
 export { ArrowUturnLeftIcon } from './ui/ArrowUturnLeftIcon.js';

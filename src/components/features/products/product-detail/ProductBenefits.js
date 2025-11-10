@@ -11,9 +11,7 @@ const BenefitItem = ({ icon: Icon, title, description }) => (
     )
 );
 
-const ProductBenefits = ({ product }) => {
-    const { benefitIds } = product;
-
+const ProductBenefits = ({ benefitIds, title }) => {
     if (!benefitIds || benefitIds.length === 0) {
         return null;
     }
@@ -26,6 +24,7 @@ const ProductBenefits = ({ product }) => {
 
     return (
         React.createElement("div", { className: "my-6 pt-6 border-t border-light-200 dark:border-dark-700" },
+            title && React.createElement("h3", { className: "text-xl font-semibold mb-4 text-dark-900 dark:text-dark-50" }, title),
             React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4" },
                 benefitsToDisplay.map(benefit => React.createElement(BenefitItem, { key: benefit.id, ...benefit }))
             )

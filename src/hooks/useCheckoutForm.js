@@ -14,7 +14,8 @@ export const useCheckoutForm = ({
     onUpdateCurrentUserAddress,
     amountForCalculation,
     couponInfo,
-    loyaltySettings
+    loyaltySettings,
+    setToastMessage
 }) => {
     const [customerName, setCustomerName] = useState('');
     const [customerPhone, setCustomerPhone] = useState('');
@@ -42,13 +43,9 @@ export const useCheckoutForm = ({
     const prevIsOpen = useRef(isOpen);
 
     const resetForm = useCallback(() => {
-        const addr = currentUser?.defaultShippingAddress;
-    
-        // Always populate name and phone from the primary user account info.
-        setCustomerName(currentUser?.name || '');
-        setCustomerPhone(currentUser?.phone || '');
+        setCustomerName('');
+        setCustomerPhone('');
         
-        // Reset common fields
         setOrderNotes('');
         setPaymentTransactionInfo('');
         setSelectedPaymentMethod(containsOnlyDigitalServices ? '' : 'cash_on_delivery');
@@ -57,29 +54,12 @@ export const useCheckoutForm = ({
         setIsSubmitting(false);
         setPointsToApply(0);
 
-        // Handle address fields based on checkout type and available data
-        if (isDirectSingleServiceCheckout || !requiresPhysicalShipping) {
-            setCustomerAltPhone('');
-            setSelectedGovernorate('');
-            setAvailableCities([]);
-            setSelectedCity('');
-            setAddressDetails('');
-        } else {
-            setCustomerAltPhone(addr?.altPhone || '');
-            const gov = addr?.governorate || '';
-            setSelectedGovernorate(gov);
-    
-            if (gov && EGYPT_GOVERNORATES_DATA[gov]) {
-                const citiesForGov = EGYPT_GOVERNORATES_DATA[gov];
-                setAvailableCities(citiesForGov);
-                setSelectedCity(citiesForGov.includes(addr.city) ? addr.city : '');
-            } else {
-                setAvailableCities([]);
-                setSelectedCity('');
-            }
-            setAddressDetails(addr?.address || '');
-        }
-    }, [currentUser, isDirectSingleServiceCheckout, containsOnlyDigitalServices, requiresPhysicalShipping]);
+        setCustomerAltPhone('');
+        setSelectedGovernorate('');
+        setAvailableCities([]);
+        setSelectedCity('');
+        setAddressDetails('');
+    }, [containsOnlyDigitalServices]);
 
 
     useEffect(() => {
@@ -88,6 +68,35 @@ export const useCheckoutForm = ({
         }
         prevIsOpen.current = isOpen;
     }, [isOpen, resetForm]);
+
+    const applySavedAddress = useCallback(() => {
+        const addr = currentUser?.defaultShippingAddress;
+        if (addr) {
+            setCustomerAltPhone(addr.altPhone || '');
+            setSelectedGovernorate(addr.governorate || '');
+            
+            if (addr.governorate && EGYPT_GOVERNORATES_DATA[addr.governorate]) {
+                const citiesForGov = EGYPT_GOVERNORATES_DATA[addr.governorate];
+                setAvailableCities(citiesForGov);
+                setSelectedCity(citiesForGov.includes(addr.city) ? addr.city : '');
+            } else {
+                setAvailableCities([]);
+                setSelectedCity('');
+            }
+            setAddressDetails(addr.address || '');
+            if(setToastMessage) setToastMessage({ text: "تم ملء العنوان المحفوظ.", type: 'success' });
+        } else {
+             if(setToastMessage) setToastMessage({ text: "لا يوجد عنوان محفوظ.", type: 'info' });
+        }
+    }, [currentUser, setToastMessage]);
+
+    const applySavedCustomerData = useCallback(() => {
+        if (currentUser) {
+            setCustomerName(currentUser.name || '');
+            setCustomerPhone(currentUser.phone || '');
+            if(setToastMessage) setToastMessage({ text: "تم ملء بياناتك المحفوظة.", type: 'success' });
+        }
+    }, [currentUser, setToastMessage]);
     
     const { roundedFinalAmount, summaryProps } = useMemo(() => {
         const Tiers = loyaltySettings || LOYALTY_TIERS_FALLBACK;
@@ -116,9 +125,12 @@ export const useCheckoutForm = ({
                 pointsAvailable: availablePoints, discountToApply: discountFromPoints,
                 pointsToRedeem: redeemedPoints, finalAmountBeforeRounding: finalBeforeRounding, 
                 roundingDifference: rounded - finalBeforeRounding,
+                couponInfo: couponInfo,
+                isWEBillCheckout: isDirectSingleServiceCheckout && itemToCheckout?.product?.dynamicServiceId === 'we-internet-billing',
+                itemToCheckout: itemToCheckout
             }
         };
-      }, [currentUser, amountForCalculation, pointsToApply, loyaltySettings]);
+      }, [currentUser, amountForCalculation, pointsToApply, loyaltySettings, couponInfo, isDirectSingleServiceCheckout, itemToCheckout]);
 
     useEffect(() => {
         if (!requiresPhysicalShipping) return;
@@ -200,6 +212,9 @@ export const useCheckoutForm = ({
                     servicePhoneNumber = phoneField.value;
                 }
             }
+            if (!servicePhoneNumber) {
+                servicePhoneNumber = currentUser.phone || null;
+            }
             customerShippingDetails = { name: currentUser.name, phone: servicePhoneNumber, altPhone: null, governorate: null, city: null, address: null };
         } else {
             customerShippingDetails = { name: customerName, phone: customerPhone, altPhone: customerAltPhone, governorate: requiresPhysicalShipping ? selectedGovernorate : null, city: requiresPhysicalShipping ? selectedCity : null, address: requiresPhysicalShipping ? addressDetails : null };
@@ -256,6 +271,8 @@ export const useCheckoutForm = ({
         const finalRoundedAmount = Math.round(finalBeforeRounding);
         const pointsToEarn = Math.floor(finalBeforeRounding);
         
+        const requiresWhatsappConfirmation = itemsForCheckout.some(item => !item.product?.skipWhatsappConfirmation);
+
         const orderData = {
             displayOrderId,
             customerDetails: { ...customerShippingDetails, notes: orderNotes },
@@ -276,6 +293,7 @@ export const useCheckoutForm = ({
             containsElectronicPayments: itemsForCheckout.some(item => item.product.isDynamicElectronicPayments),
             containsPhysicalServices: itemsForCheckout.some(item => !item.product.isDynamicElectronicPayments),
             isDirectServiceCheckout: isDirectSingleServiceCheckout,
+            requiresWhatsappConfirmation: requiresWhatsappConfirmation,
         };
 
         try {
@@ -350,6 +368,8 @@ export const useCheckoutForm = ({
         handleConfirmOrder,
         renderError,
         pointsToApply, setPointsToApply,
-        roundedFinalAmount, summaryProps
+        roundedFinalAmount, summaryProps,
+        applySavedAddress,
+        applySavedCustomerData,
     };
 };

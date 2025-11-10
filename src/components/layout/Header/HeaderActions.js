@@ -1,28 +1,30 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
-import { SunIcon, MoonIcon, BellIcon, ShoppingCartIcon, UserIcon } from '../../icons/index.js';
+import { useNavigate } from 'react-router-dom';
+import { SunIcon, MoonIcon, BellIcon, ShoppingCartIcon, UserIcon, LogInIcon } from '../../icons/index.js';
+import { NotificationsPopover } from '../../features/notifications/NotificationsPopover.js';
+import { MiniCartPopover } from '../../features/cart/MiniCartPopover.js';
 
 export const HeaderActions = ({
     onToggleTheme, currentTheme,
     notificationsIconRef, onToggleNotifications, activePopover, unreadNotificationsCount, notifications, onCloseAllPopovers, handleNotificationNavigate, onMarkNotificationAsRead,
     cartIconRef, onToggleMiniCart, cartItemCount, cartTotalPrice, cartItems, onOpenCartPanel, handleNavigateToAllProductsFromMiniCart,
-    userIconRef, currentUser, onToggleUserMenu, handleUserMenuLinkClick, handleLogoutClick, onLoginClick,
-    NotificationsPopover, MiniCartPopover, UserMenuPopover,
+    currentUser, onLoginClick, onLogout, onUserIconClick,
     loyaltySettings
 }) => {
     const [isCartAnimating, setIsCartAnimating] = useState(false);
     const prevCartItemCount = useRef(cartItemCount);
 
     useEffect(() => {
-        // Animate only when items are added, not removed or on initial load
         if (cartItemCount > prevCartItemCount.current) {
             setIsCartAnimating(true);
-            const timer = setTimeout(() => setIsCartAnimating(false), 820); // Corresponds to animation duration
+            const timer = setTimeout(() => setIsCartAnimating(false), 820);
             return () => clearTimeout(timer);
         }
         prevCartItemCount.current = cartItemCount;
     }, [cartItemCount]);
+
 
     return (
         React.createElement("div", { className: "flex items-center space-x-1 sm:space-x-2" },
@@ -79,29 +81,16 @@ export const HeaderActions = ({
                     triggerRef: cartIconRef
                 })
             ),
-            currentUser ? (
-                React.createElement("div", { className: "relative", ref: userIconRef },
-                    React.createElement("button", { 
-                        onClick: onToggleUserMenu,
-                        className: `flex items-center p-1.5 rounded-md text-dark-800 dark:text-dark-100 hover:text-primary hover:bg-light-100/50 dark:hover:bg-dark-700/50 transition-colors ${activePopover === 'user' ? 'bg-light-100/50 dark:bg-dark-700/50' : ''}`, 
-                        "aria-haspopup": "true", "aria-expanded": activePopover === 'user', "aria-label": "قائمة المستخدم" 
-                    },
-                        React.createElement(UserIcon, { className: "w-5 h-5 sm:w-6 sm:h-6" })
-                    ),
-                    React.createElement(UserMenuPopover, {
-                        isVisible: activePopover === 'user',
-                        currentUser: currentUser,
-                        onClose: onCloseAllPopovers,
-                        onLogout: handleLogoutClick,
-                        triggerRef: userIconRef,
-                        loyaltySettings: loyaltySettings
-                    })
+            React.createElement("div", { className: "relative" },
+                React.createElement("button", { 
+                    onClick: onUserIconClick,
+                    className: `flex items-center p-1.5 rounded-md text-dark-800 dark:text-dark-100 hover:text-primary hover:bg-light-100/50 dark:hover:bg-dark-700/50 transition-colors`, 
+                    "aria-label": currentUser ? "عرض الحساب" : "تسجيل الدخول" 
+                },
+                    currentUser 
+                        ? React.createElement(UserIcon, { className: "w-5 h-5 sm:w-6 sm:h-6" })
+                        : React.createElement(LogInIcon, { className: "w-5 h-5 sm:w-6 sm:h-6" })
                 )
-            ) : (
-                React.createElement("button", {
-                    onClick: onLoginClick,
-                    className: "transition-colors duration-200 text-sm font-medium p-1.5 rounded-md text-dark-800 dark:text-dark-100 hover:text-primary hover:bg-light-100/50 dark:hover:bg-dark-700/50"
-                }, "تسجيل الدخول")
             )
         )
     );

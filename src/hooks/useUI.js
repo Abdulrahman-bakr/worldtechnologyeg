@@ -43,7 +43,6 @@ export const useUI = () => {
     
     const handleToggleMiniCart = useCallback(() => setActivePopover(prev => (prev === 'cart' ? null : 'cart')), []);
     const handleToggleNotificationsPopover = useCallback(() => setActivePopover(prev => (prev === 'notifications' ? null : 'notifications')), []);
-    const handleToggleUserMenu = useCallback(() => setActivePopover(prev => (prev === 'user' ? null : 'user')), []);
     const closeAllPopovers = useCallback(() => setActivePopover(null), []);
 
     return {
@@ -58,7 +57,6 @@ export const useUI = () => {
         activePopover,
         handleToggleMiniCart,
         handleToggleNotificationsPopover,
-        handleToggleUserMenu,
         closeAllPopovers,
         autocompleteSuggestions, setAutocompleteSuggestions,
     };

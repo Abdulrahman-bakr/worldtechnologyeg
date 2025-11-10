@@ -2,6 +2,7 @@
 export const SERVICE_TYPES = [
     { id: 'mobile-card-topup', label: 'شحن كروت رصيد' },
     { id: 'game-topup', label: 'شحن ألعاب' },
+    { id: 'digital_code_topup', label: 'أكواد وبطاقات رقمية' },
     { id: 'internet-bill', label: 'فاتورة إنترنت' },
     { id: 'mobile-credit', label: 'شحن رصيد على الهواء' },
     { id: 'mobile-bill-payment', label: 'فاتورة موبايل' },

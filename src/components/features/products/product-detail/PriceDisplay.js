@@ -1,12 +1,14 @@
+
 import React from 'react';
 import { getDiscountPercentage, formatPrice } from '../../../../utils/productUtils.js';
 
 const PriceDisplay = ({ product }) => {
     const discountPercentage = getDiscountPercentage(product.price, product.discountPrice);
+    const hasValidDiscount = discountPercentage > 0;
     
     return (
         React.createElement("div", { className: "pt-2" },
-            product.discountPrice ? (
+            hasValidDiscount ? (
                 React.createElement("div", { className: "flex items-baseline space-x-3 space-x-reverse" },
                     React.createElement("p", { className: "text-3xl sm:text-4xl font-bold text-primary tabular-nums" },
                         `${formatPrice(product.discountPrice)} ج.م`

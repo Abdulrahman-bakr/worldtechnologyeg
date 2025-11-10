@@ -109,16 +109,31 @@ const ImageCarousel = ({ product }) => {
     isZoomDisabled,
     disableLightbox,
     videoUrl,
+    variants, // (1) تم إضافة `variants` هنا
   } = product || {};
 
   const images = useMemo(
-    () =>
-      imageUrls && imageUrls.length > 0
-        ? imageUrls
-        : imageUrl
-        ? [imageUrl]
-        : [],
-    [imageUrl, imageUrls]
+    () => {
+      // (2) هذا هو الكود الجديد الذي سيقوم بحل المشكلة
+      const mainImages =
+        imageUrls && imageUrls.length > 0
+          ? imageUrls
+          : imageUrl
+          ? [imageUrl]
+          : [];
+
+      // إذا لم يكن للمنتج متغيرات، نعرض الصور الأساسية مباشرة
+      if (!variants || variants.length === 0) {
+        return mainImages;
+      }
+
+      // نقوم بإنشاء قائمة بكل صور المتغيرات لتصفيتها لاحقاً
+      const variantImageUrls = new Set(variants.map(v => v.imageUrl).filter(Boolean));
+
+      // نقوم بتصفية قائمة الصور الرئيسية وإزالة أي صورة تابعة لأحد المتغيرات
+      return mainImages.filter(img => !variantImageUrls.has(img));
+    },
+    [imageUrl, imageUrls, variants] // (3) تم إضافة `variants` هنا
   );
 
   const altText = arabicName || "صورة المنتج";
@@ -126,7 +141,7 @@ const ImageCarousel = ({ product }) => {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
   const [isZoomActive, setIsZoomActive] = useState(false);
-  const [is3dEffectActive, setIs3dEffectActive] = useState(false); // <-- حالة جديدة
+  const [is3dEffectActive, setIs3dEffectActive] = useState(false);
   const [imageStyle, setImageStyle] = useState({});
   const [isFading, setIsFading] = useState(false);
 
@@ -192,7 +207,6 @@ const ImageCarousel = ({ product }) => {
     setIsZoomActive((prev) => !prev);
   };
 
-  // دالة جديدة لتفعيل التأثير
   const toggle3dEffect = (e) => {
     e.stopPropagation();
     setIs3dEffectActive((prev) => !prev);
@@ -210,7 +224,7 @@ const ImageCarousel = ({ product }) => {
         transformOrigin: `${originX}% ${originY}%`,
         transition: "none",
       });
-    } else if (is3dEffectActive) { // <-- التعديل هنا
+    } else if (is3dEffectActive) {
       const { width, height } = rect;
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
@@ -246,7 +260,6 @@ const ImageCarousel = ({ product }) => {
     handleMouseLeave();
   }, [isZoomActive]);
 
-  // عند إيقاف التأثير، أعد الصورة لوضعها الطبيعي
   useEffect(() => {
     if (!is3dEffectActive) {
       handleMouseLeave();
@@ -285,7 +298,6 @@ const ImageCarousel = ({ product }) => {
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
-          {/* زر تفعيل التأثير ثلاثي الأبعاد */}
           {!isZoomDisabled && !showVideo && (
             <button
               onClick={toggle3dEffect}
@@ -300,7 +312,6 @@ const ImageCarousel = ({ product }) => {
             </button>
           )}
           
-          {/* زر الزوم */}
           {!isZoomDisabled && !showVideo && (
             <button
               onClick={toggleZoom}

@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, bottom 0.3s ease-in-out;
   animation: fabPulse 2.5s infinite ease-in-out;
 }
 .ai-chat-fab:hover {
@@ -20,6 +20,15 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   animation-play-state: paused;
 }
+
+/* Move the FAB up when the sticky product bar or comparison bar is active on mobile */
+@media (max-width: 1023px) { /* lg breakpoint */
+    body.sticky-product-bar-active .ai-chat-fab,
+    body.comparison-bar-active .ai-chat-fab {
+        bottom: 5.5rem; /* ~88px. (avg 4rem bar height + 1.5rem original bottom) */
+    }
+}
+
 .ai-chat-modal-content {
   display: flex;
   flex-direction: column;
@@ -98,3 +107,35 @@
 }
 .ai-loading-indicator span:nth-child(1) { animation-delay: -0.32s; }
 .ai-loading-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+/* New styles for markdown rendering */
+.chat-message-bubble p {
+    margin: 0;
+    padding: 0;
+}
+.chat-message-bubble p + p {
+    margin-top: 0.5em;
+}
+.chat-message-bubble ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.chat-message-bubble li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+.chat-message-bubble li::before {
+    content: '•';
+    color: #10B981; /* primary */
+    font-weight: bold;
+    margin-top: 0.1em; /* Adjust vertical alignment */
+}
+.chat-message-bubble ul + p,
+.chat-message-bubble p + ul {
+    margin-top: 1em;
+}

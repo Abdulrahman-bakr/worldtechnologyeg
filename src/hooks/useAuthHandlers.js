@@ -6,6 +6,9 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   sendPasswordResetEmail,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential
 } from "firebase/auth";
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
@@ -13,6 +16,14 @@ export const useAuthHandlers = ({ onLoginSuccess, setError, setSuccessMessage, s
 
     const handleAuthError = useCallback((err) => {
         if (err.message) {
+            if(err.message.includes('auth/invalid-credential')) {
+                setError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+                return;
+            }
+             if(err.message.includes('auth/wrong-password')) {
+                setError('كلمة المرور الحالية غير صحيحة.');
+                return;
+            }
             setError(err.message);
             return;
         }
@@ -24,6 +35,7 @@ export const useAuthHandlers = ({ onLoginSuccess, setError, setSuccessMessage, s
             setError('هذا البريد الإلكتروني مسجل بالفعل. هل تريد تسجيل الدخول بدلاً من ذلك؟');
             break;
           case 'auth/invalid-credential':
+          case 'auth/wrong-password':
             setError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
             break;
           case 'auth/invalid-email':
@@ -31,6 +43,9 @@ export const useAuthHandlers = ({ onLoginSuccess, setError, setSuccessMessage, s
             break;
            case 'auth/popup-closed-by-user':
             setError('تم إلغاء تسجيل الدخول.');
+            break;
+          case 'auth/requires-recent-login':
+            setError('تتطلب هذه العملية إعادة تسجيل الدخول. يرجى تسجيل الخروج ثم الدخول مرة أخرى.');
             break;
           default:
             setError('حدث خطأ. يرجى المحاولة مرة أخرى.');
@@ -125,5 +140,50 @@ export const useAuthHandlers = ({ onLoginSuccess, setError, setSuccessMessage, s
         }
     }, [setError, setSuccessMessage, setIsLoading, handleAuthError]);
 
-    return { handleEmailSignup, handleEmailLogin, handleGoogleSignIn, handleForgotPassword };
+    const handleChangePassword = useCallback(async (currentPassword, newPassword) => {
+        setIsLoading(true);
+        setError('');
+        setSuccessMessage('');
+
+        try {
+            const user = auth.currentUser;
+            if (!user) {
+                throw new Error("المستخدم غير مسجل دخوله.");
+            }
+
+            if (user.providerData?.some(p => p.providerId === 'google.com')) {
+                throw new Error("لا يمكن تغيير كلمة المرور للحسابات المرتبطة بجوجل. يرجى تغييرها من إعدادات حساب جوجل الخاص بك.");
+            }
+
+            if (!user.email) {
+                throw new Error("لا يوجد بريد إلكتروني مرتبط بهذا الحساب لتغيير كلمة المرور.");
+            }
+
+            const credential = EmailAuthProvider.credential(user.email, currentPassword);
+            await reauthenticateWithCredential(user, credential);
+            await updatePassword(user, newPassword);
+            
+            return { success: true };
+        } catch (err) {
+            console.error("Change Password Error:", err);
+            
+            if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+                setError('كلمة المرور الحالية التي أدخلتها غير صحيحة.');
+                return { success: false, error: 'كلمة المرور الحالية التي أدخلتها غير صحيحة.' };
+            }
+
+            if (err.message && !err.code) { // Handle custom thrown errors
+              setError(err.message);
+              return { success: false, error: err.message };
+            }
+            
+            handleAuthError(err); // Fallback for other Firebase errors
+            return { success: false, error: err.message };
+        } finally {
+            setIsLoading(false);
+        }
+    }, [setError, setSuccessMessage, setIsLoading, handleAuthError]);
+
+
+    return { handleEmailSignup, handleEmailLogin, handleGoogleSignIn, handleForgotPassword, handleChangePassword };
 };

@@ -12,7 +12,7 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Product name is required.' });
     }
     
-    const apiKey = process.env.API_KEY; // Corrected API key variable
+    const apiKey = process.env.API_KEY;
     if (!apiKey) {
       console.error('API_KEY environment variable not set.');
       return res.status(500).json({ error: 'API key not configured on server.' });
@@ -25,24 +25,24 @@ module.exports = async function handler(req, res) {
           .filter(Boolean)
           .join(', ')
       : 'لا توجد مواصفات';
+      
+    const systemInstruction = `أنت خبير في كتابة وصف المنتجات للمتاجر الإلكترونية باللغة العربية.
+اكتب وصفًا جذابًا ومقنعًا ومناسبًا لمحركات البحث (SEO) للمنتج.
+اجعل الوصف واضحًا وسهل القراءة وركز على الفوائد الرئيسية للمستخدم.
+ابدأ مباشرة بالوصف دون أي مقدمات.`;
 
-    const prompt = `
-      أنت خبير في كتابة وصف المنتجات للمتاجر الإلكترونية باللغة العربية.
-      اكتب وصفًا جذابًا ومقنعًا ومناسبًا لمحركات البحث (SEO) للمنتج التالي.
-      اجعل الوصف واضحًا وسهل القراءة وركز على الفوائد الرئيسية للمستخدم.
-
-      تفاصيل المنتج:
-      - الاسم: ${productName}
-      - الماركة: ${brand || 'غير محددة'}
-      - الفئة: ${category || 'غير محددة'}
-      - المواصفات: ${specsText}
-
-      ابدأ مباشرة بالوصف دون أي مقدمات.
+    const userPrompt = `اكتب وصفًا للمنتج التالي:
+- الاسم: ${productName}
+- الماركة: ${brand || 'غير محددة'}
+- الفئة: ${category || 'غير محددة'}
+- المواصفات: ${specsText}
     `;
+    
+    const fullPrompt = `${systemInstruction}\n\n${userPrompt}`;
     
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: prompt,
+        contents: fullPrompt,
     });
     
     const text = response.text;

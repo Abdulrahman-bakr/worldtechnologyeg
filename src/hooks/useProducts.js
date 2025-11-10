@@ -5,7 +5,7 @@ import { ProductCategory, SortOption } from '../constants/index.js';
 import { db } from '../services/firebase/config.js';
 import { collection, query, getDocs, doc, getDoc } from "firebase/firestore";
 
-export const useProducts = (setToastMessage, selectedCategory, showAllOffersView) => {
+export const useProducts = (setToastMessage, selectedCategory, showAllOffersView, currentUser) => {
     const [products, setProducts] = useState([]);
     const [productsLoading, setProductsLoading] = useState(true);
     const [filteredAndSortedProducts, setFilteredAndSortedProducts] = useState([]);
@@ -49,7 +49,12 @@ export const useProducts = (setToastMessage, selectedCategory, showAllOffersView
 
             const productsData = productsSnapshot.docs
                 .map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(p => p.status === "published") 
+                .filter(p => {
+                    const isAdmin = currentUser?.role === 'admin';
+                    if (p.status !== "published") return false; // Storefront only shows published
+                    if (p.adminOnly && !isAdmin) return false; // Hide admin-only from non-admins
+                    return true;
+                }) 
                 .sort((a, b) => (a.arabicName || '').localeCompare(b.arabicName || '', 'ar'));
                 
             const packagesData = packagesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -99,7 +104,7 @@ export const useProducts = (setToastMessage, selectedCategory, showAllOffersView
             setToastMessage({ text: "فشل تحميل البيانات الأساسية. يرجى تحديث الصفحة.", type: 'error' });
         }
         setProductsLoading(false);
-    }, [setToastMessage]);
+    }, [setToastMessage, currentUser]);
 
     const baseFilteredProducts = useMemo(() => {
         let tempProducts = [...products];

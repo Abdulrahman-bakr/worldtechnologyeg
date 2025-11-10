@@ -14,7 +14,7 @@ export const SearchBar = ({
     searchContainerRef 
 }) => {
     return (
-        React.createElement("div", { className: "hidden md:flex items-center relative flex-grow max-w-md mx-4", ref: searchContainerRef },
+        React.createElement("div", { className: "hidden lg:flex items-center relative flex-grow max-w-md mx-4", ref: searchContainerRef },
             React.createElement("form", { onSubmit: handleSearchFormSubmit, className: "w-full", role: "search" },
                 React.createElement("input", {
                     type: "search",
@@ -42,7 +42,7 @@ export const SearchBar = ({
                             suggestion.imageUrl && React.createElement("img", { src: suggestion.imageUrl, alt: suggestion.name, className: "w-10 h-10 object-contain rounded" }),
                             React.createElement("div", { className: "flex-grow" },
                                 React.createElement("p", { className: "text-sm font-medium text-dark-800 dark:text-dark-100" }, suggestion.name),
-                                (suggestion.type === 'product' && suggestion.price !== null) && React.createElement("p", { className: "text-xs text-primary" }, `${suggestion.price.toFixed(2)} ج.م`)
+                                (suggestion.type === 'product' && typeof suggestion.price === 'number') && React.createElement("p", { className: "text-xs text-primary" }, `${suggestion.price.toFixed(2)} ج.م`)
                             ),
                             suggestion.type === 'category' && React.createElement("span", { className: "text-xs text-dark-500 dark:text-dark-400" }, "فئة")
                         )

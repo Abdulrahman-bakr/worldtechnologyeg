@@ -1,10 +1,10 @@
 import React from 'react';
 import { OrderCard } from './OrderCard.js';
 
-const OrderList = ({ orders, fetchOrders, hasMore, isFetchingMore }) => {
+const OrderList = ({ orders, fetchOrders, hasMore, isFetchingMore, onViewDetails }) => {
     return (
         React.createElement("div", { className: "space-y-6" },
-            orders.map(order => React.createElement(OrderCard, { key: order.id, order: order })),
+            orders.map(order => React.createElement(OrderCard, { key: order.id, order: order, onViewDetails: onViewDetails })),
             hasMore && React.createElement("div", { className: "text-center mt-8" },
                 React.createElement("button", {
                     onClick: () => fetchOrders(false),

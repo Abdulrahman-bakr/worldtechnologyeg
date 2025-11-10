@@ -53,7 +53,8 @@ export const Modals = () => {
                 onCompleteOrder: handleOrderCompletion,
                 currentUser: currentUser,
                 onUpdateCurrentUserAddress: handleUpdateCurrentUserAddress,
-                loyaltySettings: loyaltySettings
+                loyaltySettings: loyaltySettings,
+                setToastMessage: setToastMessage
             }),
             React.createElement(CartView, {
                 isOpen: isCartOpen,

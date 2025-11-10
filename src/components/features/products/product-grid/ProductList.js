@@ -9,12 +9,12 @@ const ProductList = ({ products, viewMode, isLoading, searchTerm, onAddToCart, o
 
   if (isLoading) {
     return viewMode === 'grid' ? (
-      React.createElement("div", { className: "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-7" },
-        [...Array(6)].map((_, index) => React.createElement(ProductCardSkeleton, { key: `skeleton-card-${index}` }))
+      React.createElement("div", { className: "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-7" },
+        [...Array(8)].map((_, index) => React.createElement(ProductCardSkeleton, { key: `skeleton-card-${index}` }))
       )
     ) : (
       React.createElement("div", { className: "space-y-6 sm:space-y-8" },
-        [...Array(3)].map((_, index) => React.createElement(ProductListItemSkeleton, { key: `skeleton-list-item-${index}` }))
+        [...Array(4)].map((_, index) => React.createElement(ProductListItemSkeleton, { key: `skeleton-list-item-${index}` }))
       )
     );
   }
@@ -31,7 +31,7 @@ const ProductList = ({ products, viewMode, isLoading, searchTerm, onAddToCart, o
   }
 
   return viewMode === 'grid' ? (
-    React.createElement("div", { className: "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-7" },
+    React.createElement("div", { className: "grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-7" },
       products.map((product, index) =>
         React.createElement("div", {
             key: product.id,

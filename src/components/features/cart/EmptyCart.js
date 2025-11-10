@@ -44,7 +44,9 @@ const EmptyCart = ({ onClose, recentlyViewedProducts, onViewDetails }) => {
                             React.createElement("img", {
                                 src: getImageUrl(product.imageUrl),
                                 alt: product.arabicName,
-                                className: "w-full h-24 object-contain"
+                                className: "w-full h-24 object-contain",
+                                loading: "lazy",
+                                decoding: "async"
                             })
                         ),
                         React.createElement("p", { className: "mt-2 text-sm font-medium text-dark-800 dark:text-dark-100 truncate group-hover:text-primary" }, product.arabicName),

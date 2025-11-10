@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { StarIcon } from '../../../icons/index.js';
 import { getStockStatus, calculatePointsToEarn } from '../../../../utils/productUtils.js';
@@ -16,6 +17,7 @@ import { StickyBar } from './StickyBar.js';
 import { QuickNavLink } from './QuickNavLink.js';
 import { useQuickNav } from './useQuickNav.js';
 import { ProductBenefits } from './ProductBenefits.js';
+import { PRODUCT_BENEFITS_LIST } from '../../../../constants/index.js';
 
 const ProductDetailView = ({ product, allProducts, onAddToCart, onBack, onToggleWishlist, isInWishlist, currentUser, onLoginRequest, onInitiateDirectCheckout, onPendingReviewLogin, allDigitalPackages, allFeeRules, setToastMessage, wishlistItems }) => {
     const [relatedProducts, setRelatedProducts] = useState([]);
@@ -37,9 +39,21 @@ const ProductDetailView = ({ product, allProducts, onAddToCart, onBack, onToggle
     const { isStickyBarVisible, activeQuickNav } = useScrollSpy(sectionsRef, mainActionRef, [product]);
     const { quickNavLinksData, handleQuickNavClick } = useQuickNav(product, setActiveTab, setIsReviewsAccordionOpen);
     
+    const primaryBenefitIds = useMemo(() => product?.primaryBenefitIds?.slice(0, 4) || [], [product]);
+    const primaryBenefits = useMemo(() => {
+        return primaryBenefitIds.map(id => PRODUCT_BENEFITS_LIST.find(b => b.id === id)).filter(Boolean);
+    }, [primaryBenefitIds]);
+    const secondaryBenefitIds = useMemo(() => 
+        (product?.benefitIds || []).filter(id => !primaryBenefitIds.includes(id)),
+    [product, primaryBenefitIds]);
+
     const carouselProduct = useMemo(() => {
         if (!product) return null;
-        const images = selectedVariant 
+    
+        // For this specific service, we don't want the main image to change when a variant (platform) is selected.
+        const isVerificationService = product.id === 'service_meta_verified';
+    
+        const images = (selectedVariant && selectedVariant.imageUrl && !isVerificationService)
             ? [selectedVariant.imageUrl, ...(product.imageUrls || []).filter(img => img !== selectedVariant.imageUrl)]
             : (product.imageUrls || (product.imageUrl ? [product.imageUrl] : []));
         
@@ -116,26 +130,38 @@ const ProductDetailView = ({ product, allProducts, onAddToCart, onBack, onToggle
                     React.createElement("div", { className: "space-y-5" },
                         React.createElement(ProductInfo, { product: product, isLoadingReviewStats: isLoadingReviewStats, liveRating: liveRating, liveReviewCount: liveReviewCount, setIsReviewsAccordionOpen: setIsReviewsAccordionOpen }),
                         isDynamicService
-                            ? React.createElement(React.Fragment, null,
-                                React.createElement(DynamicServiceRenderer, {
-                                    product: product,
-                                    onInitiateDirectCheckout: onInitiateDirectCheckout,
-                                    allDigitalPackages: allDigitalPackages,
-                                    allFeeRules: allFeeRules
-                                }),
-                                React.createElement(ProductBenefits, { product: product })
-                              )
+                            ? React.createElement(DynamicServiceRenderer, {
+                                product: product,
+                                onInitiateDirectCheckout: onInitiateDirectCheckout,
+                                allDigitalPackages: allDigitalPackages,
+                                allFeeRules: allFeeRules,
+                                onVariantChange: setSelectedVariant
+                              })
                             : React.createElement("div", { ref: mainActionRef },
                                 React.createElement(PriceDisplay, { product: product }),
                                 React.createElement(VariantsSelector, { product: product, selectedVariant: selectedVariant, setSelectedVariant: setSelectedVariant }),
                                 (pointsToEarn > 0) && React.createElement("div", { className: "mt-2 flex items-center gap-1.5 text-sm text-yellow-600 dark:text-yellow-400 font-semibold" }, React.createElement(StarIcon, { filled: true, className: "w-5 h-5" }), React.createElement("span", null, `ستربح ${pointsToEarn} نقطة عند شراء هذا المنتج`)),
                                 React.createElement("p", { className: `text-sm font-semibold mt-2 ${stockStatusColor}` }, stockStatusText),
                                 React.createElement(ActionButtons, { product: product, currentStock: currentStock, handleActionClick: handleActionClick, handleWishlistToggle: handleWishlistToggle, isInWishlist: isInWishlist }),
-                                React.createElement(ProductBenefits, { product: product })
+                                primaryBenefits.length > 0 && (
+                                    React.createElement("div", { className: "mt-6 pt-6 border-t border-light-200 dark:border-dark-700" },
+                                        React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-4" },
+                                            primaryBenefits.map(benefit => (
+                                                React.createElement("div", { key: benefit.id, className: "flex items-center gap-3 p-3 bg-light-100/50 dark:bg-dark-700/30 rounded-lg" },
+                                                    React.createElement(benefit.icon, { className: "w-7 h-7 text-primary flex-shrink-0" }),
+                                                    React.createElement("div", null,
+                                                        React.createElement("h4", { className: "font-semibold text-sm text-dark-900 dark:text-dark-50" }, benefit.title)
+                                                    )
+                                                )
+                                            ))
+                                        )
+                                    )
+                                )
                             )
                     )
                 ),
                  React.createElement(TabsSection, { product: product, activeTab: activeTab, setActiveTab: setActiveTab, sectionsRef: sectionsRef }),
+                 React.createElement(ProductBenefits, { benefitIds: secondaryBenefitIds, title: "كل المزايا" }),
                  React.createElement(ReviewsAccordion, { product: product, isReviewsAccordionOpen: isReviewsAccordionOpen, setIsReviewsAccordionOpen: setIsReviewsAccordionOpen, sectionsRef: sectionsRef, currentUser: currentUser, onPendingReviewLogin: onPendingReviewLogin, setToastMessage: setToastMessage }),
                  React.createElement(RelatedProducts, { relatedProducts: relatedProducts, onAddToCart: onAddToCart, onToggleWishlist: onToggleWishlist, wishlistItems: wishlistItems, currentUser: currentUser, onLoginRequest: onLoginRequest, onInitiateDirectCheckout: onInitiateDirectCheckout })
             )

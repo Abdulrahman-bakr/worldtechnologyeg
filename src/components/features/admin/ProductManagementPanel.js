@@ -20,7 +20,7 @@ const BulkActionsBar = ({ selectedCount, onBulkDelete, onClearSelection }) => {
     );
 };
 
-const ProductManagementPanel = ({ products, isLoading, handleProductSave, handleProductDelete, handleStockUpdate, handleImageUpload, digitalServices, feeRules, handleProductBulkDelete }) => {
+const ProductManagementPanel = ({ products, isLoading, handleProductSave, handleProductDelete, handleStockUpdate, handleImageUpload, digitalServices, feeRules, handleProductBulkDelete, categories }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -79,11 +79,17 @@ const ProductManagementPanel = ({ products, isLoading, handleProductSave, handle
     };
     
     const handleCloneProduct = (productToClone) => {
-        const clonedProduct = { ...productToClone, id: null, arabicName: `${productToClone.arabicName} - نسخة`, status: 'draft' };
-        delete clonedProduct.id;
+        const { id, ...restOfProduct } = productToClone;
+        const clonedProduct = {
+            ...restOfProduct,
+            id: null, // Ensure it's treated as a new product
+            arabicName: `${productToClone.arabicName} - نسخة`,
+            status: 'draft', // Default to draft status
+        };
         setEditingProduct(clonedProduct);
         setIsModalOpen(true);
     };
+
 
     const handleCloseModal = () => {
         setEditingProduct(null);
@@ -134,12 +140,14 @@ const ProductManagementPanel = ({ products, isLoading, handleProductSave, handle
     };
 
     const SortableHeader = ({ children, sortKey }) => (
-        React.createElement("button", { onClick: () => requestSort(sortKey), className: "flex items-center gap-1 group" },
-            children,
-            React.createElement("span", { className: "opacity-30 group-hover:opacity-100 transition-opacity" },
-                sortConfig.key === sortKey
-                    ? (sortConfig.direction === 'ascending' ? React.createElement(ChevronUpIcon, { className: "w-4 h-4" }) : React.createElement(ChevronDownIcon, { className: "w-4 h-4" }))
-                    : React.createElement(ChevronUpIcon, { className: "w-4 h-4" })
+        React.createElement("th", null, 
+            React.createElement("button", { onClick: () => requestSort(sortKey), className: "flex items-center gap-1 group" },
+                children,
+                React.createElement("span", { className: "opacity-30 group-hover:opacity-100 transition-opacity" },
+                    sortConfig.key === sortKey
+                        ? (sortConfig.direction === 'ascending' ? React.createElement(ChevronUpIcon, { className: "w-4 h-4" }) : React.createElement(ChevronDownIcon, { className: "w-4 h-4" }))
+                        : React.createElement(ChevronUpIcon, { className: "w-4 h-4 opacity-0 group-hover:opacity-30" })
+                )
             )
         )
     );
@@ -157,11 +165,11 @@ const ProductManagementPanel = ({ products, isLoading, handleProductSave, handle
                     React.createElement("thead", null, React.createElement("tr", null, 
                         React.createElement("th", { className: "w-12 text-center" }, React.createElement("input", { type: "checkbox", onChange: handleSelectAll, checked: selectedProducts.length === filteredProducts.length && filteredProducts.length > 0, "aria-label": "Select all products" })), 
                         React.createElement("th", null, "صورة"), 
-                        React.createElement("th", null, React.createElement(SortableHeader, { sortKey: 'arabicName' }, "الاسم")), 
-                        React.createElement("th", null, React.createElement(SortableHeader, { sortKey: 'category' }, "الفئة")),
-                        React.createElement("th", null, React.createElement(SortableHeader, { sortKey: 'price' }, "السعر")),
-                        React.createElement("th", null, React.createElement(SortableHeader, { sortKey: 'stock' }, "المخزون")),
-                        React.createElement("th", null, React.createElement(SortableHeader, { sortKey: 'status' }, "الحالة")),
+                        React.createElement(SortableHeader, { sortKey: 'arabicName' }, "الاسم"), 
+                        React.createElement(SortableHeader, { sortKey: 'category' }, "الفئة"),
+                        React.createElement(SortableHeader, { sortKey: 'price' }, "السعر"),
+                        React.createElement(SortableHeader, { sortKey: 'stock' }, "المخزون"),
+                        React.createElement(SortableHeader, { sortKey: 'status' }, "الحالة"),
                         React.createElement("th", null, "إجراءات"))
                     ),
                     React.createElement("tbody", null,
@@ -172,9 +180,9 @@ const ProductManagementPanel = ({ products, isLoading, handleProductSave, handle
                                 React.createElement("td", { className: "text-center" }, React.createElement("input", { type: "checkbox", checked: isSelected, onChange: () => handleSelectProduct(p.id) })),
                                 React.createElement("td", null, React.createElement("img", { src: getImageUrl(p.imageUrl), alt: p.arabicName, className: "product-image", loading: "lazy" })),
                                 React.createElement("td", { className: "font-semibold" }, p.arabicName),
-                                React.createElement("td", null, p.category),
+                                React.createElement("td", null, categories.find(c => c.id === p.category)?.name || p.category),
                                 React.createElement("td", null, hasVariants ? 'متعدد' : `${p.discountPrice || p.price} ج.م`),
-                                React.createElement("td", null, hasVariants ? p.stock : React.createElement("div", {className: "flex items-center gap-2"}, React.createElement("input", { type: "number", value: inlineStock[p.id] ?? p.stock, onChange: (e) => handleInlineStockChange(p.id, e.target.value), onBlur: () => handleInlineStockUpdate(p.id), className: "w-20 p-1 text-center rounded-md border bg-white dark:bg-dark-700" }))),
+                                React.createElement("td", null, hasVariants ? p.stock : (p.isDynamicElectronicPayments ? "N/A" : React.createElement("div", {className: "flex items-center gap-2"}, React.createElement("input", { type: "number", value: inlineStock[p.id] ?? p.stock, onChange: (e) => handleInlineStockChange(p.id, e.target.value), onBlur: () => handleInlineStockUpdate(p.id), className: "w-20 p-1 text-center rounded-md border bg-white dark:bg-dark-700" })))),
                                 React.createElement("td", null, React.createElement(ToggleSwitch, {
                                     enabled: p.status === 'published',
                                     onChange: () => handleStatusToggle(p.id, p.status),
@@ -191,7 +199,17 @@ const ProductManagementPanel = ({ products, isLoading, handleProductSave, handle
                     )
                 )
             ),
-            isModalOpen && React.createElement(ProductFormModal, { isOpen: isModalOpen, onClose: handleCloseModal, onSave: onSave, product: editingProduct, onImageUpload: handleImageUpload, digitalServices: digitalServices, feeRules: feeRules }),
+            isModalOpen && React.createElement(ProductFormModal, {
+                isOpen: isModalOpen,
+                onClose: handleCloseModal,
+                onSave: onSave,
+                product: editingProduct,
+                products: products, // for cloning
+                onImageUpload: handleImageUpload,
+                digitalServices: digitalServices,
+                feeRules: feeRules,
+                categories: categories
+            }),
             selectedProducts.length > 0 && React.createElement(BulkActionsBar, { selectedCount: selectedProducts.length, onBulkDelete: handleBulkDelete, onClearSelection: () => setSelectedProducts([]) })
         )
     );

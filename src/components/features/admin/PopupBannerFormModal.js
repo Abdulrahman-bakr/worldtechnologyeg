@@ -70,7 +70,7 @@ const PopupBannerFormModal = ({ isOpen, onClose, onSave, banner, onImageUpload }
             React.createElement("div", { className: "modal-content bg-light-50 dark:bg-dark-800 rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] flex flex-col relative" },
                 React.createElement("button", { onClick: onClose, className: "absolute top-4 left-4 p-1" }, React.createElement(CloseIcon, { className: "w-6 h-6" })),
                 React.createElement("h2", { className: "text-xl font-bold mb-4" }, banner ? 'تعديل الإعلان المنبثق' : 'إضافة إعلان منبثق جديد'),
-                React.createElement("form", { onSubmit: handleSubmit, className: "space-y-4 flex-grow overflow-y-auto pr-2" },
+                React.createElement("form", { id: "popup-form", onSubmit: handleSubmit, className: "space-y-4 flex-grow overflow-y-auto pr-2" },
                     // --- General Settings ---
                     React.createElement("div", null, React.createElement("label", {className: labelClass}, "العنوان الداخلي (للإدارة) *"), React.createElement("input", { value: formData.title, onChange: e => setFormData({...formData, title: e.target.value}), className: inputClass, required: true })),
                     React.createElement("div", { className: "flex items-center gap-4" },
@@ -129,12 +129,11 @@ const PopupBannerFormModal = ({ isOpen, onClose, onSave, banner, onImageUpload }
                     formData.type === 'newsletter' && React.createElement("div", { className: "space-y-4 p-4 border rounded-md" },
                         React.createElement("div", null, React.createElement("label", {className: labelClass}, "العنوان الرئيسي *"), React.createElement("input", { value: formData.newsletterHeadline, onChange: e => setFormData({...formData, newsletterHeadline: e.target.value}), className: inputClass, required: true })),
                         React.createElement("div", null, React.createElement("label", {className: labelClass}, "العنوان الفرعي *"), React.createElement("input", { value: formData.newsletterSubheadline, onChange: e => setFormData({...formData, newsletterSubheadline: e.target.value}), className: inputClass, required: true }))
-                    ),
-
-                    React.createElement("div", { className: "pt-4 flex justify-end gap-2" },
-                        React.createElement("button", { type: "button", onClick: onClose, className: `${btnClass} bg-light-200 dark:bg-dark-600` }, "إلغاء"),
-                        React.createElement("button", { type: "submit", className: `${btnClass} bg-primary text-white` }, "حفظ")
                     )
+                ),
+                React.createElement("div", { className: "pt-4 border-t border-light-300 dark:border-dark-600 mt-auto flex justify-end gap-2" },
+                    React.createElement("button", { type: "button", onClick: onClose, className: `${btnClass} bg-light-200 dark:bg-dark-600` }, "إلغاء"),
+                    React.createElement("button", { type: "submit", form: "popup-form", className: `${btnClass} bg-primary text-white` }, "حفظ")
                 )
             )
         )

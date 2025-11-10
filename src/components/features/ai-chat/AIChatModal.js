@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAIChatLogic } from './useAIChatLogic.js';
+import { useAIChatLogic } from '../../../hooks/useAIChatLogic.js';
 import { ChatHeader } from './ChatHeader.js';
 import { ChatMessages } from './ChatMessages.js';
 import { ChatInput } from './ChatInput.js';
@@ -11,7 +11,7 @@ const AIChatModal = ({ isOpen, onClose, products, categories, recentlyViewedIds 
   const messagesEndRef = useRef(null);
 
   const {
-      chat, setChat, history, setHistory, input, setInput, isLoading, error, handleSendMessage
+      history, input, setInput, isLoading, error, handleSendMessage, chat
   } = useAIChatLogic({ isOpen, products, categories, recentlyViewedIds });
 
   const scrollToBottom = () => {
@@ -32,13 +32,11 @@ const AIChatModal = ({ isOpen, onClose, products, categories, recentlyViewedIds 
       setContentAnimation('animate-fade-out-up');
       const timer = setTimeout(() => {
         setIsRendered(false);
-        setHistory([]);
-        setChat(null);
       }, 300);
       return () => clearTimeout(timer);
     }
     return () => { document.body.style.overflow = ''; };
-  }, [isOpen, isRendered, setChat, setHistory]);
+  }, [isOpen, isRendered]);
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose();

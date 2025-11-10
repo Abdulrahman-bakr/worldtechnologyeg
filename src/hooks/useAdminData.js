@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { db, storage } from '../services/firebase/config.js';
-import { collection, getDocs, query, orderBy, doc, setDoc, addDoc, deleteDoc, updateDoc, writeBatch, serverTimestamp, arrayUnion, arrayRemove, getDoc, Timestamp, where, limit } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, setDoc, addDoc, deleteDoc, updateDoc, writeBatch, serverTimestamp, arrayUnion, arrayRemove, getDoc, Timestamp, where, limit, increment } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStatusDisplayInfo } from '../components/features/orders/ordersUtils.js';
 
 const getJsDate = (timestamp) => {
     if (!timestamp) return null;
@@ -120,27 +121,23 @@ export const useAdminData = (currentUser, onDataChange) => {
             if (id) {
                 await setDoc(doc(db, "products", id), data, { merge: true });
             } else {
-                let newId = data.customId ? data.customId.trim().toLowerCase().replace(/\s+/g, '-').replace(/[/?#[\]*()]/g, '') : '';
+                // The ID from the form might contain spaces for UI readability.
+                // We replace them with underscores for a safe document ID.
+                let rawId = data.customId ? data.customId.trim() : (data.arabicName || `product-${Date.now()}`);
+                let safeIdBase = rawId.trim().toLowerCase().replace(/\s+/g, '_').replace(/[/?#[\]*()]/g, '');
                 
-                if (newId) {
-                    const docRef = doc(db, 'products', newId);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        return { success: false, error: 'معرف المنتج هذا مستخدم بالفعل. يرجى اختيار معرف آخر.' };
-                    }
-                } else {
-                    let slugBase = (data.arabicName || `product-${Date.now()}`).trim().toLowerCase().replace(/\s+/g, '-').replace(/[/?#[\]*()]/g, '');
-                    if (!slugBase) slugBase = `product-${Date.now()}`;
-                    newId = slugBase;
-                    let counter = 1;
-                    let docRef = doc(db, 'products', newId);
-                    let docSnap = await getDoc(docRef);
-                    while (docSnap.exists()) {
-                        newId = `${slugBase}-${counter}`;
-                        docRef = doc(db, 'products', newId);
-                        docSnap = await getDoc(docRef);
-                        counter++;
-                    }
+                if (!safeIdBase) safeIdBase = `product-${Date.now()}`;
+
+                let newId = safeIdBase;
+                let counter = 1;
+                let docRef = doc(db, 'products', newId);
+                let docSnap = await getDoc(docRef);
+
+                while (docSnap.exists()) {
+                    newId = `${safeIdBase}-${counter}`;
+                    docRef = doc(db, 'products', newId);
+                    docSnap = await getDoc(docRef);
+                    counter++;
                 }
                 
                 const finalDocRef = doc(db, 'products', newId);
@@ -213,48 +210,102 @@ export const useAdminData = (currentUser, onDataChange) => {
         } catch (error) { console.error("Error uploading image:", error); return null; }
     };
 
-    const handleOrderStatusUpdate = async (orderId, newStatus) => {
+    const handleOrderStatusUpdate = useCallback(async (orderId, newStatus) => {
         try {
             const orderRef = doc(db, "orders", orderId);
+            const orderSnap = await getDoc(orderRef);
+            if (!orderSnap.exists()) {
+                throw new Error("Order not found");
+            }
+            const orderData = orderSnap.data();
+    
+            if (orderData.status === newStatus || !orderData.userId) {
+                return { success: true, message: "No status change or no user associated with the order." };
+            }
+    
+            const batch = writeBatch(db);
+    
             const newHistoryEntry = {
                 status: newStatus,
                 timestamp: Timestamp.now(),
                 updatedBy: currentUser.name || 'Admin',
             };
+    
+            batch.update(orderRef, { status: newStatus, statusHistory: arrayUnion(newHistoryEntry) });
+    
+            const statusInfo = getStatusDisplayInfo(newStatus);
+            const iconMap = {
+                shipped: 'TruckIcon',
+                delivered: 'CheckBadgeIcon',
+                cancelled: 'ExclamationTriangleIcon',
+                failed_payment: 'ExclamationTriangleIcon',
+                processing: 'CogIcon',
+                pending_fulfillment: 'CogIcon',
+                pending_delivery: 'TruckIcon'
+            };
+            const notificationIcon = iconMap[newStatus] || 'ShoppingBagIcon';
+    
+            const notificationPayload = {
+                title: `تحديث حالة طلبك #${orderData.displayOrderId}`,
+                message: `تم تحديث حالة طلبك إلى "${statusInfo.text}".`,
+                icon: notificationIcon,
+                link: { action: 'navigateToOrdersHistory', params: {} },
+                createdAt: serverTimestamp(),
+                isRead: false,
+            };
+    
+            const notificationRef = doc(collection(db, 'users', orderData.userId, 'user_notifications'));
+            batch.set(notificationRef, notificationPayload);
             
-            // Logic to award loyalty points on "delivered" status
-            if (newStatus === 'delivered') {
-                const orderSnap = await getDoc(orderRef);
-                if (orderSnap.exists()) {
-                    const orderData = orderSnap.data();
-                    if (orderData.userId && !orderData.pointsAwarded && orderData.pointsToEarn > 0) {
-                        const userRef = doc(db, "users", orderData.userId);
-                        const userSnap = await getDoc(userRef);
-                        if (userSnap.exists()) {
-                            const userData = userSnap.data();
-                            const currentPoints = userData.loyaltyPoints || 0;
-                            const newPoints = currentPoints + orderData.pointsToEarn;
-                            
-                            const batch = writeBatch(db);
-                            batch.update(userRef, { loyaltyPoints: newPoints });
-                            batch.update(orderRef, { pointsAwarded: true, status: newStatus, statusHistory: arrayUnion(newHistoryEntry) });
-                            await batch.commit();
-                        } else {
-                            await updateDoc(orderRef, { status: newStatus, statusHistory: arrayUnion(newHistoryEntry) });
-                        }
-                    } else {
-                         await updateDoc(orderRef, { status: newStatus, statusHistory: arrayUnion(newHistoryEntry) });
-                    }
-                }
-            } else {
-                await updateDoc(orderRef, { status: newStatus, statusHistory: arrayUnion(newHistoryEntry) });
+            if (newStatus === 'delivered' && !orderData.pointsAwarded && orderData.pointsToEarn > 0) {
+                const userRef = doc(db, "users", orderData.userId);
+                batch.update(userRef, { loyaltyPoints: increment(orderData.pointsToEarn) });
+                batch.update(orderRef, { pointsAwarded: true });
             }
-
+            
+            await batch.commit();
+            
             await fetchData();
             if (onDataChange) onDataChange();
             return { success: true };
-        } catch(error) { console.error("Error updating order status:", error); return { success: false, error }; }
-    };
+        } catch(error) { 
+            console.error("Error updating order status:", error); 
+            return { success: false, error: error.message }; 
+        }
+    }, [currentUser, fetchData, onDataChange]);
+    
+    const handleOrderNoteAdd = useCallback(async (orderId, noteText) => {
+        if (!noteText || !noteText.trim()) {
+            return { success: false, error: "الملاحظة لا يمكن أن تكون فارغة." };
+        }
+        try {
+            const orderRef = doc(db, "orders", orderId);
+            const orderSnap = await getDoc(orderRef);
+            if (!orderSnap.exists()) {
+                throw new Error("لم يتم العثور على الطلب");
+            }
+            const orderData = orderSnap.data();
+
+            const newHistoryEntry = {
+                status: orderData.status, // use current status of the order
+                timestamp: Timestamp.now(),
+                updatedBy: currentUser.name || 'Admin',
+                notes: noteText.trim(),
+            };
+
+            await updateDoc(orderRef, {
+                statusHistory: arrayUnion(newHistoryEntry)
+            });
+            
+            await fetchData(); // Refresh data to show the new note
+            if (onDataChange) onDataChange();
+            return { success: true };
+        } catch (error) {
+            console.error("Error adding note to order:", error);
+            return { success: false, error: error.message };
+        }
+    }, [currentUser, fetchData, onDataChange]);
+
 
     const handleOrderDelete = async (orderId) => {
         try {
@@ -348,33 +399,71 @@ export const useAdminData = (currentUser, onDataChange) => {
 
     const handleServiceSave = async (serviceData) => {
         try {
-            const { id, name, operator, serviceId } = serviceData;
+            const { id, name, operator, serviceId, packageBaseName } = serviceData;
             if (!id) throw new Error("Document ID is required.");
-            await setDoc(doc(db, "digital_service_packages", id), { name, operator, serviceId, packages: [] });
+            await setDoc(doc(db, "digital_service_packages", id), { name, operator, serviceId, packageBaseName: packageBaseName || '', packages: [] });
             await fetchData();
             if (onDataChange) onDataChange();
             return { success: true };
         } catch (error) { console.error("Error saving service:", error); return { success: false, error }; }
     };
 
-    const handleServicePackageSave = async (serviceDocId, packageData, editingPackage) => {
+    const handleServicePackageSave = async (serviceDocId, packageData, originalPackage) => {
         try {
             const serviceRef = doc(db, 'digital_service_packages', serviceDocId);
-            if (editingPackage) await updateDoc(serviceRef, { packages: arrayRemove(editingPackage) });
-            await updateDoc(serviceRef, { packages: arrayUnion(packageData) });
+            const serviceSnap = await getDoc(serviceRef);
+            if (!serviceSnap.exists()) throw new Error("Service not found");
+    
+            let packages = serviceSnap.data().packages || [];
+    
+            if (originalPackage) { // It's an edit
+                // Use a unique identifier if available, otherwise fallback to object comparison which is brittle.
+                const uniqueId = originalPackage.id || originalPackage.name;
+                const index = packages.findIndex(p => (p.id || p.name) === uniqueId);
+    
+                if (index > -1) {
+                    packages[index] = { ...packages[index], ...packageData };
+                } else {
+                    // Fallback if the original package isn't found (e.g., name changed)
+                    // This is not ideal. A better way would be to pass the index.
+                    // For now, let's just add it. This can lead to duplicates.
+                    // The new ID system will mitigate this for future packages.
+                    packages.push(packageData);
+                }
+            } else { // It's a new package, assign a unique ID
+                packages.push({ ...packageData, id: packageData.id || `pkg_${Date.now()}` });
+            }
+    
+            await updateDoc(serviceRef, { packages });
             await fetchData();
             if (onDataChange) onDataChange();
             return { success: true };
-        } catch (error) { console.error("Error saving package:", error); return { success: false, error }; }
+        } catch (error) {
+            console.error("Error saving package:", error);
+            return { success: false, error: error.message };
+        }
     };
-
+    
     const handleServicePackageDelete = async (serviceDocId, packageToDelete) => {
         try {
-            await updateDoc(doc(db, 'digital_service_packages', serviceDocId), { packages: arrayRemove(packageToDelete) });
+            const serviceRef = doc(db, 'digital_service_packages', serviceDocId);
+            const serviceSnap = await getDoc(serviceRef);
+            if (!serviceSnap.exists()) throw new Error("Service not found");
+    
+            let packages = serviceSnap.data().packages || [];
+            
+            // Use a unique identifier if available. The name for games, or maybe price for cards could be a temp key.
+            const uniqueId = packageToDelete.id || packageToDelete.name || packageToDelete.price;
+            packages = packages.filter(p => (p.id || p.name || p.price) !== uniqueId);
+            
+            await updateDoc(serviceRef, { packages });
             await fetchData();
             if (onDataChange) onDataChange();
             return { success: true };
-        } catch (error) { console.error("Error deleting package:", error); return { success: false, error }; }
+        } catch (error) {
+            console.error("Error deleting package:", error);
+            return { success: false, error: error.message };
+        }
     };
 
     const handleFeeRuleSave = async (ruleData) => {
@@ -552,7 +641,7 @@ export const useAdminData = (currentUser, onDataChange) => {
         digitalServices, feeRules, reviews, adminNotifications, popupBanners, storeSettings, loyaltySettings,
         isLoading, currentUser,
         handleProductSave, handleProductDelete, handleProductBulkDelete, handleStockUpdate, handleImageUpload,
-        handleOrderStatusUpdate, handleOrderDelete, handleOrderShippingUpdate,
+        handleOrderStatusUpdate, handleOrderDelete, handleOrderShippingUpdate, handleOrderNoteAdd,
         handleUserUpdate,
         handleDiscountSave, handleDiscountDelete,
         handleAnnouncementSave, handleAnnouncementDelete,

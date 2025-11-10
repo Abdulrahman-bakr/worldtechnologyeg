@@ -44,7 +44,7 @@ const ReviewItem = ({ review }) => {
                 review.images && review.images.length > 0 && React.createElement("div", { className: "review-images-container" },
                     review.images.map((imgUrl, index) => (
                         React.createElement("div", { key: index, className: "review-image-wrapper", onClick: () => setLightboxImage(imgUrl) },
-                            React.createElement("img", { src: imgUrl, alt: `Review image ${index + 1}` })
+                            React.createElement("img", { src: imgUrl, alt: `Review image ${index + 1}`, loading: "lazy", decoding: "async" })
                         )
                     ))
                 )

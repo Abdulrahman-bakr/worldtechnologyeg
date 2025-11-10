@@ -74,7 +74,7 @@ const UserHeader = ({ currentUser }) =>
     ),
     React.createElement(
       "div",
-      { className: "overflow-hidden" },
+      { className: "overflow-hidden min-w-0" },
       React.createElement(
         "p",
         {

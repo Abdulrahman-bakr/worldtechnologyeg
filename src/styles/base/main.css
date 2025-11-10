@@ -2,11 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Default styles (implicitly dark) */
+/* ===== RESET TRANSITIONS FOR DARK MODE ===== */
+/* Remove all transitions by default */
+*,
+*::before,
+*::after {
+  transition: none !important;
+}
+
+/* Re-enable transitions only for specific interactions */
+.group:hover .group-hover\:scale-105,
+.group:hover .group-hover\:opacity-100,
+.group:hover .group-hover\:translate-x-1,
+.hover\:-translate-y-1:hover,
+.hover\:scale-105:hover,
+.hover\:rotate-12:hover,
+.hover\:-rotate-12:hover,
+.hover\:translate-x-1:hover,
+.hover\:translate-x-1\.5:hover,
+.hover\:border-primary\/20:hover,
+.hover\:text-primary:hover,
+.transition-all:not(.no-transition),
+.transition-transform:not(.no-transition),
+.transition-opacity:not(.no-transition),
+.transition-colors:not(.no-transition),
+.transition-shadow:not(.no-transition) {
+  transition: all 0.3s ease-out !important;
+}
+
+/* Specific transitions for product card */
+.group:hover .group-hover\:scale-110,
+.group:hover .group-hover\:rotate-1 {
+  transition: all 0.5s ease-out !important;
+}
+
+/* ===== BASE STYLES ===== */
 body {
   background-color: #0D0D0D; /* dark:bg-dark-900 equivalent */
   color: #F3F4F6;      /* dark:text-dark-100 equivalent */
-  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light theme styles */
+html.theme-light body {
+  background-color: #FFFFFF;
+  color: #1F2937;      /* light-900 */
 }
 
 /* Responsive image defaults */
@@ -16,6 +55,133 @@ img {
   height: auto; /* Maintains aspect ratio */
 }
 
+/* ===== CUSTOM DARK THEME STYLES ===== */
+/* Sticky Add to Cart Bar */
+html:not(.theme-light) .sticky-add-to-cart-bar {
+  background-color: rgba(20, 20, 20, 0.9);
+  border-color: #1E1E1E;
+}
+
+html:not(.theme-light) .sticky-quick-nav-bar {
+  background-color: rgba(20, 20, 20, 0.95); /* dark-800 with alpha */
+  border-bottom-color: #1E1E1E; /* dark-700 */
+}
+
+html:not(.theme-light) .sticky-add-to-cart-bar {
+    border-top-color: #1E1E1E;
+}
+
+html:not(.theme-light) .quick-nav-link.quick-nav-link-active {
+    background-color: rgba(16, 185, 129, 0.1);
+}
+
+/* Form Elements */
+html:not(.theme-light) .custom-checkbox {
+  border-color: #3A3A3A; /* dark-500 */
+}
+
+/* Chat Styles */
+html:not(.theme-light) .chat-message.model .chat-message-bubble {
+    background-image: linear-gradient(135deg, #2A2A2A, #1E1E1E);
+    color: #F9FAFB;
+}
+
+html:not(.theme-light) .chat-message.model .chat-message-avatar {
+    background-color: #2A2A2A;
+}
+
+html:not(.theme-light) .chat-input-area {
+  border-top-color: #1E1E1E;
+}
+
+/* Review Styles */
+html:not(.theme-light) .review-image-uploader {
+  border-color: #2A2A2A; /* dark-600 */
+}
+
+html:not(.theme-light) .review-image-preview-item {
+  border-color: #1E1E1E; /* dark-700 */
+}
+
+/* ===== ANIMATIONS ===== */
+/* Modal Animations */
+.modal-overlay.animate-fade-in { 
+  animation: fadeIn 0.3s ease-out forwards; 
+}
+
+.modal-overlay.animate-fade-out { 
+  animation: fadeOut 0.3s ease-out forwards; 
+}
+
+.modal-content.animate-fade-in-up { 
+  animation: fadeInUp 0.3s ease-out forwards; 
+}
+
+.modal-content.animate-fade-out-up { 
+  animation: fadeOutUp 0.3s ease-out forwards; 
+}
+
+/* Cart Panel Animations */
+.cart-panel.animate-slide-in-right { 
+  animation: slideInRight 0.25s ease-out forwards; 
+}
+
+.cart-panel.animate-slide-out-right { 
+  animation: slideOutRight 0.25s ease-in forwards; 
+}
+
+/* Keyframes for all animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
 /* Respect user preference for reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -26,4 +192,25 @@ img {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  
+  /* Disable all animations when reduced motion is preferred */
+  .modal-overlay.animate-fade-in,
+  .modal-overlay.animate-fade-out,
+  .modal-content.animate-fade-in-up,
+  .modal-content.animate-fade-out-up,
+  .cart-panel.animate-slide-in-right,
+  .cart-panel.animate-slide-out-right {
+    animation: none !important;
+  }
+}
+
+/* ===== CUSTOM UTILITY CLASSES ===== */
+/* For elements that should never have transitions */
+.no-transition {
+  transition: none !important;
+}
+
+/* For elements that should have instant color changes */
+.instant-color {
+  transition: none !important;
 }

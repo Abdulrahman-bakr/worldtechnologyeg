@@ -12,7 +12,9 @@ const HeroSection = ({ onShopNow }) => {
         // ✅ استخدام المسار المطلق للجذر (يفترض أن مجلد assets قابل للوصول):
         src: "/assets/wallpaper/Web-wallpaper.webp", 
         alt: "Background Pattern", 
-        className: "w-full h-full object-cover" 
+        className: "w-full h-full object-cover",
+        loading: "lazy",
+        decoding: "async"
       })
     ),
     React.createElement("div", { className: "container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10" },

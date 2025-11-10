@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MegaphoneIcon, StarIcon, ShoppingBagIcon, CloseIcon, PhoneIcon } from '../../icons/index.js';
+import { MegaphoneIcon, StarIcon, ShoppingBagIcon, CloseIcon, PhoneIcon, TruckIcon, CheckBadgeIcon, CogIcon, ExclamationTriangleIcon } from '../../icons/index.js';
 import { formatTimeAgo } from '../../../utils/helpers/formatters.js';
 
 const NotificationsPopover = ({ notifications, isVisible, onClose, onNavigate, triggerRef, onMarkAsRead }) => {
@@ -11,6 +11,10 @@ const NotificationsPopover = ({ notifications, isVisible, onClose, onNavigate, t
         StarIcon: StarIcon,
         ShoppingBagIcon: ShoppingBagIcon,
         PhoneIcon: PhoneIcon,
+        TruckIcon: TruckIcon,
+        CheckBadgeIcon: CheckBadgeIcon,
+        CogIcon: CogIcon,
+        ExclamationTriangleIcon: ExclamationTriangleIcon,
     };
 
     useEffect(() => {

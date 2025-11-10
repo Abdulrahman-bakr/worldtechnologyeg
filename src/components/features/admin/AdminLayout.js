@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { 
     GridViewIcon, ShoppingBagIcon, ShoppingCartIcon, UserIcon, 
-    CogIcon, DocumentTextIcon, CloseIcon, ChevronDownIcon,
+    DocumentTextIcon, ChevronDownIcon,
     DocumentChartBarIcon, LogOutIcon, ViewfinderCircleIcon,
-    WrenchScrewdriverIcon, StarIcon, MegaphoneIcon
+    WrenchScrewdriverIcon, StarIcon, MegaphoneIcon,
+    CloseIcon, TagIcon, ShieldCheckIcon
 } from '../../icons/index.js';
 
 const navItems = [
@@ -11,7 +12,8 @@ const navItems = [
     {
         id: 'catalog', label: 'الكتالوج', icon: ShoppingBagIcon, children: [
             { id: 'products', label: 'إدارة المنتجات', icon: ShoppingBagIcon },
-            { id: 'inventory', label: 'المخزون', icon: null },
+            { id: 'categories', label: 'إدارة الفئات', icon: TagIcon },
+            { id: 'inventory', label: 'المخزون', icon: ViewfinderCircleIcon },
             { id: 'reviews', label: 'إدارة المراجعات', icon: DocumentTextIcon },
         ]
     },
@@ -23,21 +25,26 @@ const navItems = [
     },
     {
         id: 'marketing', label: 'التسويق', icon: MegaphoneIcon, children: [
-            { id: 'discounts', label: 'الكوبونات', icon: null },
-            { id: 'banners', label: 'الإعلانات الرئيسية', icon: null },
+            { id: 'discounts', label: 'الكوبونات', icon: TagIcon },
+            { id: 'banners', label: 'الإعلانات الرئيسية', icon: ViewfinderCircleIcon },
             { id: 'popups', label: 'الإعلانات المنبثقة', icon: ViewfinderCircleIcon },
             { id: 'notifications', label: 'إرسال إشعارات', icon: MegaphoneIcon },
         ]
     },
+    { id: 'reports', label: 'التقارير', icon: DocumentChartBarIcon },
     { id: 'loyalty', label: 'برنامج الولاء', icon: StarIcon },
-    {
-        id: 'settings', label: 'الإعدادات', icon: CogIcon, children: [
-            { id: 'store-settings', label: 'إعدادات المتجر', icon: WrenchScrewdriverIcon },
-            { id: 'services', label: 'الخدمات الرقمية', icon: CogIcon },
-            { id: 'fees', label: 'قواعد الرسوم', icon: CogIcon },
+     {
+        id: 'access-control', label: 'الصلاحيات والأدوار', icon: ShieldCheckIcon, children: [
+             { id: 'roles', label: 'إدارة الأدوار', icon: ShieldCheckIcon },
         ]
     },
-    { id: 'reports', label: 'التقارير', icon: DocumentChartBarIcon },
+    {
+        id: 'settings', label: 'الإعدادات', icon: WrenchScrewdriverIcon, children: [
+             { id: 'store-settings', label: 'إعدادات المتجر', icon: WrenchScrewdriverIcon },
+             { id: 'services', label: 'الخدمات الرقمية', icon: WrenchScrewdriverIcon },
+             { id: 'fees', label: 'قواعد الرسوم', icon: WrenchScrewdriverIcon },
+        ]
+    },
 ];
 
 const NavItem = ({ item, activePanel, setActivePanel, openSections, setOpenSections }) => {
@@ -75,7 +82,7 @@ const NavItem = ({ item, activePanel, setActivePanel, openSections, setOpenSecti
                             className: `admin-nav-link text-sm ${activePanel === child.id ? 'active font-semibold' : 'font-normal'}` 
                         },
                             child.icon && React.createElement(child.icon, { className: "w-4 h-4" }),
-                            child.label
+                            React.createElement("span", { className: "flex-grow" }, child.label)
                         )
                     ))
                 )
@@ -87,7 +94,7 @@ const NavItem = ({ item, activePanel, setActivePanel, openSections, setOpenSecti
 
 const AdminLayout = ({ children, activePanel, setActivePanel, onBack, isSidebarOpen, setIsSidebarOpen }) => {
     
-    const [openSections, setOpenSections] = useState(['catalog', 'sales', 'marketing', 'settings']);
+    const [openSections, setOpenSections] = useState(['catalog', 'sales', 'marketing', 'settings', 'access-control']);
 
     const sidebarContent = (
         React.createElement("div", { className: "flex flex-col h-full" },

@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { auth, db } from '../services/firebase/config.js';
 import { updateProfile, onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { useAuthHandlers } from './useAuthHandlers.js';
+
 
 export const useAuth = (setToastMessage) => {
     const [currentUser, setCurrentUser] = useState(() => {
@@ -16,6 +18,10 @@ export const useAuth = (setToastMessage) => {
 
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [pendingActionAfterLogin, setPendingActionAfterLogin] = useState(null);
+    const [isLoadingAuth, setIsLoadingAuth] = useState(false);
+    const [authError, setAuthError] = useState('');
+    const [authSuccess, setAuthSuccess] = useState('');
+
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -101,6 +107,22 @@ export const useAuth = (setToastMessage) => {
 
     }, []);
 
+    const { handleChangePassword, ...otherHandlers } = useAuthHandlers({
+        onLoginSuccess: handleLoginSuccess,
+        setError: setAuthError,
+        setSuccessMessage: setAuthSuccess,
+        setIsLoading: setIsLoadingAuth,
+    });
+
+    useEffect(() => {
+        if (authError) setToastMessage({ text: authError, type: 'error' });
+    }, [authError, setToastMessage]);
+
+    useEffect(() => {
+        if (authSuccess) setToastMessage({ text: authSuccess, type: 'success' });
+    }, [authSuccess, setToastMessage]);
+
+
     const handleLogout = useCallback(async () => {
         try {
             await signOut(auth);
@@ -156,5 +178,7 @@ export const useAuth = (setToastMessage) => {
         handleLogout,
         handleUpdateCurrentUserAddress,
         handleUpdateUserProfileData,
+        handleChangePassword,
+        ...otherHandlers,
     };
 };

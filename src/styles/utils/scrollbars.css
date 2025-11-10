@@ -29,3 +29,32 @@
 .featured-products-scrollable::-webkit-scrollbar-thumb:hover {
     background: #3A3A3A; /* dark-500 */
 }
+
+/* Scrollbar for horizontal card selection in forms */
+.cards-scrollable::-webkit-scrollbar {
+  height: 6px;
+}
+.cards-scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+.cards-scrollable::-webkit-scrollbar-thumb {
+  background-color: #3A3A3A; /* dark-500 */
+  border-radius: 6px;
+}
+.cards-scrollable::-webkit-scrollbar-thumb:hover {
+  background-color: #4B5563; /* dark-600 */
+}
+
+html.theme-light .featured-products-scrollable::-webkit-scrollbar-thumb {
+    background: #D1D5DB; /* light-300 */
+    border-color: #F9FAFB; /* light-50 */
+}
+html.theme-light .featured-products-scrollable::-webkit-scrollbar-thumb:hover {
+    background: #6B7280;
+}
+html.theme-light .cards-scrollable::-webkit-scrollbar-thumb {
+  background-color: #D1D5DB; /* light-300 */
+}
+html.theme-light .cards-scrollable::-webkit-scrollbar-thumb:hover {
+  background-color: #9CA3AF; /* gray-400 */
+}

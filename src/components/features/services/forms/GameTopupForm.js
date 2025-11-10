@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ShoppingCartIcon, StarIcon } from '../../../icons/index.js';
 import { FloatingInput } from '../../../ui/forms/FloatingInput.js';
+import { getImageUrl } from '../../../../utils/imageUrl.js';
 
 const GameTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPackages }) => {
     const [selectedPackage, setSelectedPackage] = useState(null);
@@ -127,6 +128,7 @@ const GameTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPackages }
              React.createElement("div", { className: "grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4 max-h-[40vh] overflow-y-auto pr-2" },
                 servicePackages.map(pkg => {
                     const isSelected = selectedPackage && selectedPackage.id === pkg.id;
+                    const imageUrlToShow = pkg.imageUrl || product.imageUrl;
                     return React.createElement("button", {
                         key: pkg.id, type: "button", onClick: () => setSelectedPackage(pkg),
                         className: `uc-card relative text-center p-3 rounded-xl border-2 transition-all duration-200 transform hover:-translate-y-1 ${isSelected ? 'border-primary bg-primary/5 dark:bg-primary/10 shadow-primary/30 shadow-md' : 'border-light-300 dark:border-dark-600 bg-white dark:bg-dark-800 hover:bg-light-50 dark:hover:bg-dark-600'}`
@@ -138,9 +140,9 @@ const GameTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPackages }
                         pkg.discount && React.createElement("div", { className: "absolute top-1 -right-2 z-[20] bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-lg transform rotate-12" },
                             `خصم ${pkg.discount}`
                         ),
-                        pkg.imageUrl && React.createElement("img", { src: pkg.imageUrl, alt: pkg.name, className: "h-12 md:h-16 mx-auto mb-1 object-contain" }),
+                        imageUrlToShow && React.createElement("img", { src: getImageUrl(imageUrlToShow), alt: pkg.name, className: "h-12 md:h-16 mx-auto mb-1 object-contain" }),
                         React.createElement("p", { className: "text-dark-800 dark:text-dark-100 font-semibold text-sm" }, pkg.name),
-                        React.createElement("div", { className: "text-primary font-bold text-sm mt-1" }, `${(pkg.price || 0).toFixed(2)} ج.م`)
+                        React.createElement("div", { className: "text-primary font-bold text-sm mt-1" }, `${(Number(pkg.price) || 0).toFixed(2)} ج.م`)
                     );
                 })
             ),

@@ -17,7 +17,6 @@ const UserProfileView = lazy(() => import('./pages/UserProfileView.js').then(mod
 const OrdersView = lazy(() => import('./pages/OrdersView.js').then(module => ({ default: module.OrdersView })));
 const OrderTrackingView = lazy(() => import('./pages/OrderTrackingView.js').then(module => ({ default: module.OrderTrackingView })));
 const AdminDashboardView = lazy(() => import('./pages/AdminDashboardView.js').then(module => ({ default: module.AdminDashboardView })));
-const AudioTranscriptionView = lazy(() => import('./pages/AudioTranscriptionView.js').then(module => ({ default: module.AudioTranscriptionView })));
 
 
 const LoadingFallback = () => (
@@ -65,7 +64,6 @@ const App = () => {
             React.createElement(Route, { path: "terms", element: React.createElement(TermsView, null) }),
             React.createElement(Route, { path: "faq", element: React.createElement(FAQView, null) }),
             React.createElement(Route, { path: "about-us", element: React.createElement(AboutUsView, null) }),
-            React.createElement(Route, { path: "transcribe", element: React.createElement(AudioTranscriptionView, null) }),
             React.createElement(Route, { path: "*", element: React.createElement(HomeView, null) }) // Fallback to home for any unknown routes
           ),
           React.createElement(Route, { path: "/admin/*", element: React.createElement(AdminDashboardView, null) })

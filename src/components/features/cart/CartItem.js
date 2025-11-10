@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { TrashIcon } from '../../icons/index.js';
 import { QuantityControls } from './QuantityControls.js';
@@ -7,9 +6,15 @@ import { QuantityControls } from './QuantityControls.js';
 const CartItem = ({ item, onUpdateQuantity, onRemoveItem }) => {
   const originalItemPrice = item.product.price || 0;
   const discountedItemPrice = item.product.discountPrice;
-  const currentItemPrice = item.serviceDetails?.finalPrice ? Number(item.serviceDetails.finalPrice) : ((discountedItemPrice && discountedItemPrice > 0) ? discountedItemPrice : originalItemPrice);
+  
+  // FIX: Ensure hasValidDiscount is always a boolean to prevent React from rendering a '0'.
+  const hasValidDiscount = typeof discountedItemPrice === 'number' && discountedItemPrice > 0 && discountedItemPrice < originalItemPrice;
+  
+  const currentItemPrice = item.serviceDetails?.finalPrice 
+    ? Number(item.serviceDetails.finalPrice) 
+    : (hasValidDiscount ? discountedItemPrice : originalItemPrice);
+    
   const displayName = item.variant ? `${item.product.arabicName} (${item.variant.colorName})` : item.product.arabicName;
-  const hasValidDiscount = discountedItemPrice && discountedItemPrice > 0 && discountedItemPrice < originalItemPrice;
 
   return React.createElement("div", { className: "flex items-start space-x-4 space-x-reverse bg-light-100 dark:bg-dark-700 p-3 sm:p-4 rounded-lg border border-light-200 dark:border-dark-600" },
     React.createElement("img", {

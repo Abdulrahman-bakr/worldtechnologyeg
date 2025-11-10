@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { StarIcon, InfoIcon } from '../../../icons/index.js';
 import { FloatingInput } from '../../../ui/forms/FloatingInput.js';
 import { MOBILE_OPERATOR_CONFIG, ETISALAT_CARD_OPTIONS, ORANGE_CARD_OPTIONS } from '../../../../constants/index.js';
+import { getImageUrl } from '../../../../utils/imageUrl.js';
 
 const renderGroupedBenefits = (benefits) => {
     if (!benefits || typeof benefits !== 'object' || Object.keys(benefits).length === 0) {
@@ -241,11 +242,12 @@ const MobileCardTopupForm = ({ product, onInitiateDirectCheckout, allDigitalPack
                 operatorCardPackages.map(pkg => {
                     let benefitText = rechargeType === 'direct' && pkg.benefits ? (pkg.benefits[selectedCardOperatorKey === '011' ? etisalatOption : orangeOption] || `يعطيك ${pkg.benefits.default_credit}`) : null;
                     const displayName = (pkg.name && pkg.name.trim()) ? pkg.name : `كارت فكة ${pkg.price} ج.م`;
+                    const imageUrlToShow = pkg.imageUrl || product.imageUrl;
                     return React.createElement("button", {
                         key: `${pkg.price}-${pkg.cardValue}`, type: "button", onClick: () => setSelectedPackage(pkg),
                         className: `p-2 text-center rounded-xl border-2 ${selectedPackage?.cardValue === pkg.cardValue && selectedPackage?.price === pkg.price ? 'border-primary bg-primary/5' : 'border-light-300 dark:border-dark-600'}`
                     },
-                        React.createElement("img", { src: product.imageUrl, alt: displayName, className: "w-full h-16 object-contain mb-2", loading: "lazy" }),
+                        imageUrlToShow && React.createElement("img", { src: getImageUrl(imageUrlToShow), alt: displayName, className: "w-full h-16 object-contain mb-2", loading: "lazy" }),
                         React.createElement("p", { className: "font-bold text-md" }, displayName),
                         React.createElement("div", { className: "text-xs text-dark-600 mt-1" },
                             rechargeType === 'code' && (pkg.benefits ? renderGroupedBenefits(pkg.benefits) : `يعطيك رصيد ${pkg.cardValue} ج.م`),

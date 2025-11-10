@@ -9,14 +9,27 @@ const ShippingForm = ({
     availableCities,
     addressDetails,
     setAddressDetails,
-    renderError
+    renderError,
+    currentUser,
+    applySavedAddress
 }) => {
     const inputClassName = "w-full p-2.5 rounded-md border border-light-300 dark:border-dark-600 bg-white dark:bg-dark-700 text-dark-900 dark:text-dark-50 focus:ring-primary focus:border-primary transition-colors text-sm sm:text-base";
     const labelClassName = "block text-sm font-medium mb-1 text-dark-800 dark:text-dark-100";
+    const hasSavedAddress = currentUser?.defaultShippingAddress && currentUser.defaultShippingAddress.address;
+
 
     return (
         React.createElement(React.Fragment, null,
-            React.createElement("h3", { className: "text-lg font-semibold text-dark-900 dark:text-dark-50 border-b border-light-300 dark:border-dark-600 pb-2 mb-3 pt-2" }, "بيانات الشحن (للمنتجات المادية)"),
+            React.createElement("div", { className: "flex justify-between items-center mb-3 border-b border-light-300 dark:border-dark-600 pb-2" },
+                React.createElement("h3", { className: "text-lg font-semibold text-dark-900 dark:text-dark-50" }, "بيانات الشحن (للمنتجات المادية)"),
+                hasSavedAddress && (
+                    React.createElement("button", {
+                        type: "button",
+                        onClick: applySavedAddress,
+                        className: "text-sm font-semibold text-primary hover:underline flex-shrink-0 pr-4"
+                    }, "استخدام عنواني المحفوظ")
+                )
+            ),
             React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4" },
                 React.createElement("div", null,
                     React.createElement("label", { htmlFor: "governorate-select", className: labelClassName }, "* المحافظة"),

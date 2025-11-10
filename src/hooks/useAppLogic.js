@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useProducts } from './useProducts.js';
 import { useCart } from './useCart.js';
 import { useAuth } from './useAuth.js';
@@ -6,18 +6,29 @@ import { useUI } from './useUI.js';
 import { useNotificationsAndBanners } from './useNotificationsAndBanners.js';
 import { useCheckout } from './useCheckout.js';
 import { useWishlist } from './useWishlist.js';
-import { ProductCategory } from '../constants/index.js';
+import { ProductCategory, CATEGORIES } from '../constants/index.js';
+import { useAuthHandlers } from './useAuthHandlers.js';
+
 
 export const useAppLogic = () => {
     const uiState = useUI();
-    const { setToastMessage, setRecentlyViewedIds, setActivePopover } = uiState;
+    const { setToastMessage, setRecentlyViewedIds, setActivePopover, setAutocompleteSuggestions } = uiState;
     
     const { 
         currentUser, isLoginModalOpen, setIsLoginModalOpen, 
         pendingActionAfterLogin, setPendingActionAfterLogin,
         handleLoginSuccess, handleLogout, handleUpdateCurrentUserAddress,
-        handleUpdateUserProfileData
+        handleUpdateUserProfileData,
+        handleChangePassword
     } = useAuth(setToastMessage);
+
+    const { ...otherHandlers } = useAuthHandlers({
+        onLoginSuccess: handleLoginSuccess,
+        setError: (msg) => setToastMessage({ text: msg, type: 'error' }),
+        setSuccessMessage: (msg) => setToastMessage({ text: msg, type: 'success' }),
+        setIsLoading: () => {}, // Handled locally in components
+    });
+
 
     const { wishlistItems, handleToggleWishlist } = useWishlist(currentUser, setIsLoginModalOpen, setPendingActionAfterLogin, setToastMessage);
 
@@ -46,7 +57,7 @@ export const useAppLogic = () => {
         handleResetFilters,
         filterCounts,
         discounts,
-    } = useProducts(setToastMessage, uiState.selectedCategory, uiState.showAllOffersView);
+    } = useProducts(setToastMessage, uiState.selectedCategory, uiState.showAllOffersView, currentUser);
     
     const [comparisonList, setComparisonList] = useState([]);
 
@@ -249,14 +260,44 @@ export const useAppLogic = () => {
         if(fetchAnnouncements) fetchAnnouncements();
     }, [fetchProductsData, fetchAnnouncements]);
 
-
-    React.useEffect(() => {
+    useEffect(() => {
         let unsubscribe = () => {};
         if (currentUser && setupUserNotificationsListener) {
             unsubscribe = setupUserNotificationsListener(currentUser);
         }
         return () => unsubscribe();
     }, [currentUser, setupUserNotificationsListener]);
+    
+    useEffect(() => {
+        if (searchTerm.length < 2) {
+            setAutocompleteSuggestions([]);
+            return;
+        }
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        const productSuggestions = allProducts
+            .filter(p => 
+                (p.arabicName && p.arabicName.toLowerCase().includes(lowerCaseSearchTerm)) ||
+                (p.englishName && p.englishName.toLowerCase().includes(lowerCaseSearchTerm)) ||
+                (p.brand && p.brand.toLowerCase().includes(lowerCaseSearchTerm))
+            )
+            .slice(0, 5)
+            .map(p => ({
+                id: p.id,
+                name: p.arabicName,
+                type: 'product',
+                imageUrl: p.imageUrl,
+                price: p.discountPrice || p.price
+            }));
+        const categorySuggestions = CATEGORIES
+            .filter(c => c.id !== 'All' && c.arabicName.toLowerCase().includes(lowerCaseSearchTerm))
+            .map(c => ({
+                id: c.id,
+                name: c.arabicName,
+                type: 'category',
+                imageUrl: null
+            }));
+        setAutocompleteSuggestions([...productSuggestions, ...categorySuggestions]);
+    }, [searchTerm, allProducts, setAutocompleteSuggestions]);
     
     const handleSelectCategory = useCallback((categoryId) => {
         uiState.setSelectedCategory(categoryId || ProductCategory.All);
@@ -283,8 +324,10 @@ export const useAppLogic = () => {
         handleFilterChange, handlePriceRangeChange, handleResetFilters,
         filterCounts, checkoutPayload, handleCheckoutModalDataReset, handleOrderCompletion, 
         pendingActionAfterLogin, setPendingActionAfterLogin, handleUpdateCurrentUserAddress,
-        handleUpdateUserProfileData, comparisonList, comparisonProducts, handleToggleCompare, handleClearCompare,
+        handleUpdateUserProfileData, handleChangePassword,
+        comparisonList, comparisonProducts, handleToggleCompare, handleClearCompare,
         cartSubtotal, totalSavedFromProductDiscounts, couponDiscount, cartGrandTotal,
         appliedCoupon, couponCodeInput, setCouponCodeInput, handleApplyCoupon, handleRemoveCoupon,
+        ...otherHandlers
     };
 };

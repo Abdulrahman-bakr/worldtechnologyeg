@@ -75,7 +75,7 @@ const ServicePackageFormModal = ({ isOpen, onClose, onSave, packageData }) => {
                 
                 React.createElement("h2", { className: "text-xl font-bold mb-4 border-b pb-2 text-dark-900 dark:text-light-50" }, packageData ? 'تعديل الباقة' : 'إضافة باقة جديدة'),
                 
-                React.createElement("form", { onSubmit: handleSubmit, className: "space-y-4 flex-grow overflow-y-auto pr-2" },
+                React.createElement("form", { id: "package-form", onSubmit: handleSubmit, className: "space-y-4 flex-grow overflow-y-auto pr-2" },
                     React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4" },
                         React.createElement("div", null, React.createElement("label", { className: labelClass }, "اسم الباقة (اختياري)"), React.createElement("input", { value: formData.name || '', onChange: e => setFormData({...formData, name: e.target.value}), placeholder: "e.g., كارت فكة 15", className: inputClass })),
                         React.createElement("div", null, React.createElement("label", { className: labelClass }, "السعر *"), React.createElement("input", { value: formData.price || '', onChange: e => setFormData({...formData, price: e.target.value}), placeholder: "السعر", type: "number", step: "0.01", className: inputClass, required: true })),
@@ -98,12 +98,11 @@ const ServicePackageFormModal = ({ isOpen, onClose, onSave, packageData }) => {
                             React.createElement("input", { type: "checkbox", checked: formData.showOnDirect, onChange: e => setFormData({...formData, showOnDirect: e.target.checked}), className: "form-checkbox" }),
                             "عرض في الشحن المباشر؟"
                         )
-                    ),
-
-                    React.createElement("div", { className: "pt-4 border-t border-light-300 dark:border-dark-600 flex justify-end gap-2" },
-                        React.createElement("button", { type: "button", onClick: onClose, className: `${btnClass} bg-light-200 dark:bg-dark-600` }, "إلغاء"),
-                        React.createElement("button", { type: "submit", className: `${btnClass} bg-primary text-white` }, "حفظ")
                     )
+                ),
+                React.createElement("div", { className: "pt-4 border-t border-light-300 dark:border-dark-600 mt-auto flex justify-end gap-2" },
+                    React.createElement("button", { type: "button", onClick: onClose, className: `${btnClass} bg-light-200 dark:bg-dark-600` }, "إلغاء"),
+                    React.createElement("button", { type: "submit", form: "package-form", className: `${btnClass} bg-primary text-white` }, "حفظ")
                 )
             )
         )

@@ -17,7 +17,7 @@ export const NavLinks = ({ navLinks, currentUser }) => {
 
     return (
         <nav
-            className="hidden md:flex items-center gap-x-4 lg:gap-x-7"
+            className="hidden lg:flex items-center gap-x-4 lg:gap-x-7"
             aria-label="Main navigation"
         >
             {navLinks.map((link) => {

@@ -19,7 +19,7 @@ export const MobileMenu = ({
         }`;
 
     return (
-        React.createElement("div", { className: "md:hidden pt-2 pb-4 border-t border-light-200/50 dark:border-dark-700/50 mobile-menu-bg" },
+        React.createElement("div", { className: "xl:hidden pt-2 pb-4 border-t border-light-200/50 dark:border-dark-700/50 mobile-menu-bg" },
             React.createElement("nav", { className: "flex flex-col space-y-2 px-2" },
                 React.createElement("form", { onSubmit: handleSearchFormSubmit, className: "relative mb-2", role: "search" },
                     React.createElement("input", {

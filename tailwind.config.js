@@ -57,6 +57,7 @@ module.exports = {
         'toast-in': 'toastIn 0.3s ease-out forwards',
         'toast-out': 'toastOut 0.3s ease-in forwards',
         'cart-shake': 'cartShake 0.82s cubic-bezier(.36,.07,.19,.97) both',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
         fadeInUp: {
@@ -113,6 +114,16 @@ module.exports = {
           '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
           '40%, 60%': { transform: 'translate3d(4px, 0, 0)' },
         },
+        pulse: {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.8', transform: 'scale(1.05)' },
+        }
+      },
+      boxShadow: {
+        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.08)',
+        'elevated': '0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 0 20px 0 rgba(0, 0, 0, 0.05)',
+        'dark-soft': '0 4px 20px -2px rgba(0, 0, 0, 0.3)',
+        'dark-elevated': '0 20px 40px -10px rgba(0, 0, 0, 0.4), 0 0 20px 0 rgba(0, 0, 0, 0.2)',
       }
     }
   },

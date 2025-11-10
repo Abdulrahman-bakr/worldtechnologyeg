@@ -1,16 +1,46 @@
 // A simple and safe function to convert a specific markdown subset to HTML
 export const markdownToHtml = (text) => {
     if (!text) return '';
-    let html = text;
-
-    // Bold: **text** -> <strong>text</strong>
-    // This regex handles multiple lines and ensures it doesn't greedily match across multiple bolds.
-    html = html.replace(/\*\*(.*?)\*\*/gs, '<strong>$1</strong>');
-
-    // Newlines: \n -> <br />
-    // This ensures that line breaks entered by the user are preserved in the HTML output.
-    html = html.replace(/\n/g, '<br />');
     
+    // This is a simple parser that handles paragraphs, links, bold, and lists.
+    // It's designed to be safe for streaming, as it processes the whole text on each chunk.
+    const blocks = text.split(/(\n\n+)/); // Split by one or more blank lines, keeping the separator
+    
+    const html = blocks.map(block => {
+        if (block.match(/^\s*$/)) return ''; // Ignore empty blocks
+
+        // Escape potential HTML in the block first
+        let processedBlock = block
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+        // Process links: [text](url)
+        processedBlock = processedBlock.replace(
+            /\[(.*?)\]\((.*?)\)/g,
+            (match, linkText, url) => {
+                const cleanUrl = url.replace(/&amp;/g, '&');
+                return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">${linkText}</a>`;
+            }
+        );
+
+        // Process bold: **text**
+        processedBlock = processedBlock.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        // Process unordered lists
+        if (processedBlock.match(/^\s*\*\s+/m)) {
+            const listItems = processedBlock.split('\n')
+                .map(item => item.replace(/^\s*\*\s+/, '').trim())
+                .filter(item => item)
+                .map(item => `<li>${item}</li>`)
+                .join('');
+            return `<ul>${listItems}</ul>`;
+        }
+
+        // If it's not a list, wrap it in a paragraph and convert single newlines to <br>
+        return `<p>${processedBlock.replace(/\n/g, '<br />')}</p>`;
+    }).join('');
+
     return html;
 };
 

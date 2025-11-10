@@ -1,3 +1,4 @@
+
 /**
  * Generates a user-friendly 9-digit custom order ID.
  * Format: DDMMXXXXX (e.g., 171091631)
@@ -107,6 +108,31 @@ export const generateWhatsAppMessage = ({
         }
     });
     message += `\n`;
+    
+    // --- Required Documents Note ---
+    if (itemsForCheckout.some(item => item.product?.dynamicServiceId === 'military_travel_permit')) {
+        const permitItem = itemsForCheckout.find(item => item.product?.dynamicServiceId === 'military_travel_permit');
+        const variantName = permitItem.serviceDetails?.packageName || '';
+        let docNeeded = '';
+        if (variantName.includes('أدى الخدمة')) {
+            docNeeded = 'شهادة الجيش';
+        } else if (variantName.includes('إعفاء')) {
+            docNeeded = 'شهادة الإعفاء';
+        } else if (variantName.includes('طالب')) {
+            docNeeded = 'خطاب تأجيل الدراسة';
+        }
+    
+        if (docNeeded) {
+            message += `*📄 مستندات مطلوبة:*\n`;
+            message += `يرجى إرسال صورة واضحة من *${docNeeded}* بعد تأكيد الطلب مباشرة لإتمام الإجراءات.\n\n`;
+        }
+    }
+    
+    if (itemsForCheckout.some(item => item.product?.dynamicServiceId === 'flight_ticket_booking')) {
+        message += `*📄 مستندات مطلوبة:*\n`;
+        message += `يرجى إرسال صورة واضحة من *جواز السفر* بعد تأكيد الطلب مباشرة لاستكمال إجراءات الحجز.\n\n`;
+    }
+
 
     // --- Order Notes ---
     if (orderNotes) {

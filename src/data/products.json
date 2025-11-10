@@ -1,4 +1,3 @@
-
 [
   {
     "id": "prod_1",
@@ -32,6 +31,7 @@
     "reviews": 120,
     "createdAt": "2023-10-26T10:00:00Z"
   },
+
   {
     "id": "prod_2",
     "arabicName": "كابل USB-C إلى Lightning",
@@ -61,6 +61,7 @@
     "reviews": 250,
     "createdAt": "2023-09-15T12:00:00Z"
   },
+
   {
     "id": "service_1",
     "arabicName": "شحن رصيد الموبايل",
@@ -79,6 +80,7 @@
         {"id": "phoneNumber", "label": "رقم الهاتف", "type": "tel"}
     ]
   },
+
   {
     "id": "service_2",
     "arabicName": "شحن لعبة PUBG Mobile",
@@ -99,5 +101,229 @@
     ],
     "packageSelectionStepTitle": "1. اختر باقة الشدات",
     "detailsStepTitle": "2. أدخل ID اللاعب"
+  },
+  {
+    "id": "service_playstation_cards",
+    "arabicName": "بطاقات هدايا بلايستيشن",
+    "englishName": "PlayStation Store Gift Cards",
+    "brand": "PlayStation",
+    "category": "GameTopUp",
+    "price": 0,
+    "stock": 1000,
+    "description": "اشحن محفظة PlayStation الخاصة بك لشراء الألعاب والإضافات والمزيد. اختر البطاقة المناسبة لحسابك (أمريكي، إماراتي، إلخ).",
+    "imageUrl": "https://i.postimg.cc/k4pG8bN0/playstation-cards-collection.png",
+    "imageUrls": [
+      "https://i.postimg.cc/k4pG8bN0/playstation-cards-collection.png"
+    ],
+    "isNew": true,
+    "isDynamicElectronicPayments": true,
+    "allowDirectPurchase": true,
+    "dynamicServiceType": "digital_code_topup",
+    "variants": [
+      {
+        "country": "الولايات المتحدة",
+        "countryCode": "US",
+        "flag": "https://i.postimg.cc/13VTX9v6/usa-flag.png",
+        "currency": "USD",
+        "cards": [
+          { "id": "psn_usa_10", "name": "10$", "price": 600.00, "originalValue": "10 USD", "popular": true },
+          { "id": "psn_usa_25", "name": "25$", "price": 1250.00, "originalValue": "25 USD" },
+          { "id": "psn_usa_50", "name": "50$", "price": 2500.00, "originalValue": "50 USD" }
+        ]
+      },
+      {
+        "country": "الإمارات",
+        "countryCode": "AE",
+        "flag": "https://i.postimg.cc/W4d8234S/uae-flag.png",
+        "currency": "AED",
+        "cards": [
+          { "id": "psn_uae_10", "name": "10$", "price": 520.00, "originalValue": "10 AED" },
+          { "id": "psn_uae_25", "name": "25$", "price": 1300.00, "originalValue": "25 AED", "popular": true }
+        ]
+      },
+       {
+        "country": "السعودية",
+        "countryCode": "SA",
+        "flag": "https://i.postimg.cc/0j1yJ1k3/saudi-flag.png",
+        "currency": "SAR",
+        "cards": [
+          { "id": "psn_sa_10", "name": "10$", "price": 500.00, "originalValue": "10 SAR" },
+          { "id": "psn_sa_20", "name": "20$", "price": 1000.00, "originalValue": "20 SAR" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "service_google_play_cards",
+    "arabicName": "بطاقات هدايا جوجل بلاي",
+    "englishName": "Google Play Gift Cards",
+    "brand": "Google Play",
+    "category": "GameTopUp",
+    "price": 0, "stock": 1000,
+    "description": "اشحن رصيدك في متجر جوجل بلاي لشراء التطبيقات، الألعاب، الأفلام، والكتب. تأكد من مطابقة منطقة البطاقة لمنطقة حسابك.",
+    "imageUrl": "https://i.postimg.cc/s2g2LpM5/google-play-logo.png",
+    "imageUrls": ["https://i.postimg.cc/s2g2LpM5/google-play-logo.png"],
+    "isNew": true, "isDynamicElectronicPayments": true, "allowDirectPurchase": true,
+    "dynamicServiceType": "digital_code_topup",
+    "variants": [
+      {
+        "country": "متجر الولايات المتحدة",
+        "countryCode": "US",
+        "flag": "https://i.postimg.cc/13VTX9v6/usa-flag.png",
+        "cards": [
+          { "id": "gp_usa_10", "name": "10$", "price": 500.00, "originalValue": "10 USD", "popular": true },
+          { "id": "gp_usa_25", "name": "25$", "price": 1250.00, "originalValue": "25 USD" },
+          { "id": "gp_usa_50", "name": "50$", "price": 2500.00, "originalValue": "50 USD" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "service_razer_gold_cards",
+    "arabicName": "بطاقات ريزر جولد",
+    "englishName": "Razer Gold Gift Cards",
+    "brand": "Razer Gold",
+    "category": "GameTopUp",
+    "price": 0, "stock": 1000,
+    "description": "العملة الافتراضية الموحدة للاعبين في جميع أنحاء العالم. استخدم ريزر جولد لشراء الألعاب والمحتوى داخل اللعبة بأسعار أفضل.",
+    "imageUrl": "https://i.postimg.cc/PqJsx2wY/razer-gold-logo-sq.png",
+    "imageUrls": ["https://i.postimg.cc/PqJsx2wY/razer-gold-logo-sq.png"],
+    "isNew": true, "isDynamicElectronicPayments": true, "allowDirectPurchase": true,
+    "dynamicServiceType": "digital_code_topup",
+    "variants": [
+        {
+            "country": "عالمي",
+            "countryCode": "GLOBAL",
+            "flag": "https://i.postimg.cc/PqJsx2wY/razer-gold-logo-sq.png",
+            "cards": [
+              { "id": "rg_global_5", "name": "5$", "price": 250.00, "originalValue": "5 USD" },
+              { "id": "rg_global_10", "name": "10$", "price": 500.00, "originalValue": "10 USD", "popular": true }
+            ]
+        }
+    ]
+  },
+  {
+    "id": "service_meta_verified",
+    "arabicName": "توثيق حسابات السوشيال ميديا",
+    "englishName": "Social Media Verification",
+    "brand": "خدمات متنوعة",
+    "category": "ElectronicPayments",
+    "price": 650,
+    "discountPrice": null,
+    "stock": 1000,
+    "description": "ارفع مستوى مصداقيتك وأمانك الرقمي مع خدمة **توثيق حسابات السوشيال ميديا** المتكاملة. هذه الخدمة، المقدمة ضمن فئة ElectronicPayments، صُممت خصيصًا للأفراد والعلامات التجارية الطموحة التي تسعى للتميز والحماية على المنصات الرقمية. **ما الذي تحصل عليه عند توثيق حساباتك؟** * **شارة التحقق الزرقاء (العلامة الزرقاء):** احصل على الأيقونة المرموقة التي تثبت أصالتك وتميزك، مما يعزز ثقة متابعيك وجمهورك في محتواك وهويتك. كن موثوقًا ومعترفًا به في عالم رقمي مليء بالانتحال. * **حماية استباقية متقدمة:** وداعًا للقلق! تتمتع حساباتك بحماية استباقية قوية ضد محاولات الانتحال، اختراق الحسابات، والاستغلال، مما يضمن لك راحة البال ويحافظ على سمعتك الرقمية. * **دعم مباشر وشخصي:** ليس عليك مواجهة التحديات وحدك. فريق دعم متخصص ومباشر سيكون في خدمتك لمساعدتك في أي استفسارات أو مشكلات قد تواجهها، لضمان استمرارية أمانك وسلاسة تجربتك. **كيف تعمل الخدمة؟** نوفر لك هذه المميزات الحصرية من خلال **دفع اشتراك شهري للتوثيق**، مما يضمن استمرارية الحماية والدعم والتواجد المميز لحساباتك على مدار العام. استثمر في سمعتك الرقمية وأمانك الآن. **ابدأ رحلة التوثيق اليوم واجعل حضورك على السوشيال ميديا لا يُضاهى!**",
+    "variants": [
+      {
+        "name": "فيسبوك (Meta Verified)",
+        "price": 650.00,
+        "imageUrl": "https://i.postimg.cc/J06zS8dC/facebook-logo.png"
+      },
+      {
+        "name": "انستجرام (Meta Verified)",
+        "price": 650.00,
+        "imageUrl": "https://i.postimg.cc/L8y2kRk2/instagram-logo.png"
+      },
+      {
+        "name": "اكس (X Premium)",
+        "price": 700.00,
+        "imageUrl": "https://i.postimg.cc/kgjVMf6G/x-logo.png"
+      }
+    ],
+    "specifications": {
+      "الخدمة": "دفع اشتراك شهري للتوثيق",
+      "المميزات": "شارة التحقق, حماية استباقية, دعم مباشر"
+    },
+    "features": [
+      "دفع آمن ومضمون لخدمات التحقق.",
+      "الحصول على علامة التوثيق.",
+      "حماية معززة للحساب.",
+      "وصول مباشر لدعم العملاء."
+    ],
+    "imageUrls": [
+      "https://i.postimg.cc/wT3dYgV6/social-media-verification-badge.png",
+      "https://i.postimg.cc/J06zS8dC/facebook-logo.png",
+      "https://i.postimg.cc/L8y2kRk2/instagram-logo.png",
+      "https://i.postimg.cc/kgjVMf6G/x-logo.png"
+    ],
+    "imageUrl": "https://i.postimg.cc/wT3dYgV6/social-media-verification-badge.png",
+    "isNew": true,
+    "isDynamicElectronicPayments": true,
+    "allowDirectPurchase": false,
+    "dynamicServiceType": "meta_verified_payment",
+    "dynamicServiceId": "meta_verified_payment",
+    "requiredFields": [
+      {
+        "id": "profileLink",
+        "label": "رابط الحساب (Profile Link)",
+        "type": "url"
+      },
+      {
+        "id": "contact_number",
+        "label": "رقم واتساب للتواصل*",
+        "type": "tel",
+        "placeholder": "01xxxxxxxxx"
+      }
+    ],
+    "createdAt": "2024-07-27T10:00:00Z"
+  },
+
+  {
+    "id": "service_military_permit",
+    "arabicName": "تصريح بالإذن للسفر (التجنيد)",
+    "englishName": "Military Travel Permit",
+    "brand": "خدمات حكومية",
+    "category": "ElectronicPayments",
+    "price": 150,
+    "stock": 1000,
+    "description": "استخراج تصريح بالإذن للسفر من إدارة التجنيد والتعبئة إلكترونيًا. حدد موقفك من التجنيد، وجهة السفر، والغرض من السفر، وسنقوم بإنهاء الإجراءات.",
+    "variants": [
+      { "name": "أدى الخدمة", "price": 150.00, "id": "completed" },
+      { "name": "إعفاء", "price": 150.00, "id": "exempted" },
+      { "name": "طالب خارج الجمهورية", "price": 150.00, "id": "student_abroad" },
+      { "name": "إعفاء (طائرات/سفن)", "price": 150.00, "id": "exempted_crew" },
+      { "name": "أدى الخدمة (طائرات/سفن)", "price": 150.00, "id": "completed_crew" }
+    ],
+    "imageUrl": "/assets/services/military-permit.png",
+    "imageUrls": ["/assets/services/military-permit.png"],
+    "isNew": true,
+    "isDynamicElectronicPayments": true,
+    "allowDirectPurchase": false,
+    "dynamicServiceType": "military_travel_permit",
+    "dynamicServiceId": "military_travel_permit",
+    "packageSelectionStepTitle": "1. حدد موقفك من التجنيد",
+    "detailsStepTitle": "2. أدخل بيانات السفر"
+  },
+  {
+    "id": "service_flight_booking",
+    "arabicName": "حجز تذاكر الطيران",
+    "englishName": "Flight Ticket Booking",
+    "brand": "خدماتنا",
+    "category": "ElectronicPayments",
+    "price": 0,
+    "stock": 1000,
+    "description": "خدمة حجز تذاكر الطيران لجميع الوجهات. اختر وجهتك وتواريخك، وسنتواصل معك عبر واتساب لتأكيد أفضل الأسعار وإتمام الحجز. مطلوب إرسال صورة من جواز السفر عبر واتساب بعد إرسال الطلب.",
+    "imageUrl": "https://i.postimg.cc/8Ptn7Wz0/flight-ticket.png",
+    "isNew": true,
+    "isDynamicElectronicPayments": true,
+    "allowDirectPurchase": true,
+    "dynamicServiceType": "flight_ticket_booking",
+    "dynamicServiceId": "flight_ticket_booking"
+  },
+  {
+    "id": "service_interior_permit",
+    "arabicName": "تصريح سفر (وزارة الداخلية)",
+    "englishName": "MOI Travel Permit",
+    "brand": "خدمات حكومية",
+    "category": "ElectronicPayments",
+    "price": 200,
+    "stock": 1000,
+    "description": "استخراج تصريح السفر من وزارة الداخلية إلكترونيًا. سواء كانت هذه هي المرة الأولى لك أو لديك حساب مسبق، يمكننا مساعدتك في إنجاز طلبك بسرعة وسهولة.",
+    "imageUrl": "/assets/services/moi-permit.png",
+    "imageUrls": ["/assets/services/moi-permit.png"],
+    "isNew": true,
+    "isDynamicElectronicPayments": true,
+    "allowDirectPurchase": true,
+    "dynamicServiceType": "interior_travel_permit",
+    "dynamicServiceId": "interior_travel_permit"
   }
 ]

@@ -51,7 +51,8 @@ export const Router = () => {
                         setToastMessage({ text: "يرجى تسجيل الدخول أولاً لإضافة تقييم.", type: 'info' });
                     },
                     allDigitalPackages: allDigitalPackages,
-                    allFeeRules: allFeeRules
+                    allFeeRules: allFeeRules,
+                    setToastMessage: setToastMessage
                 });
             case 'terms':
                 return React.createElement(TermsView, { onBack: handleBackFromSubView });
